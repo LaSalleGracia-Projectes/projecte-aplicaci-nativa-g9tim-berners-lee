@@ -19,5 +19,14 @@ fun EntryPoint(
         composable(Routes.Pelis.route) {
             PelisScreen(navigationController, apiViewModel)
         }
+        composable(Routes.Listas.route) {
+            ListView(navigationController, apiViewModel)
+        }
+        composable(Routes.Notificaciones.route) {
+            NotificationView(navigationController, apiViewModel)
+        }
+        composable(Routes.Perfil.route) {
+            ProfileView(navigationController, apiViewModel)
+        }
     }
 }
