@@ -1,6 +1,7 @@
 package com.example.critflix.view
 
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -8,9 +9,12 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountCircle
+import androidx.compose.material.icons.filled.AddAlert
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.List
+import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Notifications
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.runtime.Composable
@@ -22,11 +26,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
+import com.example.critflix.R
 import com.example.critflix.model.Data
 import com.example.critflix.model.PelisPopulares
 import com.example.critflix.viewmodel.APIViewModel
@@ -61,11 +67,49 @@ fun PelisScreen(
                 )
             }
         } else {
-            LazyColumn(
-                contentPadding = innerPadding
-            ) {
-                items(pelis.results) { peli ->
-                    PelisItem(navController, peli)
+            Column (
+                modifier = Modifier
+                    .fillMaxSize(),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ){
+                Row (
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(60.dp)
+                        .padding(horizontal = 16.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ){
+                    Image(
+                        painter = painterResource(id = R.drawable.critiflix),
+                        contentDescription = "Logo",
+                        modifier = Modifier
+                            .size(50.dp)
+                    )
+                    // Iconos de la derecha
+                    Row(
+                        horizontalArrangement = Arrangement.spacedBy(16.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Search,
+                            contentDescription = "Busqueda",
+                            modifier = Modifier.size(40.dp)
+                        )
+
+                        Icon(
+                            imageVector = Icons.Default.AddAlert,
+                            contentDescription = "Anuncios",
+                            modifier = Modifier.size(40.dp)
+                        )
+                    }
+                }
+                LazyColumn(
+                    contentPadding = innerPadding
+                ) {
+                    items(pelis.results) { peli ->
+                        PelisItem(navController, peli)
+                    }
                 }
             }
         }
@@ -79,6 +123,7 @@ fun BottomNavigationBar(navController: NavHostController) {
             icon = { Icon(imageVector = Icons.Default.Home, contentDescription = "Home") },
             label = { Text("Home") },
             selected = false,
+            modifier = Modifier.size(40.dp),
             onClick = {
                 navController.navigate(Routes.Pelis.route)
             }
@@ -88,6 +133,7 @@ fun BottomNavigationBar(navController: NavHostController) {
             icon = { Icon(imageVector = Icons.Default.List, contentDescription = "Lists") },
             label = { Text("Listas") },
             selected = false,
+            modifier = Modifier.size(40.dp),
             onClick = {
                 navController.navigate(Routes.Listas.route)
             }
@@ -97,6 +143,7 @@ fun BottomNavigationBar(navController: NavHostController) {
             icon = { Icon(imageVector = Icons.Default.Notifications, contentDescription = "Notifications") },
             label = { Text("Notificaciones") },
             selected = false,
+            modifier = Modifier.size(40.dp),
             onClick = {
                 navController.navigate(Routes.Notificaciones.route)
             }
@@ -106,6 +153,7 @@ fun BottomNavigationBar(navController: NavHostController) {
             icon = { Icon(imageVector = Icons.Default.AccountCircle, contentDescription = "Profile") },
             label = { Text("Perfil") },
             selected = false,
+            modifier = Modifier.size(40.dp),
             onClick = {
                 navController.navigate(Routes.Perfil.route)
             }
