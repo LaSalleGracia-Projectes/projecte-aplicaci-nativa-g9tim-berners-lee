@@ -17,7 +17,7 @@ class APIViewModel : ViewModel() {
     private val _pelis = MutableLiveData<Data>()
     val pelis = _pelis
 
-    fun getCharacters(){
+    fun getPelis(){
         CoroutineScope(Dispatchers.IO).launch {
             val response = repository.getAllPelis()
             withContext(Dispatchers.Main) {
