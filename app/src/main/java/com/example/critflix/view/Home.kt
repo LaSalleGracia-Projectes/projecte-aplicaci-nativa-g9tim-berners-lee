@@ -20,6 +20,7 @@ import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
@@ -83,6 +84,11 @@ fun TopBar(navController: NavHostController) {
         modifier = Modifier
             .fillMaxWidth()
             .height(60.dp)
+            .background(
+                brush = Brush.linearGradient(
+                    colors = listOf(Color.Cyan, Color(0xFFFFA500))
+                )
+            )
             .padding(horizontal = 16.dp),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically

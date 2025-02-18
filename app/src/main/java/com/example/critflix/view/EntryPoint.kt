@@ -18,6 +18,12 @@ fun EntryPoint(
         navController = navigationController,
         startDestination = Routes.Home.route
     ) {
+        composable(Routes.Registro.route) {
+            Registro(navigationController)
+        }
+        composable(Routes.Perfil.route) {
+            InicioSesion(navigationController)
+        }
         composable(Routes.Home.route) {
             HomeScreen(navigationController, apiViewModel)
         }
