@@ -65,7 +65,7 @@ fun InicioSesion(navController: NavHostController){
             placeholder = { Text("Nombre de Usuario") },
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(vertical = 8.dp)
+                .padding(vertical = 15.dp)
                 .clip(RoundedCornerShape(4.dp))
         )
 
@@ -77,7 +77,7 @@ fun InicioSesion(navController: NavHostController){
             visualTransformation = PasswordVisualTransformation(),
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(vertical = 8.dp)
+                .padding(vertical = 15.dp)
                 .clip(RoundedCornerShape(4.dp))
         )
 

@@ -12,4 +12,5 @@ sealed class Routes(val route: String) {
     }
     object Busqueda : Routes("busqueda")
     object Anuncios : Routes("anuncios")
+    object InfoNotificaciones : Routes("infonotificaciones")
 }
