@@ -6,19 +6,23 @@ import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.navigation.compose.rememberNavController
 import com.example.critflix.ui.theme.CritflixTheme
 import com.example.critflix.view.EntryPoint
 import com.example.critflix.viewmodel.*
 
 class MainActivity : ComponentActivity() {
-
     private val apiViewModel: APIViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            CritflixTheme {
+            val isDarkTheme = isSystemInDarkTheme()
+
+            CritflixTheme(
+                darkTheme = isDarkTheme
+            ) {
                 Surface(
                     color = MaterialTheme.colorScheme.background
                 ) {
