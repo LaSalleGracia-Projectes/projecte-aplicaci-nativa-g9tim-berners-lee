@@ -21,7 +21,7 @@ fun EntryPoint(
         composable(Routes.Registro.route) {
             Registro(navigationController)
         }
-        composable(Routes.Perfil.route) {
+        composable(Routes.InicioSesion.route) {
             InicioSesion(navigationController)
         }
         composable(Routes.Home.route) {
