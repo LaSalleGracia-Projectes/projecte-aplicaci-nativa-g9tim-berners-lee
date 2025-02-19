@@ -20,6 +20,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.example.critflix.R
+import com.example.critflix.Routes
 import com.example.critflix.viewmodel.APIViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -33,7 +34,7 @@ fun ProfileView(navController: NavHostController, apiViewModel: APIViewModel) {
             TopAppBar(
                 title = { Text("Mi Perfil") },
                 actions = {
-                    IconButton(onClick = { /* TODO: Search action */ }) {
+                    IconButton(onClick = { navController.navigate(Routes.Busqueda.route) }) {
                         Icon(Icons.Default.Search, contentDescription = "Buscar")
                     }
                     IconButton(onClick = { showOptionsBottomSheet = true }) {

@@ -119,7 +119,7 @@ fun Registro(navController: NavHostController) {
                 "Iniciar Sesión",
                 fontSize = 14.sp,
                 color = Color.Blue,
-                modifier = Modifier.clickable { }
+                modifier = Modifier.clickable { navController.navigate(Routes.InicioSesion.route) }
             )
         }
     }

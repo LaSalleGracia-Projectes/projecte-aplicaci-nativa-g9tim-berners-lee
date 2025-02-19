@@ -1,7 +1,7 @@
 package com.example.critflix
 
 sealed class Routes(val route: String) {
-    object InicioSesion : Routes("inicioSesion")
+    object InicioSesion : Routes("iniciosesion")
     object Registro : Routes("registro")
     object Home : Routes("home")
     object Listas : Routes("listas")
