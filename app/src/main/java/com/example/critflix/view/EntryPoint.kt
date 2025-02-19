@@ -16,7 +16,7 @@ fun EntryPoint(
 ) {
     NavHost(
         navController = navigationController,
-        startDestination = Routes.Home.route
+        startDestination = Routes.Registro.route
     ) {
         composable(Routes.Registro.route) {
             Registro(navigationController)

@@ -84,11 +84,6 @@ fun TopBar(navController: NavHostController) {
         modifier = Modifier
             .fillMaxWidth()
             .height(60.dp)
-            .background(
-                brush = Brush.linearGradient(
-                    colors = listOf(Color.Cyan, Color(0xFFFFA500))
-                )
-            )
             .padding(horizontal = 16.dp),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
@@ -202,44 +197,29 @@ fun BotonFiltro(text: String, selected: Boolean) {
 @Composable
 fun PeliPopular(pelicula: PelisPopulares, navController: NavHostController) {
     val baseImageUrl = "https://image.tmdb.org/t/p/original"
-    val backdropUrl = baseImageUrl + (pelicula.backdrop_path ?: pelicula.poster_path)
+    val posterUrl = baseImageUrl + pelicula.poster_path
 
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .height(220.dp)
-            .padding(16.dp)
-            .clip(RoundedCornerShape(8.dp))
-            .clickable { navController.navigate(Routes.Info.createRoute(pelicula.id)) }
+            .padding(horizontal = 16.dp)
+            .padding(vertical = 8.dp)
     ) {
-        GlideImage(
-            model = backdropUrl,
-            contentDescription = pelicula.title,
-            contentScale = ContentScale.Crop,
-            modifier = Modifier.fillMaxSize()
-        )
-
-        Box(
+        Column(
             modifier = Modifier
-                .fillMaxSize()
-                .background(
-                    brush = androidx.compose.ui.graphics.Brush.verticalGradient(
-                        colors = listOf(
-                            Color.Transparent,
-                            Color.Black.copy(alpha = 0.7f)
-                        ),
-                        startY = 50f
-                    )
-                )
-        )
-
-        Text(
-            text = pelicula.title,
-            style = MaterialTheme.typography.headlineSmall.copy(fontWeight = FontWeight.Bold, color = Color.White),
-            modifier = Modifier
-                .align(Alignment.BottomStart)
-                .padding(16.dp)
-        )
+                .fillMaxWidth()
+                .clip(RoundedCornerShape(12.dp))
+                .clickable { navController.navigate(Routes.Info.createRoute(pelicula.id)) }
+        ) {
+            GlideImage(
+                model = posterUrl,
+                contentDescription = pelicula.title,
+                contentScale = ContentScale.Crop,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .aspectRatio(2f/3f)
+            )
+        }
     }
 }
 

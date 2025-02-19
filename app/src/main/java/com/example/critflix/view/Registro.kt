@@ -22,10 +22,11 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import androidx.navigation.navArgument
 import com.example.critflix.R
+import com.example.critflix.Routes
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun Registro(/*navController: NavHostController*/) {
+fun Registro(navController: NavHostController) {
     var nombreUsuario by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
     var contrasena by remember { mutableStateOf("") }
@@ -94,7 +95,7 @@ fun Registro(/*navController: NavHostController*/) {
 
         // Register button
         Button(
-            onClick = { },
+            onClick = { navController.navigate(Routes.Home.route) },
             modifier = Modifier
                 .fillMaxWidth()
                 .height(50.dp),
@@ -122,10 +123,4 @@ fun Registro(/*navController: NavHostController*/) {
             )
         }
     }
-}
-
-@Preview(showBackground = true, showSystemUi = true)
-@Composable
-fun RegistroPreview() {
-    Registro()
 }
