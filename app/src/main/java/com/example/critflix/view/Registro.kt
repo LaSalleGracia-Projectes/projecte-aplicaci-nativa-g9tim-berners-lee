@@ -48,35 +48,32 @@ fun Registro(navController: NavHostController) {
 
         Spacer(modifier = Modifier.height(40.dp))
 
-        // Username field
         OutlinedTextField(
             value = nombreUsuario,
             onValueChange = { nombreUsuario = it },
             placeholder = { Text("Nombre de Usuario") },
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(vertical = 8.dp)
+                .padding(vertical = 15.dp)
                 .clip(RoundedCornerShape(4.dp)),
             colors = TextFieldDefaults.outlinedTextFieldColors(
                 containerColor = Color.LightGray.copy(alpha = 0.3f)
             )
         )
 
-        // Email field
         OutlinedTextField(
             value = email,
             onValueChange = { email = it },
             placeholder = { Text("Email") },
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(vertical = 8.dp)
+                .padding(vertical = 15.dp)
                 .clip(RoundedCornerShape(4.dp)),
             colors = TextFieldDefaults.outlinedTextFieldColors(
                 containerColor = Color.LightGray.copy(alpha = 0.3f)
             )
         )
 
-        // Password field
         OutlinedTextField(
             value = contrasena,
             onValueChange = { contrasena = it },
@@ -84,7 +81,7 @@ fun Registro(navController: NavHostController) {
             visualTransformation = PasswordVisualTransformation(),
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(vertical = 8.dp)
+                .padding(vertical = 15.dp)
                 .clip(RoundedCornerShape(4.dp)),
             colors = TextFieldDefaults.outlinedTextFieldColors(
                 containerColor = Color.LightGray.copy(alpha = 0.3f)
@@ -93,9 +90,8 @@ fun Registro(navController: NavHostController) {
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Register button
         Button(
-            onClick = { navController.navigate(Routes.Home.route) },
+            onClick = { navController.navigate(Routes.InicioSesion.route) },
             modifier = Modifier
                 .fillMaxWidth()
                 .height(50.dp),
