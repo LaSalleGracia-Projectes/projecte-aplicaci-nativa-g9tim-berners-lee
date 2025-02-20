@@ -1,7 +1,6 @@
 package com.example.critflix.api
 
 import com.example.critflix.model.Data
-import com.example.critflix.model.PelisPopulares
 import okhttp3.OkHttpClient
 import retrofit2.Response
 import retrofit2.Retrofit
@@ -14,7 +13,7 @@ interface APIInterface {
     suspend fun getPelis(
         @Query("api_key") apiKey: String = "42b10f869a4ae1b57a4acf356320b942",
         @Query("language") language: String = "es-ES",
-        @Query("page") page: Int = 1
+        @Query("page") page: Int
     ): Response<Data>
 
     companion object {
