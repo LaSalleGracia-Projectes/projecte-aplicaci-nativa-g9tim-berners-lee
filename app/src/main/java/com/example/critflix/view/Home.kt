@@ -44,10 +44,11 @@ import okio.utf8Size
 @Composable
 fun HomeScreen(navController: NavHostController, apiViewModel: APIViewModel) {
     val showLoading: Boolean by apiViewModel.loading.observeAsState(true)
-    val pelis: Data by apiViewModel.pelis.observeAsState(Data(0, emptyList(), 0, 0))
+    val peliculas: List<PelisPopulares> by apiViewModel.pelis.observeAsState(emptyList())
+    val error: String? by apiViewModel.error.observeAsState()
 
     LaunchedEffect(Unit) {
-        apiViewModel.getPelis()
+        apiViewModel.getPelis(totalMoviesNeeded = 50)
     }
 
     Scaffold(
@@ -67,10 +68,22 @@ fun HomeScreen(navController: NavHostController, apiViewModel: APIViewModel) {
                     color = MaterialTheme.colorScheme.secondary
                 )
             }
+        } else if (error != null) {
+            Box(
+                modifier = Modifier.fillMaxSize(),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = error ?: "Error desconocido",
+                    color = Color.Red,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.padding(16.dp)
+                )
+            }
         } else {
             HomeContent(
                 innerPadding = innerPadding,
-                peliculas = pelis.results,
+                peliculas = peliculas,
                 navController = navController
             )
         }
@@ -121,7 +134,11 @@ fun TopBar(navController: NavHostController) {
 
 // Estructura home
 @Composable
-fun HomeContent(innerPadding: PaddingValues, peliculas: List<PelisPopulares>, navController: NavHostController) {
+fun HomeContent(
+    innerPadding: PaddingValues,
+    peliculas: List<PelisPopulares>,
+    navController: NavHostController
+) {
     val generos = listOf("Acción", "Comedia", "Drama", "Terror", "Ciencia Ficción")
     val peliculasMasPopulares = peliculas.sortedByDescending { it.popularity }
 
@@ -132,19 +149,25 @@ fun HomeContent(innerPadding: PaddingValues, peliculas: List<PelisPopulares>, na
             bottom = innerPadding.calculateBottomPadding() + 16.dp
         )
     ) {
-        // Funcion Boton Filtro
+        // Botones de Filtro
         item {
             BotonesFiltro()
         }
 
-        // Peli Popular
+        // Película más popular
         item {
-            PeliPopular(pelicula = peliculasMasPopulares.first(), navController = navController)
+            if (peliculasMasPopulares.isNotEmpty()) {
+                PeliPopular(pelicula = peliculasMasPopulares.first(), navController = navController)
+            }
         }
 
-        // Generos Carrusel
+        // Secciones por género
         items(generos) { genero ->
-            GeneroSeccion(genero = genero, peliculas = peliculasMasPopulares, navController = navController)
+            GeneroSeccion(
+                genero = genero,
+                peliculas = peliculasMasPopulares, // Pasamos todas las películas disponibles
+                navController = navController
+            )
         }
     }
 }
@@ -230,20 +253,30 @@ fun GeneroSeccion(genero: String, peliculas: List<PelisPopulares>, navController
             .fillMaxWidth()
             .padding(vertical = 8.dp)
     ) {
-        // Titulo de la sección
-        Text(
-            text = genero,
-            style = MaterialTheme.typography.titleMedium,
-            fontWeight = FontWeight.Bold,
-            modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
-        )
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp, vertical = 8.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            // Titulo de la sección
+            Text(
+                text = genero,
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Bold
+            )
+        }
 
         // Carrusel
         LazyRow(
             horizontalArrangement = Arrangement.spacedBy(8.dp),
             contentPadding = PaddingValues(horizontal = 16.dp)
         ) {
-            items(peliculas.take(10)) { pelicula ->
+            items(
+                items = peliculas.take(50),
+                key = { pelicula -> pelicula.id }
+            ) { pelicula ->
                 PeliCarrusel(pelicula = pelicula, navController = navController)
             }
         }
