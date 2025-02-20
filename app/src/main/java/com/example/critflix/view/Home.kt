@@ -77,22 +77,22 @@ fun HomeScreen(navController: NavHostController, apiViewModel: APIViewModel) {
     }
 }
 
-// Logo + 2 Iconos de la TopBar
 @Composable
 fun TopBar(navController: NavHostController) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .height(60.dp)
+            //.background(brush = Brush.horizontalGradient(listOf(Color.Green, Color.Black)))
             .padding(horizontal = 16.dp),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
         // Logo
         Image(
-            painter = painterResource(id = R.drawable.critiflix),
+            painter = painterResource(id = R.drawable.logo_critflix),
             contentDescription = "Logo",
-            modifier = Modifier.size(40.dp)
+            modifier = Modifier.size(50.dp)
         )
 
         // Iconos

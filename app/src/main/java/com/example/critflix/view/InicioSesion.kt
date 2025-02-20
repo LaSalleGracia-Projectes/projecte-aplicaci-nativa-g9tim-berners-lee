@@ -3,6 +3,7 @@ package com.example.critflix.view
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -36,40 +37,49 @@ import androidx.navigation.NavHostController
 import com.example.critflix.R
 import com.example.critflix.Routes
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun InicioSesion(navController: NavHostController){
-    var nombreUsuario by remember { mutableStateOf("") }
+fun InicioSesion(navController: NavHostController) {
+    var nombreUsuarioOcorreo by remember { mutableStateOf("") }
     var contrasena by remember { mutableStateOf("") }
 
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(16.dp),
+            .padding(horizontal = 24.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Image(
-            painter = painterResource(id = R.drawable.critiflix),
-            contentDescription = "Logo",
-            modifier = Modifier
-                .size(150.dp)
-                .padding(top = 30.dp, bottom = 40.dp)
-                .align(Alignment.Start)
-        )
-
-        Spacer(modifier = Modifier.height(40.dp))
-
-        // Username field
-        OutlinedTextField(
-            value = nombreUsuario,
-            onValueChange = { nombreUsuario = it },
-            placeholder = { Text("Nombre de Usuario") },
+        Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(vertical = 15.dp)
-                .clip(RoundedCornerShape(4.dp))
+                .padding(top = 40.dp)
+        ) {
+            Image(
+                painter = painterResource(id = R.drawable.letras_critflix),
+                contentDescription = "Logo",
+                modifier = Modifier
+                    .size(200.dp)
+                    .align(Alignment.Center)
+            )
+        }
+
+        Spacer(modifier = Modifier.height(48.dp))
+
+        OutlinedTextField(
+            value = nombreUsuarioOcorreo,
+            onValueChange = { nombreUsuarioOcorreo = it },
+            placeholder = { Text("Nombre de usuario o email") },
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 8.dp)
+                .clip(RoundedCornerShape(8.dp)),
+            colors = TextFieldDefaults.outlinedTextFieldColors(
+                containerColor = Color.LightGray.copy(alpha = 0.2f),
+                focusedBorderColor = Color(0xFF666666),
+                unfocusedBorderColor = Color.LightGray
+            )
         )
 
-        // Password field
         OutlinedTextField(
             value = contrasena,
             onValueChange = { contrasena = it },
@@ -77,37 +87,51 @@ fun InicioSesion(navController: NavHostController){
             visualTransformation = PasswordVisualTransformation(),
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(vertical = 15.dp)
-                .clip(RoundedCornerShape(4.dp))
+                .padding(vertical = 8.dp)
+                .clip(RoundedCornerShape(8.dp)),
+            colors = TextFieldDefaults.outlinedTextFieldColors(
+                containerColor = Color.LightGray.copy(alpha = 0.2f),
+                focusedBorderColor = Color(0xFF666666),
+                unfocusedBorderColor = Color.LightGray
+            )
         )
 
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(24.dp))
 
         Button(
             onClick = { navController.navigate(Routes.Home.route) },
             modifier = Modifier
                 .fillMaxWidth()
-                .height(50.dp),
-            shape = RoundedCornerShape(4.dp),
+                .height(56.dp),
+            shape = RoundedCornerShape(8.dp),
             colors = ButtonDefaults.buttonColors(
-                containerColor = Color(0xBCB2A8A8)
+                containerColor = Color.Green
             )
         ) {
-            Text("Iniciar Sesion", color = Color.Black)
+            Text(
+                "Iniciar Sesion",
+                color = Color.White,
+                fontSize = 16.sp
+            )
         }
 
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(24.dp))
 
         Row(
             modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.Center
+            horizontalArrangement = Arrangement.Center,
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            Text("Aun no tienes cuenta?", fontSize = 14.sp)
+            Text(
+                "No tienes cuenta?",
+                fontSize = 14.sp,
+                color = Color.DarkGray
+            )
             Spacer(modifier = Modifier.width(4.dp))
             Text(
                 "Registrarse",
                 fontSize = 14.sp,
-                color = Color.Blue,
+                color = Color(0xFF4A90E2),
                 modifier = Modifier.clickable { navController.navigate(Routes.Registro.route) }
             )
         }
