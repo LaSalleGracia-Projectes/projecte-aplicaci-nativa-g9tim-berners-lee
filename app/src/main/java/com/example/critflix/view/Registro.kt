@@ -34,19 +34,23 @@ fun Registro(navController: NavHostController) {
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(16.dp),
+            .padding(horizontal = 24.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Image(
-            painter = painterResource(id = R.drawable.critiflix),
-            contentDescription = "Logo",
+        Box(
             modifier = Modifier
-                .size(150.dp)
-                .padding(top = 30.dp, bottom = 40.dp)
-                .align(Alignment.Start)
-        )
+                .fillMaxWidth()
+        ) {
+            Image(
+                painter = painterResource(id = R.drawable.letras_critflix),
+                contentDescription = "Logo",
+                modifier = Modifier
+                    .size(200.dp)
+                    .align(Alignment.Center)
+            )
+        }
 
-        Spacer(modifier = Modifier.height(40.dp))
+        Spacer(modifier = Modifier.height(48.dp))
 
         OutlinedTextField(
             value = nombreUsuario,
@@ -54,10 +58,12 @@ fun Registro(navController: NavHostController) {
             placeholder = { Text("Nombre de Usuario") },
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(vertical = 15.dp)
-                .clip(RoundedCornerShape(4.dp)),
+                .padding(vertical = 8.dp)
+                .clip(RoundedCornerShape(8.dp)),
             colors = TextFieldDefaults.outlinedTextFieldColors(
-                containerColor = Color.LightGray.copy(alpha = 0.3f)
+                containerColor = Color.LightGray.copy(alpha = 0.2f),
+                focusedBorderColor = Color(0xFF666666),
+                unfocusedBorderColor = Color.LightGray
             )
         )
 
@@ -67,10 +73,12 @@ fun Registro(navController: NavHostController) {
             placeholder = { Text("Email") },
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(vertical = 15.dp)
-                .clip(RoundedCornerShape(4.dp)),
+                .padding(vertical = 8.dp)
+                .clip(RoundedCornerShape(8.dp)),
             colors = TextFieldDefaults.outlinedTextFieldColors(
-                containerColor = Color.LightGray.copy(alpha = 0.3f)
+                containerColor = Color.LightGray.copy(alpha = 0.2f),
+                focusedBorderColor = Color(0xFF666666),
+                unfocusedBorderColor = Color.LightGray
             )
         )
 
@@ -81,40 +89,51 @@ fun Registro(navController: NavHostController) {
             visualTransformation = PasswordVisualTransformation(),
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(vertical = 15.dp)
-                .clip(RoundedCornerShape(4.dp)),
+                .padding(vertical = 8.dp)
+                .clip(RoundedCornerShape(8.dp)),
             colors = TextFieldDefaults.outlinedTextFieldColors(
-                containerColor = Color.LightGray.copy(alpha = 0.3f)
+                containerColor = Color.LightGray.copy(alpha = 0.2f),
+                focusedBorderColor = Color(0xFF666666),
+                unfocusedBorderColor = Color.LightGray
             )
         )
 
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(24.dp))
 
         Button(
             onClick = { navController.navigate(Routes.InicioSesion.route) },
             modifier = Modifier
                 .fillMaxWidth()
-                .height(50.dp),
-            shape = RoundedCornerShape(4.dp),
+                .height(56.dp),
+            shape = RoundedCornerShape(8.dp),
             colors = ButtonDefaults.buttonColors(
-                containerColor = Color(0xBCB2A8A8)
+                containerColor = Color.Green
             )
         ) {
-            Text("Registrarse", color = Color.Black)
+            Text(
+                "Registrarse",
+                color = Color.White,
+                fontSize = 16.sp
+            )
         }
 
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(24.dp))
 
         Row(
             modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.Center
+            horizontalArrangement = Arrangement.Center,
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            Text("Ya tienes cuenta?", fontSize = 14.sp)
+            Text(
+                "Ya tienes cuenta?",
+                fontSize = 14.sp,
+                color = Color.DarkGray
+            )
             Spacer(modifier = Modifier.width(4.dp))
             Text(
                 "Iniciar Sesión",
                 fontSize = 14.sp,
-                color = Color.Blue,
+                color = Color(0xFF4A90E2),
                 modifier = Modifier.clickable { navController.navigate(Routes.InicioSesion.route) }
             )
         }
