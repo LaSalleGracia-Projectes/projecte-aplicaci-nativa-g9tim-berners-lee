@@ -71,8 +71,7 @@ fun InicioSesion(navController: NavHostController) {
             placeholder = { Text("Nombre de usuario o email") },
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(vertical = 8.dp)
-                .clip(RoundedCornerShape(8.dp)),
+                .padding(vertical = 8.dp),
             colors = TextFieldDefaults.outlinedTextFieldColors(
                 containerColor = Color.LightGray.copy(alpha = 0.2f),
                 focusedBorderColor = Color(0xFF666666),
@@ -87,8 +86,7 @@ fun InicioSesion(navController: NavHostController) {
             visualTransformation = PasswordVisualTransformation(),
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(vertical = 8.dp)
-                .clip(RoundedCornerShape(8.dp)),
+                .padding(vertical = 8.dp),
             colors = TextFieldDefaults.outlinedTextFieldColors(
                 containerColor = Color.LightGray.copy(alpha = 0.2f),
                 focusedBorderColor = Color(0xFF666666),

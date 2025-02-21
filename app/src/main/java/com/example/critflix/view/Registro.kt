@@ -58,8 +58,7 @@ fun Registro(navController: NavHostController) {
             placeholder = { Text("Nombre de Usuario") },
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(vertical = 8.dp)
-                .clip(RoundedCornerShape(8.dp)),
+                .padding(vertical = 8.dp),
             colors = TextFieldDefaults.outlinedTextFieldColors(
                 containerColor = Color.LightGray.copy(alpha = 0.2f),
                 focusedBorderColor = Color(0xFF666666),
@@ -73,8 +72,7 @@ fun Registro(navController: NavHostController) {
             placeholder = { Text("Email") },
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(vertical = 8.dp)
-                .clip(RoundedCornerShape(8.dp)),
+                .padding(vertical = 8.dp),
             colors = TextFieldDefaults.outlinedTextFieldColors(
                 containerColor = Color.LightGray.copy(alpha = 0.2f),
                 focusedBorderColor = Color(0xFF666666),
@@ -89,8 +87,7 @@ fun Registro(navController: NavHostController) {
             visualTransformation = PasswordVisualTransformation(),
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(vertical = 8.dp)
-                .clip(RoundedCornerShape(8.dp)),
+                .padding(vertical = 8.dp),
             colors = TextFieldDefaults.outlinedTextFieldColors(
                 containerColor = Color.LightGray.copy(alpha = 0.2f),
                 focusedBorderColor = Color(0xFF666666),
