@@ -33,15 +33,21 @@ fun ListView(navController: NavHostController, apiViewModel: APIViewModel) {
         topBar = { TopBarPeliculas(tabSeleccionado) { tabSeleccionado = it } },
         bottomBar = { BottomNavigationBar(navController) }
     ) { padding ->
-        ContenidoPrincipal(
-            peliculas = peliculas,
-            paddingValues = padding
-        )
+        if (tabSeleccionado == 0){
+            ContenidoPrincipal(
+                peliculas = peliculas,
+                paddingValues = padding
+            )
+        } else {
+            Listas(
+                paddingValues = padding
+            )
+        }
     }
 }
 
 @Composable
-private fun TopBarPeliculas(tabSeleccionado: Int, onTabSelected: (Int) -> Unit) {
+fun TopBarPeliculas(tabSeleccionado: Int, onTabSelected: (Int) -> Unit) {
 
     Column(modifier = Modifier.fillMaxWidth()) {
         Row(
@@ -172,4 +178,9 @@ fun TarjetaPelicula(pelicula: PelisPopulares) {
             )
         }
     }
+}
+
+@Composable
+fun Listas(paddingValues: PaddingValues){
+
 }
