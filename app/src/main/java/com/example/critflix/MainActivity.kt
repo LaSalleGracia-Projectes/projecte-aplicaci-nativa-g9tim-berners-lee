@@ -14,6 +14,7 @@ import com.example.critflix.viewmodel.*
 
 class MainActivity : ComponentActivity() {
     private val apiViewModel: APIViewModel by viewModels()
+    val seriesViewModel: SeriesViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -27,7 +28,7 @@ class MainActivity : ComponentActivity() {
                     color = MaterialTheme.colorScheme.background
                 ) {
                     val navigationController = rememberNavController()
-                    EntryPoint(navigationController, apiViewModel)
+                    EntryPoint(navigationController, apiViewModel, seriesViewModel)
                 }
             }
         }

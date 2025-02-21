@@ -7,8 +7,11 @@ sealed class Routes(val route: String) {
     object Listas : Routes("listas")
     object Notificaciones : Routes("notificaciones")
     object Perfil : Routes("perfil")
-    object Info : Routes("info/{id}") {
-        fun createRoute(id: Int) = "info/$id"
+    object InfoPelis : Routes("info_pelis/{id}") {
+        fun createRoute(id: Int) = "info_pelis/$id"
+    }
+    object InfoSerie : Routes("info_serie/{id}") {
+        fun createRoute(id: Int) = "info_serie/$id"
     }
     object Busqueda : Routes("busqueda")
     object Anuncios : Routes("anuncios")

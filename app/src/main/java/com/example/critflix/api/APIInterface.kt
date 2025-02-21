@@ -1,6 +1,7 @@
 package com.example.critflix.api
 
 import com.example.critflix.model.Data
+import com.example.critflix.model.DataSeries
 import com.example.critflix.model.Generos
 import okhttp3.OkHttpClient
 import retrofit2.Response
@@ -16,6 +17,13 @@ interface APIInterface {
         @Query("language") language: String = "es-ES",
         @Query("page") page: Int
     ): Response<Data>
+
+    @GET("tv/popular")
+    suspend fun getSeries(
+        @Query("api_key") apiKey: String = "42b10f869a4ae1b57a4acf356320b942",
+        @Query("language") language: String = "es-ES",
+        @Query("page") page: Int
+    ): Response<DataSeries>
 
     companion object {
         private const val BASE_URL = "https://api.themoviedb.org/3/"

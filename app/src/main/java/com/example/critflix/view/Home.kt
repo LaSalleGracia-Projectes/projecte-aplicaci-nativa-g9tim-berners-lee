@@ -1,7 +1,6 @@
 package com.example.critflix.view
 
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -20,7 +19,6 @@ import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
@@ -28,7 +26,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
@@ -36,28 +33,27 @@ import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
 import com.example.critflix.R
 import com.example.critflix.Routes
-import com.example.critflix.model.Data
 import com.example.critflix.model.PelisPopulares
+import com.example.critflix.model.SeriesPopulares
 import com.example.critflix.viewmodel.APIViewModel
-import okio.utf8Size
+import com.example.critflix.viewmodel.SeriesViewModel
 
 @Composable
-fun HomeScreen(navController: NavHostController, apiViewModel: APIViewModel) {
+fun HomeScreen(navController: NavHostController, apiViewModel: APIViewModel, seriesViewModel: SeriesViewModel) {
     val showLoading: Boolean by apiViewModel.loading.observeAsState(true)
     val peliculas: List<PelisPopulares> by apiViewModel.pelis.observeAsState(emptyList())
-    val error: String? by apiViewModel.error.observeAsState()
+    val series: List<SeriesPopulares> by seriesViewModel.series.observeAsState(emptyList())
+
+    var selectedFilter by remember { mutableStateOf("Todos") }
 
     LaunchedEffect(Unit) {
         apiViewModel.getPelis(totalMoviesNeeded = 50)
+        seriesViewModel.getSeries(totalSeriesNeeded = 50)
     }
 
     Scaffold(
-        topBar = {
-            TopBar(navController)
-        },
-        bottomBar = {
-            BottomNavigationBar(navController)
-        }
+        topBar = { TopBar(navController) },
+        bottomBar = { BottomNavigationBar(navController) }
     ) { innerPadding ->
         if (showLoading) {
             Box(
@@ -68,22 +64,13 @@ fun HomeScreen(navController: NavHostController, apiViewModel: APIViewModel) {
                     color = MaterialTheme.colorScheme.secondary
                 )
             }
-        } else if (error != null) {
-            Box(
-                modifier = Modifier.fillMaxSize(),
-                contentAlignment = Alignment.Center
-            ) {
-                Text(
-                    text = error ?: "Error desconocido",
-                    color = Color.Red,
-                    textAlign = TextAlign.Center,
-                    modifier = Modifier.padding(16.dp)
-                )
-            }
         } else {
             HomeContent(
                 innerPadding = innerPadding,
                 peliculas = peliculas,
+                series = series,
+                selectedFilter = selectedFilter,
+                onFilterSelected = { selectedFilter = it },
                 navController = navController
             )
         }
@@ -96,19 +83,16 @@ fun TopBar(navController: NavHostController) {
         modifier = Modifier
             .fillMaxWidth()
             .height(60.dp)
-            //.background(brush = Brush.horizontalGradient(listOf(Color.Green, Color.Black)))
             .padding(horizontal = 16.dp),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
-        // Logo
         Image(
             painter = painterResource(id = R.drawable.logo_critflix),
             contentDescription = "Logo",
             modifier = Modifier.size(50.dp)
         )
 
-        // Iconos
         Row(
             horizontalArrangement = Arrangement.spacedBy(16.dp),
             verticalAlignment = Alignment.CenterVertically
@@ -133,13 +117,26 @@ fun TopBar(navController: NavHostController) {
 }
 
 @Composable
-fun HomeContent(
-    innerPadding: PaddingValues,
-    peliculas: List<PelisPopulares>,
-    navController: NavHostController
-) {
+fun HomeContent(innerPadding: PaddingValues, peliculas: List<PelisPopulares>, series: List<SeriesPopulares>, selectedFilter: String, onFilterSelected: (String) -> Unit, navController: NavHostController) {
     val generos = listOf("Acción", "Comedia", "Drama", "Terror", "Ciencia Ficción")
-    val peliculasMasPopulares = peliculas.sortedByDescending { it.popularity }
+
+    val contenidoFiltrado = when (selectedFilter) {
+        "Películas" -> peliculas.map { ContentItem.Movie(it) }
+        "Series" -> series.map { ContentItem.Series(it) }
+        else -> (peliculas + series).map {
+            when {
+                it is PelisPopulares -> ContentItem.Movie(it)
+                it is SeriesPopulares -> ContentItem.Series(it)
+                else -> null
+            }
+        }.filterNotNull().sortedByDescending {
+            when (it) {
+                is ContentItem.Movie -> it.pelicula.popularity
+                is ContentItem.Series -> it.serie.popularity
+            }
+        }
+    }
+
 
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
@@ -149,19 +146,22 @@ fun HomeContent(
         )
     ) {
         item {
-            BotonesFiltro()
+            BotonesFiltro(selectedFilter, onFilterSelected)
         }
 
         item {
-            if (peliculasMasPopulares.isNotEmpty()) {
-                PeliPopular(pelicula = peliculasMasPopulares.first(), navController = navController)
+            if (contenidoFiltrado.isNotEmpty()) {
+                when (val contenido = contenidoFiltrado.first()) {
+                    is ContentItem.Movie -> PeliPopular(contenido.pelicula, navController)
+                    is ContentItem.Series -> SeriePopular(contenido.serie, navController)
+                }
             }
         }
 
         items(generos) { genero ->
             GeneroSeccion(
                 genero = genero,
-                peliculas = peliculasMasPopulares,
+                contenido = contenidoFiltrado,
                 navController = navController
             )
         }
@@ -169,27 +169,35 @@ fun HomeContent(
 }
 
 @Composable
-fun BotonesFiltro() {
+fun BotonesFiltro(selectedFilter: String, onFilterSelected: (String) -> Unit) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 16.dp, vertical = 8.dp),
         horizontalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        BotonFiltro("Series", selected = false)
-        BotonFiltro("Películas", selected = false)
-        BotonFiltro("Categorías", selected = true)
+        BotonFiltro("Todos", selected = selectedFilter == "Todos") {
+            onFilterSelected("Todos")
+        }
+        BotonFiltro("Series", selected = selectedFilter == "Series") {
+            onFilterSelected("Series")
+        }
+        BotonFiltro("Películas", selected = selectedFilter == "Películas") {
+            onFilterSelected("Películas")
+        }
+        BotonFiltro("Categorías", selected = false)
     }
 }
 
 @Composable
-fun BotonFiltro(text: String, selected: Boolean) {
+fun BotonFiltro(text: String, selected: Boolean, onClick: () -> Unit = {}) {
     Surface(
         shape = RoundedCornerShape(16.dp),
         color = if (selected) Color.Gray.copy(alpha = 0.3f) else Color.LightGray.copy(alpha = 0.3f),
         modifier = Modifier
             .wrapContentWidth()
             .height(32.dp)
+            .clickable(onClick = onClick)
     ) {
         Row(
             modifier = Modifier.padding(horizontal = 16.dp),
@@ -200,7 +208,7 @@ fun BotonFiltro(text: String, selected: Boolean) {
                 style = MaterialTheme.typography.bodyMedium,
                 color = if (selected) Color.Black else Color.DarkGray
             )
-            if (selected) {
+            if (text == "Categorías") {
                 Icon(
                     painter = painterResource(id = R.drawable.desplegable),
                     contentDescription = "Seleccionado",
@@ -209,6 +217,11 @@ fun BotonFiltro(text: String, selected: Boolean) {
             }
         }
     }
+}
+
+sealed class ContentItem {
+    data class Movie(val pelicula: PelisPopulares) : ContentItem()
+    data class Series(val serie: SeriesPopulares) : ContentItem()
 }
 
 @OptIn(ExperimentalGlideComposeApi::class)
@@ -227,7 +240,7 @@ fun PeliPopular(pelicula: PelisPopulares, navController: NavHostController) {
             modifier = Modifier
                 .fillMaxWidth()
                 .clip(RoundedCornerShape(12.dp))
-                .clickable { navController.navigate(Routes.Info.createRoute(pelicula.id)) }
+                .clickable { navController.navigate(Routes.InfoPelis.createRoute(pelicula.id)) }
         ) {
             GlideImage(
                 model = posterUrl,
@@ -241,8 +254,39 @@ fun PeliPopular(pelicula: PelisPopulares, navController: NavHostController) {
     }
 }
 
+@OptIn(ExperimentalGlideComposeApi::class)
 @Composable
-fun GeneroSeccion(genero: String, peliculas: List<PelisPopulares>, navController: NavHostController) {
+fun SeriePopular(serie: SeriesPopulares, navController: NavHostController) {
+    val baseImageUrl = "https://image.tmdb.org/t/p/original"
+    val posterUrl = baseImageUrl + serie.poster_path
+
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp)
+            .padding(vertical = 8.dp)
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .clip(RoundedCornerShape(12.dp))
+                .clickable { navController.navigate(Routes.InfoSerie.createRoute(serie.id)) }
+        ) {
+            GlideImage(
+                model = posterUrl,
+                contentDescription = serie.name,
+                contentScale = ContentScale.Crop,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .aspectRatio(2f/3f)
+            )
+        }
+    }
+}
+
+@Composable
+fun GeneroSeccion(genero: String, contenido: List<ContentItem>, navController: NavHostController) {
+
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -255,31 +299,29 @@ fun GeneroSeccion(genero: String, peliculas: List<PelisPopulares>, navController
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            // Titulo de la sección
             Text(
                 text = genero,
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.Bold
             )
 
-            // Contador de películas
             Text(
-                text = "${peliculas.take(50).size} películas",
+                text = "${contenido.size} títulos",
                 style = MaterialTheme.typography.bodySmall,
                 color = Color.Gray
             )
         }
 
-        // Carrusel
         LazyRow(
             horizontalArrangement = Arrangement.spacedBy(8.dp),
             contentPadding = PaddingValues(horizontal = 16.dp)
         ) {
-            items(
-                items = peliculas.take(50),
-                key = { pelicula -> pelicula.id }
-            ) { pelicula ->
-                PeliCarrusel(pelicula = pelicula, navController = navController)
+            items(contenido) { item ->
+                if (item is ContentItem.Movie) {
+                    PeliCarrusel(item.pelicula, navController)
+                } else if (item is ContentItem.Series) {
+                    SerieCarrusel(item.serie, navController)
+                }
             }
         }
     }
@@ -294,7 +336,7 @@ fun PeliCarrusel(pelicula: PelisPopulares, navController: NavHostController) {
     Column(
         modifier = Modifier
             .width(120.dp)
-            .clickable { navController.navigate(Routes.Info.createRoute(pelicula.id)) },
+            .clickable { navController.navigate(Routes.InfoPelis.createRoute(pelicula.id)) },
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Card(
@@ -322,12 +364,49 @@ fun PeliCarrusel(pelicula: PelisPopulares, navController: NavHostController) {
     }
 }
 
+@OptIn(ExperimentalGlideComposeApi::class)
+@Composable
+fun SerieCarrusel(serie: SeriesPopulares, navController: NavHostController) {
+    val baseImageUrl = "https://image.tmdb.org/t/p/w185"
+    val posterUrl = baseImageUrl + serie.poster_path
+
+    Column(
+        modifier = Modifier
+            .width(120.dp)
+            .clickable { navController.navigate(Routes.InfoSerie.createRoute(serie.id)) },
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Card(
+            shape = RoundedCornerShape(8.dp),
+            modifier = Modifier
+                .width(120.dp)
+                .height(180.dp)
+        ) {
+            GlideImage(
+                model = posterUrl,
+                contentDescription = serie.name,
+                contentScale = ContentScale.Crop,
+                modifier = Modifier.fillMaxSize()
+            )
+        }
+
+        Text(
+            text = serie.name,
+            style = MaterialTheme.typography.bodySmall,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
+            textAlign = TextAlign.Center,
+            modifier = Modifier.padding(top = 4.dp, start = 4.dp, end = 4.dp)
+        )
+    }
+}
+
 @Composable
 fun BottomNavigationBar(navController: NavHostController) {
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentDestination = navBackStackEntry?.destination
 
-    NavigationBar{
+    NavigationBar {
         NavigationBarItem(
             icon = { Icon(imageVector = Icons.Default.Home, contentDescription = "Home") },
             label = { Text("Home") },
