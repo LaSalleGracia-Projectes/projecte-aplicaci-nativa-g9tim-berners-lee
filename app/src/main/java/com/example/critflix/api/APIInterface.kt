@@ -1,6 +1,7 @@
 package com.example.critflix.api
 
 import com.example.critflix.model.Data
+import com.example.critflix.model.Generos
 import okhttp3.OkHttpClient
 import retrofit2.Response
 import retrofit2.Retrofit

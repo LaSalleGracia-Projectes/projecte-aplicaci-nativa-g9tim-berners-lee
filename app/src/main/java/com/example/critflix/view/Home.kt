@@ -132,7 +132,6 @@ fun TopBar(navController: NavHostController) {
     }
 }
 
-// Estructura home
 @Composable
 fun HomeContent(
     innerPadding: PaddingValues,
@@ -149,30 +148,26 @@ fun HomeContent(
             bottom = innerPadding.calculateBottomPadding() + 16.dp
         )
     ) {
-        // Botones de Filtro
         item {
             BotonesFiltro()
         }
 
-        // Película más popular
         item {
             if (peliculasMasPopulares.isNotEmpty()) {
                 PeliPopular(pelicula = peliculasMasPopulares.first(), navController = navController)
             }
         }
 
-        // Secciones por género
         items(generos) { genero ->
             GeneroSeccion(
                 genero = genero,
-                peliculas = peliculasMasPopulares, // Pasamos todas las películas disponibles
+                peliculas = peliculasMasPopulares,
                 navController = navController
             )
         }
     }
 }
 
-// Botones de filtro
 @Composable
 fun BotonesFiltro() {
     Row(
@@ -266,6 +261,13 @@ fun GeneroSeccion(genero: String, peliculas: List<PelisPopulares>, navController
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.Bold
             )
+
+            // Contador de películas
+            Text(
+                text = "${peliculas.take(50).size} películas",
+                style = MaterialTheme.typography.bodySmall,
+                color = Color.Gray
+            )
         }
 
         // Carrusel
@@ -325,7 +327,7 @@ fun BottomNavigationBar(navController: NavHostController) {
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentDestination = navBackStackEntry?.destination
 
-    NavigationBar {
+    NavigationBar{
         NavigationBarItem(
             icon = { Icon(imageVector = Icons.Default.Home, contentDescription = "Home") },
             label = { Text("Home") },
