@@ -8,12 +8,10 @@ import com.example.critflix.Routes
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import com.example.critflix.viewmodel.APIViewModel
+import com.example.critflix.viewmodel.SeriesViewModel
 
 @Composable
-fun EntryPoint(
-    navigationController: NavHostController,
-    apiViewModel: APIViewModel
-) {
+fun EntryPoint(navigationController: NavHostController, apiViewModel: APIViewModel, seriesViewModel: SeriesViewModel) {
     NavHost(
         navController = navigationController,
         startDestination = Routes.Registro.route
@@ -25,7 +23,7 @@ fun EntryPoint(
             InicioSesion(navigationController)
         }
         composable(Routes.Home.route) {
-            HomeScreen(navigationController, apiViewModel)
+            HomeScreen(navigationController, apiViewModel, seriesViewModel)
         }
         composable(Routes.Listas.route) {
             ListView(navigationController, apiViewModel)
@@ -37,14 +35,14 @@ fun EntryPoint(
             ProfileView(navigationController, apiViewModel)
         }
         composable(
-            route = Routes.Info.route,
+            route = Routes.InfoPelis.route,
             arguments = listOf(
                 navArgument("id") {
                     type = NavType.IntType
                 }
             )
         ) { backStackEntry ->
-            InfoView(
+            InfoPelis(
                 navController = navigationController,
                 apiViewModel = apiViewModel,
                 id = backStackEntry.arguments?.getInt("id") ?: 0
