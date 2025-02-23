@@ -255,20 +255,13 @@ fun Listas(
 }
 
 @Composable
-private fun ListContainer(
-    lista: Lista,
-    isMenuExpanded: Boolean,
-    onMenuClick: () -> Unit,
-    onListClick: () -> Unit,
-    onRename: () -> Unit,
-    onDelete: () -> Unit
-) {
+private fun ListContainer(lista: Lista, isMenuExpanded: Boolean, onMenuClick: () -> Unit, onListClick: () -> Unit, onRename: () -> Unit, onDelete: () -> Unit) {
     Surface(
         modifier = Modifier
             .fillMaxWidth()
             .clickable(onClick = onListClick),
         color = MaterialTheme.colorScheme.surfaceVariant,
-        shape = MaterialTheme.shapes.medium
+        //shape = MaterialTheme.shapes.medium
     ) {
         Column(
             modifier = Modifier
@@ -285,8 +278,6 @@ private fun ListContainer(
                     style = MaterialTheme.typography.titleMedium,
                     color = MaterialTheme.colorScheme.onSurface
                 )
-
-
                     Box {
                         IconButton(onClick = onMenuClick) {
                             Icon(
@@ -301,7 +292,7 @@ private fun ListContainer(
                             onDismissRequest = onMenuClick
                         ) {
                             DropdownMenuItem(
-                                text = { Text("Renombrar") },
+                                text = { Text("Renombrar Critilista") },
                                 onClick = {
                                     onRename()
                                     onMenuClick()
@@ -310,7 +301,7 @@ private fun ListContainer(
                             DropdownMenuItem(
                                 text = {
                                     Text(
-                                        "Borrar",
+                                        "Borrar Critilista",
                                         color = MaterialTheme.colorScheme.error
                                     )
                                 },

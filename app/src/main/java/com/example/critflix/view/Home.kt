@@ -408,28 +408,68 @@ fun BottomNavigationBar(navController: NavHostController) {
 
     NavigationBar {
         NavigationBarItem(
-            icon = { Icon(imageVector = Icons.Default.Home, contentDescription = "Home") },
+            icon = {
+                Icon(
+                    imageVector = Icons.Default.Home,
+                    contentDescription = "Home",
+                    tint = if (currentDestination?.hierarchy?.any { it.route == Routes.Home.route } == true) {
+                        Color(0xFF4CAF50)
+                    } else {
+                        LocalContentColor.current
+                    }
+                )
+            },
             label = { Text("Home") },
             selected = currentDestination?.hierarchy?.any { it.route == Routes.Home.route } == true,
             onClick = { navController.navigate(Routes.Home.route) }
         )
 
         NavigationBarItem(
-            icon = { Icon(imageVector = Icons.Default.List, contentDescription = "Lists") },
+            icon = {
+                Icon(
+                    imageVector = Icons.Default.List,
+                    contentDescription = "Lists",
+                    tint = if (currentDestination?.hierarchy?.any { it.route == Routes.Listas.route } == true) {
+                        Color(0xFF4CAF50)
+                    } else {
+                        LocalContentColor.current
+                    }
+                )
+            },
             label = { Text("Listas") },
             selected = currentDestination?.hierarchy?.any { it.route == Routes.Listas.route } == true,
             onClick = { navController.navigate(Routes.Listas.route) }
         )
 
         NavigationBarItem(
-            icon = { Icon(imageVector = Icons.Default.Notifications, contentDescription = "Notifications") },
+            icon = {
+                Icon(
+                    imageVector = Icons.Default.Notifications,
+                    contentDescription = "Notifications",
+                    tint = if (currentDestination?.hierarchy?.any { it.route == Routes.Notificaciones.route } == true) {
+                        Color(0xFF4CAF50)
+                    } else {
+                        LocalContentColor.current
+                    }
+                )
+            },
             label = { Text("Notificaciones") },
             selected = currentDestination?.hierarchy?.any { it.route == Routes.Notificaciones.route } == true,
             onClick = { navController.navigate(Routes.Notificaciones.route) }
         )
 
         NavigationBarItem(
-            icon = { Icon(imageVector = Icons.Default.AccountCircle, contentDescription = "Profile") },
+            icon = {
+                Icon(
+                    imageVector = Icons.Default.AccountCircle,
+                    contentDescription = "Profile",
+                    tint = if (currentDestination?.hierarchy?.any { it.route == Routes.Perfil.route } == true) {
+                        Color(0xFF4CAF50)
+                    } else {
+                        LocalContentColor.current
+                    }
+                )
+            },
             label = { Text("Perfil") },
             selected = currentDestination?.hierarchy?.any { it.route == Routes.Perfil.route } == true,
             onClick = { navController.navigate(Routes.Perfil.route) }
