@@ -1,5 +1,7 @@
 package com.example.critflix.view
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -16,13 +18,13 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
+import com.example.critflix.model.Lista
 import com.example.critflix.model.PelisPopulares
 import com.example.critflix.viewmodel.APIViewModel
+import com.example.critflix.viewmodel.ListViewModel
 
 @Composable
-fun ListView(navController: NavHostController, apiViewModel: APIViewModel) {
-
-    val peliculas by apiViewModel.pelis.observeAsState(emptyList())
+fun ListView(navController: NavHostController, apiViewModel: APIViewModel, listViewModel: ListViewModel) {
     var tabSeleccionado by remember { mutableStateOf(0) }
 
     LaunchedEffect(Unit) {
@@ -33,14 +35,16 @@ fun ListView(navController: NavHostController, apiViewModel: APIViewModel) {
         topBar = { TopBarPeliculas(tabSeleccionado) { tabSeleccionado = it } },
         bottomBar = { BottomNavigationBar(navController) }
     ) { padding ->
-        if (tabSeleccionado == 0){
+        if (tabSeleccionado == 0) {
             ContenidoPrincipal(
-                peliculas = peliculas,
+                peliculas = apiViewModel.pelis.observeAsState(emptyList()).value,
                 paddingValues = padding
             )
         } else {
             Listas(
-                paddingValues = padding
+                paddingValues = padding,
+                navController = navController,
+                viewModel = listViewModel
             )
         }
     }
@@ -181,6 +185,151 @@ fun TarjetaPelicula(pelicula: PelisPopulares) {
 }
 
 @Composable
-fun Listas(paddingValues: PaddingValues){
+fun Listas(
+    paddingValues: PaddingValues,
+    navController: NavHostController,
+    viewModel: ListViewModel
+) {
+    var expandedMenuIndex by remember { mutableStateOf<String?>(null) }
+    val listas by viewModel.listas.observeAsState(emptyList())
 
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(paddingValues)
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp, vertical = 16.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = "${listas.size}/${viewModel.maxListas} Listas",
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+
+            Text(
+                text = "CREAR NUEVA LISTA",
+                style = MaterialTheme.typography.labelLarge,
+                color = MaterialTheme.colorScheme.primary,
+                modifier = Modifier
+                    .clickable {
+                        navController.navigate("crear_lista")
+                    }
+                    .padding(vertical = 8.dp)
+            )
+        }
+
+        LazyColumn(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            items(
+                items = listas,
+                key = { it.id }
+            ) { lista ->
+                ListContainer(
+                    lista = lista,
+                    isMenuExpanded = expandedMenuIndex == lista.id,
+                    onMenuClick = {
+                        expandedMenuIndex = if (expandedMenuIndex == lista.id) null else lista.id
+                    },
+                    onListClick = {
+                        navController.navigate("lista_detalle/${lista.id}")
+                    },
+                    onRename = {
+                        navController.navigate("renombrar_lista/${lista.id}")
+                    },
+                    onDelete = {
+                        viewModel.deleteList(lista.id)
+                    }
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun ListContainer(
+    lista: Lista,
+    isMenuExpanded: Boolean,
+    onMenuClick: () -> Unit,
+    onListClick: () -> Unit,
+    onRename: () -> Unit,
+    onDelete: () -> Unit
+) {
+    Surface(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable(onClick = onListClick),
+        color = MaterialTheme.colorScheme.surfaceVariant,
+        shape = MaterialTheme.shapes.medium
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp)
+        ) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = lista.name,
+                    style = MaterialTheme.typography.titleMedium,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+
+
+                    Box {
+                        IconButton(onClick = onMenuClick) {
+                            Icon(
+                                imageVector = Icons.Default.MoreVert,
+                                contentDescription = "Más opciones",
+                                tint = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
+
+                        DropdownMenu(
+                            expanded = isMenuExpanded,
+                            onDismissRequest = onMenuClick
+                        ) {
+                            DropdownMenuItem(
+                                text = { Text("Renombrar") },
+                                onClick = {
+                                    onRename()
+                                    onMenuClick()
+                                }
+                            )
+                            DropdownMenuItem(
+                                text = {
+                                    Text(
+                                        "Borrar",
+                                        color = MaterialTheme.colorScheme.error
+                                    )
+                                },
+                                onClick = {
+                                    onDelete()
+                                    onMenuClick()
+                                }
+                            )
+                        }
+                    }
+
+            }
+
+            Text(
+                text = "${lista.itemCount} ${if (lista.itemCount == 1) "Item" else "Elementos"} • Actualizado el ${lista.lastUpdated}",
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.padding(top = 4.dp)
+            )
+        }
+    }
 }

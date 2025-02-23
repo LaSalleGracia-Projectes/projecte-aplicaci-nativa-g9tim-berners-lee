@@ -70,6 +70,7 @@ dependencies {
 
     // Testing
     testImplementation("junit:junit:4.13.2")
+    implementation("io.coil-kt:coil-compose:2.4.0")
     implementation ("androidx.compose.ui:ui:1.4.0")
     implementation ("androidx.compose.material3:material3:1.0.0")
     implementation ("androidx.navigation:navigation-compose:2.5.3")
