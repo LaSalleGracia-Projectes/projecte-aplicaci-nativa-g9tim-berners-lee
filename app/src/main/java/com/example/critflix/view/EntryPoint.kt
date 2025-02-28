@@ -53,7 +53,7 @@ fun EntryPoint(navigationController: NavHostController, apiViewModel: APIViewMod
             Anuncios(navigationController, apiViewModel)
         }
         composable(Routes.Busqueda.route) {
-            Busqueda(navigationController, apiViewModel)
+            Busqueda(navigationController, apiViewModel, seriesViewModel)
         }
     }
 }
