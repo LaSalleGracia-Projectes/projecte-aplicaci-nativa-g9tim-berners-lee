@@ -1,6 +1,7 @@
 package com.example.critflix.view
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -193,7 +194,7 @@ fun BotonesFiltro(selectedFilter: String, onFilterSelected: (String) -> Unit) {
 fun BotonFiltro(text: String, selected: Boolean, onClick: () -> Unit = {}) {
     Surface(
         shape = RoundedCornerShape(16.dp),
-        color = if (selected) Color.Gray.copy(alpha = 0.3f) else Color.LightGray.copy(alpha = 0.3f),
+        color = if (selected) Color.Green else Color.LightGray,
         modifier = Modifier
             .wrapContentWidth()
             .height(32.dp)
@@ -206,7 +207,7 @@ fun BotonFiltro(text: String, selected: Boolean, onClick: () -> Unit = {}) {
             Text(
                 text = text,
                 style = MaterialTheme.typography.bodyMedium,
-                color = if (selected) Color.Black else Color.DarkGray
+                color = Color.Black
             )
             if (text == "Categorías") {
                 Icon(
@@ -419,7 +420,7 @@ fun BottomNavigationBar(navController: NavHostController) {
                     }
                 )
             },
-            label = { Text("Home") },
+            label = { Text("Inicio") },
             selected = currentDestination?.hierarchy?.any { it.route == Routes.Home.route } == true,
             onClick = { navController.navigate(Routes.Home.route) }
         )
@@ -430,7 +431,7 @@ fun BottomNavigationBar(navController: NavHostController) {
                     imageVector = Icons.Default.List,
                     contentDescription = "Lists",
                     tint = if (currentDestination?.hierarchy?.any { it.route == Routes.Listas.route } == true) {
-                        Color(0xFF4CAF50)
+                        Color(0xFF27CE2E)
                     } else {
                         LocalContentColor.current
                     }
