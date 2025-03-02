@@ -1,218 +1,382 @@
 package com.example.critflix.view
 
-import android.security.keystore.BackendBusyException
-import android.telephony.CellInfoNr
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
-import androidx.compose.foundation.Image
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.livedata.observeAsState
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
-import androidx.compose.runtime.livedata.observeAsState
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.items
-import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.ArrowBackIosNew
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.FilterList
-import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.List
-import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
-import androidx.compose.ui.focus.focusModifier
-import androidx.compose.ui.unit.dp
-import androidx.navigation.NavDestination.Companion.hierarchy
-import androidx.navigation.compose.currentBackStackEntryAsState
-import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
-import com.bumptech.glide.integration.compose.GlideImage
-import com.example.critflix.R
-import com.example.critflix.Routes
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
+import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
+import com.bumptech.glide.integration.compose.GlideImage
+import com.example.critflix.Routes
 import com.example.critflix.model.PelisPopulares
 import com.example.critflix.model.SeriesPopulares
 import com.example.critflix.viewmodel.APIViewModel
 import com.example.critflix.viewmodel.SeriesViewModel
 
+// Funcion principal, divide las partes de la view
 @Composable
-fun Busqueda(navController: NavHostController, apiViewModel: APIViewModel, seriesViewModel: SeriesViewModel){
+fun Busqueda(navController: NavHostController, apiViewModel: APIViewModel, seriesViewModel: SeriesViewModel) {
     val showLoading: Boolean by apiViewModel.loading.observeAsState(true)
     val peliculas: List<PelisPopulares> by apiViewModel.pelis.observeAsState(emptyList())
     val series: List<SeriesPopulares> by seriesViewModel.series.observeAsState(emptyList())
 
     LaunchedEffect(Unit) {
-        apiViewModel.getPelis(totalMoviesNeeded = 30)
+        apiViewModel.getPelis(totalMoviesNeeded = 1000)
         seriesViewModel.getSeries(totalSeriesNeeded = 50)
     }
 
-    Scaffold (
+    Scaffold(
         topBar = { TopBarBusqueda(navController) }
     ) { innerPadding ->
         if (showLoading) {
-            Box(
-                modifier = Modifier.fillMaxSize(),
-                contentAlignment = Alignment.Center
-            ) {
-                CircularProgressIndicator(
-                    color = MaterialTheme.colorScheme.secondary
-                )
-            }
+            LoadingIndicator()
         } else {
             ContenidoPrincipal(
                 paddingValues = innerPadding,
                 navController = navController,
+                peliculas = peliculas,
+                series = series,
                 apiViewModel = apiViewModel,
                 seriesViewModel = seriesViewModel
             )
         }
     }
 }
+
+// Indicador de carga para las apis
 @Composable
-fun TopBarBusqueda(navController: NavHostController){
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(60.dp)
-            .background(color = Color.LightGray)
-            .padding(horizontal = 16.dp),
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically
+fun LoadingIndicator() {
+    Box(
+        modifier = Modifier.fillMaxSize(),
+        contentAlignment = Alignment.Center
     ) {
-       Icon(
-           imageVector = Icons.Default.ArrowBack,
-           contentDescription = "Volver",
-           modifier = Modifier
-               .size(24.dp)
-               .clickable { navController.navigate(Routes.Home.route) }
-       )
+        CircularProgressIndicator(
+            color = MaterialTheme.colorScheme.secondary
+        )
     }
 }
 
+// Parte superior de la view
+@Composable
+fun TopBarBusqueda(navController: NavHostController) {
+    Surface(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(60.dp),
+        color = MaterialTheme.colorScheme.surfaceVariant
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(horizontal = 16.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            IconButton(onClick = { navController.navigate(Routes.Home.route) }) {
+                Icon(
+                    imageVector = Icons.Default.ArrowBack,
+                    contentDescription = "Volver"
+                )
+            }
+
+            Text(
+                text = "Búsqueda",
+                style = MaterialTheme.typography.titleMedium
+            )
+
+            // Spacer for alignment
+            Spacer(modifier = Modifier.width(24.dp))
+        }
+    }
+}
+
+// Un poco de la logica (hay que pasarlo al viewmodel correspondiente) y estructura los resultados
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ContenidoPrincipal(paddingValues: PaddingValues, navController: NavHostController, apiViewModel: APIViewModel, seriesViewModel: SeriesViewModel){
+fun ContenidoPrincipal(
+    paddingValues: PaddingValues,
+    navController: NavHostController,
+    peliculas: List<PelisPopulares>,
+    series: List<SeriesPopulares>,
+    apiViewModel: APIViewModel,
+    seriesViewModel: SeriesViewModel
+) {
     var busqueda by remember { mutableStateOf("") }
-    val peliculas: List<PelisPopulares> by apiViewModel.pelis.observeAsState(emptyList())
-    val series: List<SeriesPopulares> by seriesViewModel.series.observeAsState(emptyList())
+    var isSearchActive by remember { mutableStateOf(false) }
 
-    Column (
+    val filteredPeliculas = remember(busqueda, peliculas) {
+        if (busqueda.isBlank()) {
+            peliculas
+        } else {
+            peliculas.filter {
+                it.title.contains(busqueda, ignoreCase = true)
+            }
+        }
+    }
+
+    Column(
         modifier = Modifier
             .fillMaxSize()
             .padding(paddingValues)
     ) {
-        Row (
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 16.dp, vertical = 16.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ){
-            TextField(
-                value = busqueda,
-                onValueChange = { busqueda = it },
-                placeholder = {
-                    Row (
-                        modifier = Modifier
-
-                    ){
-                        Icon(
-                            imageVector = Icons.Default.Search,
-                            contentDescription = "Busqueda",
-                            modifier = Modifier
-                                .size(24.dp)
-                        )
-
-                        Text(" Busca tus series o peliculas")
-                    }
-                              },
-                colors = TextFieldDefaults.outlinedTextFieldColors(
-                    containerColor = Color.LightGray.copy(alpha = 0.2f),
-                    focusedBorderColor = Color(0xFF666666),
-                    unfocusedBorderColor = Color.LightGray
-                ),
-                modifier = Modifier.weight(1f)
-            )
-
-            Spacer(modifier = Modifier.width(8.dp))
-
-            Icon(
-                imageVector = Icons.Default.FilterList,
-                contentDescription = "Filtrar",
-                modifier = Modifier
-                    .size(28.dp)
-                    .clickable {  }
-            )
-        }
-
-        Text(
-            text = "TENDENCIAS",
-            style = MaterialTheme.typography.titleMedium
+        SearchBar(
+            query = busqueda,
+            onQueryChange = {
+                busqueda = it
+                isSearchActive = it.isNotBlank()
+            },
+            onClearQuery = {
+                busqueda = ""
+                isSearchActive = false
+            }
         )
 
-        LazyColumn (
+        if (isSearchActive) {
+            SearchResults(
+                consulta = busqueda,
+                filteredPeliculas = filteredPeliculas
+            )
+        } else {
+            DefaultContent(
+                peliculas = peliculas
+            )
+        }
+    }
+}
+
+// Muestra una cosa u otra dependiendo si se encuentra
+@Composable
+fun SearchResults(
+    consulta: String,
+    filteredPeliculas: List<PelisPopulares>
+) {
+    Column(
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Text(
+            text = "Resultados para \"$consulta\"",
+            style = MaterialTheme.typography.titleMedium,
+            color = MaterialTheme.colorScheme.primary,
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 16.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp)
-        ){
-            items (peliculas) { pelicula ->
-                Tendencias(
-                    pelicula = pelicula,
-                    apiViewModel = apiViewModel,
-                    seriesViewModel = seriesViewModel
+                .padding(horizontal = 16.dp, vertical = 8.dp)
+        )
+
+        if (filteredPeliculas.isEmpty()) {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(32.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = "No se encontraron películas que coincidan con \"$consulta\"",
+                    style = MaterialTheme.typography.bodyLarge,
+                    textAlign = TextAlign.Center,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
+            }
+        } else {
+            LazyColumn(
+                modifier = Modifier.fillMaxWidth(),
+                contentPadding = PaddingValues(bottom = 16.dp)
+            ) {
+                items(filteredPeliculas) { pelicula ->
+                    MovieCard(pelicula = pelicula)
+                }
             }
         }
     }
 }
 
+// Contenido normal de la vista
 @Composable
-fun Tendencias(pelicula: PelisPopulares, apiViewModel: APIViewModel, seriesViewModel: SeriesViewModel){
-    Column (
+fun DefaultContent(
+    peliculas: List<PelisPopulares>
+) {
+    LazyColumn(
+        modifier = Modifier.fillMaxWidth(),
+        contentPadding = PaddingValues(bottom = 16.dp)
+    ) {
+        item {
+            SectionHeader("TENDENCIAS")
+        }
+        items(peliculas.take(3)) { pelicula ->
+            MovieCard(pelicula = pelicula)
+        }
+
+        item {
+            SectionHeader("PARA TI")
+        }
+        items(peliculas.drop(3).take(3)) { pelicula ->
+            MovieCard(pelicula = pelicula)
+        }
+
+        item {
+            SectionHeader("TODAS LAS PELÍCULAS")
+        }
+        items(peliculas) { pelicula ->
+            MovieCard(pelicula = pelicula)
+        }
+    }
+}
+
+// Barra de busqueda + filtro
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun SearchBar(
+    query: String,
+    onQueryChange: (String) -> Unit,
+    onClearQuery: () -> Unit
+) {
+    Row(
         modifier = Modifier
-            .fillMaxSize()
-    ){
-        Card(
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp, vertical = 16.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        OutlinedTextField(
+            value = query,
+            onValueChange = onQueryChange,
+            placeholder = {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Icon(
+                        imageVector = Icons.Default.Search,
+                        contentDescription = "Busqueda"
+                    )
+                    Spacer(modifier = Modifier.width(4.dp))
+                    Text("Busca tus series o películas")
+                }
+            },
+            colors = TextFieldDefaults.outlinedTextFieldColors(
+                containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.2f),
+                focusedBorderColor = MaterialTheme.colorScheme.primary,
+                unfocusedBorderColor = MaterialTheme.colorScheme.outline
+            ),
             shape = RoundedCornerShape(8.dp),
+            modifier = Modifier.weight(1f),
+            singleLine = true,
+            trailingIcon = {
+                if (query.isNotEmpty()) {
+                    IconButton(onClick = onClearQuery) {
+                        Icon(
+                            imageVector = Icons.Default.Close,
+                            contentDescription = "Limpiar búsqueda"
+                        )
+                    }
+                }
+            }
+        )
+
+        Spacer(modifier = Modifier.width(8.dp))
+
+        IconButton(onClick = { /* FILTRO */ }) {
+            Icon(
+                imageVector = Icons.Default.FilterList,
+                contentDescription = "Filtrar"
+            )
+        }
+    }
+}
+
+// Divisor de secciones
+@Composable
+fun SectionHeader(title: String) {
+    Text(
+        text = title,
+        style = MaterialTheme.typography.titleMedium,
+        color = MaterialTheme.colorScheme.primary,
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp, vertical = 8.dp)
+    )
+}
+
+// Elemento pelicula
+@OptIn(ExperimentalGlideComposeApi::class)
+@Composable
+fun MovieCard(pelicula: PelisPopulares) {
+    val baseImageUrl = "https://image.tmdb.org/t/p/w185"
+    val posterUrl = baseImageUrl + pelicula.poster_path
+
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp, vertical = 4.dp),
+        shape = RoundedCornerShape(12.dp),
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surface
+        )
+    ) {
+        Row(
             modifier = Modifier
-                .width(120.dp)
-                .height(180.dp)
+                .fillMaxWidth()
+                .padding(12.dp),
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            Text(text = pelicula.title)
+            // Poster pelis
+            Card(
+                shape = RoundedCornerShape(8.dp),
+                modifier = Modifier.size(100.dp, 150.dp)
+            ) {
+                GlideImage(
+                    model = posterUrl,
+                    contentDescription = "Movie Poster",
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier.fillMaxSize()
+                )
+            }
+
+            // Detalles pelis
+            Column(
+                modifier = Modifier
+                    .weight(1f)
+                    .padding(start = 16.dp)
+            ) {
+                Text(
+                    text = pelicula.title,
+                    style = MaterialTheme.typography.titleMedium,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+
+                Spacer(modifier = Modifier.height(4.dp))
+
+                Text(
+                    text = "Popularidad: ${pelicula.popularity}",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+
+                Spacer(modifier = Modifier.height(4.dp))
+
+                // Indicador rating
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text(
+                        text = "★ ${pelicula.vote_average}/10",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = if (pelicula.vote_average >= 7)
+                            Color(0xFF4CAF50) else Color(0xFFFFA000)
+                    )
+                }
+            }
         }
     }
 }
