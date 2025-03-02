@@ -49,6 +49,21 @@ fun EntryPoint(navigationController: NavHostController, apiViewModel: APIViewMod
                 id = backStackEntry.arguments?.getInt("id") ?: 0
             )
         }
+
+        composable(
+            route = Routes.InfoSeries.route,
+            arguments = listOf(
+                navArgument("id") {
+                    type = NavType.IntType
+                }
+            )
+        ) { backStackEntry ->
+            InfoSeries(
+                navController = navigationController,
+                seriesViewModel = seriesViewModel,
+                id = backStackEntry.arguments?.getInt("id") ?: 0
+            )
+        }
         composable(Routes.Anuncios.route) {
             Anuncios(navigationController, apiViewModel)
         }

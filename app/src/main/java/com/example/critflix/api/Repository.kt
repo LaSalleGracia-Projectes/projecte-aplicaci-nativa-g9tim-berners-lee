@@ -2,6 +2,8 @@ package com.example.critflix.api
 
 import com.example.critflix.model.PelisPopulares
 import com.example.critflix.model.SeriesPopulares
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
 class Repository {
     private val apiInterface = APIInterface.create()

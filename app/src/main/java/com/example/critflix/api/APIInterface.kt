@@ -3,11 +3,14 @@ package com.example.critflix.api
 import com.example.critflix.model.Data
 import com.example.critflix.model.DataSeries
 import com.example.critflix.model.Generos
+import com.example.critflix.model.PelisPopulares
+import com.example.critflix.model.SeriesPopulares
 import okhttp3.OkHttpClient
 import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.http.GET
+import retrofit2.http.Path
 import retrofit2.http.Query
 
 interface APIInterface {
