@@ -271,7 +271,7 @@ fun SeriePopular(serie: SeriesPopulares, navController: NavHostController) {
             modifier = Modifier
                 .fillMaxWidth()
                 .clip(RoundedCornerShape(12.dp))
-                .clickable { navController.navigate(Routes.InfoSerie.createRoute(serie.id)) }
+                .clickable { navController.navigate(Routes.InfoSeries.createRoute(serie.id)) }
         ) {
             GlideImage(
                 model = posterUrl,
@@ -374,7 +374,7 @@ fun SerieCarrusel(serie: SeriesPopulares, navController: NavHostController) {
     Column(
         modifier = Modifier
             .width(120.dp)
-            .clickable { navController.navigate(Routes.InfoSerie.createRoute(serie.id)) },
+            .clickable { navController.navigate(Routes.InfoSeries.createRoute(serie.id)) },
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Card(

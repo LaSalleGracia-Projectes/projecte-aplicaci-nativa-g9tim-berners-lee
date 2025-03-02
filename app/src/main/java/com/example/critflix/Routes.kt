@@ -10,8 +10,8 @@ sealed class Routes(val route: String) {
     object InfoPelis : Routes("info_pelis/{id}") {
         fun createRoute(id: Int) = "info_pelis/$id"
     }
-    object InfoSerie : Routes("info_serie/{id}") {
-        fun createRoute(id: Int) = "info_serie/$id"
+    object InfoSeries : Routes("info_series/{id}") {
+        fun createRoute(id: Int) = "info_series/$id"
     }
     object Busqueda : Routes("busqueda")
     object Anuncios : Routes("anuncios")
