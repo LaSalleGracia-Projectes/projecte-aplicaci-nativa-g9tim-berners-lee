@@ -1,27 +1,17 @@
 package com.example.critflix.model;
 
-import com.google.gson.annotations.SerializedName;
-
-public class Usuario {
+public class User {
     private int id;
     private String name;
     private String email;
-    private transient String password;
-    @SerializedName("foto_perfil")
-    private String fotoPerfil;
-    private String biografia;
-    private String rol;
+    private String foto_perfil; // Añadido según tu modelo
+    private String biografia;   // Añadido según tu modelo
+    private String rol;         // Añadido según tu modelo
 
-    public Usuario(int id, String name, String email, String password, String foto_perfil, String biografia, String rol) {
-        this.id = id;
-        this.name = name;
-        this.email = email;
-        this.password = password;
-        this.fotoPerfil = foto_perfil;
-        this.biografia = biografia;
-        this.rol = rol;
-    }
+    // Constructor
+    public User() {}
 
+    // Getters y setters para todos los campos
     public int getId() {
         return id;
     }
@@ -46,20 +36,12 @@ public class Usuario {
         this.email = email;
     }
 
-    public String password() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
-    }
-
     public String getFotoPerfil() {
-        return fotoPerfil;
+        return foto_perfil;
     }
 
-    public void setFotoPerfil(String fotoPerfil) {
-        this.fotoPerfil = fotoPerfil;
+    public void setFotoPerfil(String foto_perfil) {
+        this.foto_perfil = foto_perfil;
     }
 
     public String getBiografia() {
