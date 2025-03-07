@@ -14,34 +14,62 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.example.critflix.R
 import com.example.critflix.Routes
+import com.example.critflix.viewmodel.LoginState
+import com.example.critflix.viewmodel.UserViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun InicioSesion(navController: NavHostController) {
-    var nombreUsuarioOcorreo by remember { mutableStateOf("") }
+    var email by remember { mutableStateOf("") }
     var contrasena by remember { mutableStateOf("") }
+    var showErrorDialog by remember { mutableStateOf(false) }
+    var errorMessage by remember { mutableStateOf("") }
+
+    val userViewModel: UserViewModel = viewModel()
+    val loginState by userViewModel.loginState.collectAsState()
+
+    // Observar el estado de inicio de sesión
+    LaunchedEffect(loginState) {
+        when (loginState) {
+            is LoginState.Success -> {
+                // Navegar a la pantalla de inicio tras iniciar sesión exitosamente
+                navController.navigate(Routes.Home.route) {
+                    popUpTo(Routes.InicioSesion.route) { inclusive = true }
+                }
+            }
+            is LoginState.Error -> {
+                errorMessage = (loginState as LoginState.Error).message
+                showErrorDialog = true
+            }
+            else -> {}
+        }
+    }
 
     Column(
         modifier = Modifier
@@ -66,9 +94,9 @@ fun InicioSesion(navController: NavHostController) {
         Spacer(modifier = Modifier.height(48.dp))
 
         OutlinedTextField(
-            value = nombreUsuarioOcorreo,
-            onValueChange = { nombreUsuarioOcorreo = it },
-            placeholder = { Text("Nombre de usuario o email") },
+            value = email,
+            onValueChange = { email = it },
+            placeholder = { Text("Email") },
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(vertical = 8.dp),
@@ -97,20 +125,33 @@ fun InicioSesion(navController: NavHostController) {
         Spacer(modifier = Modifier.height(24.dp))
 
         Button(
-            onClick = { navController.navigate(Routes.Home.route) },
+            onClick = {
+                userViewModel.loginUser(
+                    email = email,
+                    password = contrasena
+                )
+            },
             modifier = Modifier
                 .fillMaxWidth()
                 .height(56.dp),
             shape = RoundedCornerShape(8.dp),
             colors = ButtonDefaults.buttonColors(
                 containerColor = Color.Green
-            )
+            ),
+            enabled = loginState !is LoginState.Loading
         ) {
-            Text(
-                "Iniciar Sesion",
-                color = Color.White,
-                fontSize = 16.sp
-            )
+            if (loginState is LoginState.Loading) {
+                CircularProgressIndicator(
+                    color = Color.White,
+                    modifier = Modifier.size(24.dp)
+                )
+            } else {
+                Text(
+                    "Iniciar Sesión",
+                    color = Color.White,
+                    fontSize = 16.sp
+                )
+            }
         }
 
         Spacer(modifier = Modifier.height(24.dp))
@@ -133,5 +174,22 @@ fun InicioSesion(navController: NavHostController) {
                 modifier = Modifier.clickable { navController.navigate(Routes.Registro.route) }
             )
         }
+    }
+
+    // Diálogo de error
+    if (showErrorDialog) {
+        AlertDialog(
+            onDismissRequest = { showErrorDialog = false },
+            title = { Text("Error de inicio de sesión") },
+            text = { Text(errorMessage) },
+            confirmButton = {
+                Button(
+                    onClick = { showErrorDialog = false },
+                    colors = ButtonDefaults.buttonColors(containerColor = Color.Red)
+                ) {
+                    Text("Aceptar")
+                }
+            }
+        )
     }
 }
