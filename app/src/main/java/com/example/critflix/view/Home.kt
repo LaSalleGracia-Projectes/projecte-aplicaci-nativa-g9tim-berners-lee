@@ -236,6 +236,7 @@ fun PeliPopular(pelicula: PelisPopulares, navController: NavHostController) {
             .fillMaxWidth()
             .padding(horizontal = 16.dp)
             .padding(vertical = 8.dp)
+            .clickable { navController.navigate(Routes.InfoPelis.createRoute(pelicula.id)) }
     ) {
         Column(
             modifier = Modifier
