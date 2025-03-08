@@ -4,9 +4,10 @@ import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
-import com.example.critflix.Routes
+import com.example.critflix.nav.Routes
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
+import com.example.critflix.view.compact.*
 import com.example.critflix.viewmodel.APIViewModel
 import com.example.critflix.viewmodel.ListViewModel
 import com.example.critflix.viewmodel.SeriesViewModel
