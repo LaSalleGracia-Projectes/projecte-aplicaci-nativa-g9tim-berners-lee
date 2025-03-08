@@ -28,6 +28,12 @@ interface APIInterface {
         @Query("page") page: Int
     ): Response<DataSeries>
 
+    @GET("genre/movie/list")
+    suspend fun getMovieGenres(
+        @Query("api_key") apiKey: String = "42b10f869a4ae1b57a4acf356320b942",
+        @Query("language") language: String = "es-ES"
+    ): Response<Generos>
+
     companion object {
         private const val BASE_URL = "https://api.themoviedb.org/3/"
 

@@ -9,11 +9,12 @@ import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import com.example.critflix.view.compact.*
 import com.example.critflix.viewmodel.APIViewModel
+import com.example.critflix.viewmodel.GenresViewModel
 import com.example.critflix.viewmodel.ListViewModel
 import com.example.critflix.viewmodel.SeriesViewModel
 
 @Composable
-fun EntryPoint(navigationController: NavHostController, apiViewModel: APIViewModel, seriesViewModel: SeriesViewModel, listViewModel: ListViewModel) {
+fun EntryPoint(navigationController: NavHostController, apiViewModel: APIViewModel, seriesViewModel: SeriesViewModel, listViewModel: ListViewModel, genresViewModel: GenresViewModel) {
     NavHost(
         navController = navigationController,
         startDestination = Routes.Registro.route
@@ -47,7 +48,8 @@ fun EntryPoint(navigationController: NavHostController, apiViewModel: APIViewMod
             InfoPelis(
                 navController = navigationController,
                 apiViewModel = apiViewModel,
-                id = backStackEntry.arguments?.getInt("id") ?: 0
+                id = backStackEntry.arguments?.getInt("id") ?: 0,
+                genresViewModel = genresViewModel
             )
         }
 
