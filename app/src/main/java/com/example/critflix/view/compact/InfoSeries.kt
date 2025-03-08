@@ -1,0 +1,191 @@
+package com.example.critflix.view.compact
+
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.FavoriteBorder
+import androidx.compose.material.icons.filled.Share
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
+import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.navigation.NavHostController
+import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
+import com.bumptech.glide.integration.compose.GlideImage
+import com.example.critflix.model.PelisPopulares
+import com.example.critflix.model.SeriesPopulares
+import com.example.critflix.viewmodel.SeriesViewModel
+
+@OptIn(ExperimentalGlideComposeApi::class, ExperimentalMaterial3Api::class)
+@Composable
+fun InfoSeries(navController: NavHostController, seriesViewModel: SeriesViewModel, id: Int) {
+    val series: List<SeriesPopulares> by seriesViewModel.series.observeAsState(emptyList())
+    val serie = series.find { it.id == id }
+    var isFavorite by remember { mutableStateOf(false) }
+
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text("Detalles de la película") },
+                navigationIcon = {
+                    IconButton(onClick = { navController.popBackStack() }) {
+                        Icon(Icons.Default.ArrowBack, contentDescription = "Volver")
+                    }
+                },
+                actions = {
+                    IconButton(onClick = { isFavorite = !isFavorite }) {
+                        Icon(
+                            if (isFavorite) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
+                            contentDescription = "Favorito",
+                            tint = if (isFavorite) Color.Red else Color.Gray
+                        )
+                    }
+                    IconButton(onClick = { /* Compartir lógica */ }) {
+                        Icon(Icons.Default.Share, contentDescription = "Compartir")
+                    }
+                }
+            )
+        }
+    ) { innerPadding ->
+        if (serie != null) {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(innerPadding)
+                    .verticalScroll(rememberScrollState())
+            ) {
+                // Imagen de portada
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(250.dp)
+                ) {
+                    GlideImage(
+                        model = "https://image.tmdb.org/t/p/w500${serie.poster_path}",
+                        contentDescription = serie.name,
+                        modifier = Modifier.fillMaxSize(),
+                        contentScale = ContentScale.Crop
+                    )
+                    // Overlay para mejor legibilidad
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .background(Color.Black.copy(alpha = 0.3f))
+                    )
+                    // Calificación
+                    Surface(
+                        modifier = Modifier
+                            .align(Alignment.TopEnd)
+                            .padding(16.dp),
+                        shape = RoundedCornerShape(8.dp),
+                        color = MaterialTheme.colorScheme.primary
+                    ) {
+                        Text(
+                            text = "${serie.vote_average}",
+                            modifier = Modifier.padding(8.dp),
+                            color = Color.White,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
+                }
+
+                // Información principal
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp)
+                ) {
+                    Text(
+                        text = serie.name,
+                        fontSize = 24.sp,
+                        fontWeight = FontWeight.Bold,
+                        modifier = Modifier.padding(bottom = 8.dp)
+                    )
+
+                    Row(
+                        modifier = Modifier.padding(bottom = 16.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = "Popularidad: ${serie.popularity}",
+                            fontSize = 14.sp,
+                            color = Color.Gray
+                        )
+                        Spacer(modifier = Modifier.width(16.dp))
+                        Text(
+                            text = "Fecha: ${serie.first_air_date}",
+                            fontSize = 14.sp,
+                            color = Color.Gray
+                        )
+                    }
+
+                    // Sinopsis
+                    Text(
+                        text = "Sinopsis",
+                        fontSize = 18.sp,
+                        fontWeight = FontWeight.Bold,
+                        modifier = Modifier.padding(bottom = 8.dp)
+                    )
+
+                    Text(
+                        text = serie.overview,
+                        fontSize = 16.sp,
+                        lineHeight = 24.sp,
+                        modifier = Modifier.padding(bottom = 16.dp)
+                    )
+
+                    // Botones de acción
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 16.dp),
+                        horizontalArrangement = Arrangement.SpaceEvenly
+                    ) {
+                        Button(
+                            onClick = { /* Ver trailer */ },
+                            modifier = Modifier.weight(1f).padding(end = 8.dp)
+                        ) {
+                            Text("Ver trailer")
+                        }
+                        Button(
+                            onClick = { /* Añadir a lista */ },
+                            modifier = Modifier.weight(1f).padding(start = 8.dp)
+                        ) {
+                            Text("Añadir a lista")
+                        }
+                    }
+                }
+            }
+        } else {
+            // Estado de carga o película no encontrada
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(innerPadding),
+                contentAlignment = Alignment.Center
+            ) {
+                CircularProgressIndicator()
+            }
+        }
+    }
+}
