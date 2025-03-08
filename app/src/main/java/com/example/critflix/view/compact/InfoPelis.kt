@@ -28,10 +28,11 @@ import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
 import com.example.critflix.model.PelisPopulares
 import com.example.critflix.viewmodel.APIViewModel
+import com.example.critflix.viewmodel.GenresViewModel
 
 @OptIn(ExperimentalGlideComposeApi::class, ExperimentalMaterial3Api::class)
 @Composable
-fun InfoPelis(navController: NavHostController, apiViewModel: APIViewModel, id: Int) {
+fun InfoPelis(navController: NavHostController, apiViewModel: APIViewModel, id: Int, genresViewModel: GenresViewModel) {
     val peliculas: List<PelisPopulares> by apiViewModel.pelis.observeAsState(emptyList())
     val pelicula = peliculas.find { it.id == id }
     var isFavorite by remember { mutableStateOf(false) }
@@ -53,7 +54,7 @@ fun InfoPelis(navController: NavHostController, apiViewModel: APIViewModel, id: 
                             tint = if (isFavorite) Color.Red else Color.Gray
                         )
                     }
-                    IconButton(onClick = { /* Compartir lógica */ }) {
+                    IconButton(onClick = { /* Compartir */ }) {
                         Icon(Icons.Default.Share, contentDescription = "Compartir")
                     }
                 }
@@ -79,7 +80,6 @@ fun InfoPelis(navController: NavHostController, apiViewModel: APIViewModel, id: 
                         modifier = Modifier.fillMaxSize(),
                         contentScale = ContentScale.Crop
                     )
-                    // Overlay para mejor legibilidad
                     Box(
                         modifier = Modifier
                             .fillMaxSize()
@@ -170,7 +170,6 @@ fun InfoPelis(navController: NavHostController, apiViewModel: APIViewModel, id: 
                 }
             }
         } else {
-            // Estado de carga o película no encontrada
             Box(
                 modifier = Modifier
                     .fillMaxSize()
