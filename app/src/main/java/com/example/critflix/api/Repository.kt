@@ -10,6 +10,7 @@ class Repository {
 
     suspend fun getAllPelis(page: Int) = apiInterface.getPelis(page = page)
     suspend fun getAllSeries(page: Int) = apiInterface.getSeries(page = page)
+    suspend fun getMovieGenres() = apiInterface.getMovieGenres()
 
     suspend fun getMultiplePages(startPage: Int = 1, numberOfPages: Int): List<PelisPopulares> {
         val allMovies = mutableListOf<PelisPopulares>()
