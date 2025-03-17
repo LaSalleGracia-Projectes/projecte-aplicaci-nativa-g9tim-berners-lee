@@ -14,7 +14,38 @@ import com.example.critflix.viewmodel.ListViewModel
 import com.example.critflix.viewmodel.SeriesViewModel
 
 @Composable
-fun EntryPoint(navigationController: NavHostController, apiViewModel: APIViewModel, seriesViewModel: SeriesViewModel, listViewModel: ListViewModel, genresViewModel: GenresViewModel) {
+fun EntryPoint(
+    navigationController: NavHostController,
+    apiViewModel: APIViewModel,
+    seriesViewModel: SeriesViewModel,
+    listViewModel: ListViewModel,
+    genresViewModel: GenresViewModel,
+    deviceType: String
+) {
+    when (deviceType){
+        "compact" ->{
+            AppNavigationCompact(navigationController, apiViewModel, seriesViewModel, listViewModel, genresViewModel)
+        }
+        "medium" ->{
+            AppNavigationMedium(navigationController, apiViewModel, seriesViewModel, listViewModel, genresViewModel)
+        }
+        "expanded" ->{
+            AppNavigationExpanded(navigationController, apiViewModel, seriesViewModel, listViewModel, genresViewModel)
+        }
+        else -> {
+            AppNavigationCompact(navigationController, apiViewModel, seriesViewModel, listViewModel, genresViewModel)
+        }
+    }
+}
+
+@Composable
+fun AppNavigationCompact(
+    navigationController: NavHostController,
+    apiViewModel: APIViewModel,
+    seriesViewModel: SeriesViewModel,
+    listViewModel: ListViewModel,
+    genresViewModel: GenresViewModel
+){
     NavHost(
         navController = navigationController,
         startDestination = Routes.Registro.route
@@ -80,4 +111,31 @@ fun EntryPoint(navigationController: NavHostController, apiViewModel: APIViewMod
             Busqueda(navigationController, apiViewModel, seriesViewModel)
         }
     }
+
+}
+
+
+@Composable
+fun AppNavigationMedium(
+    navigationController: NavHostController,
+    apiViewModel: APIViewModel,
+    seriesViewModel: SeriesViewModel,
+    listViewModel: ListViewModel,
+    genresViewModel: GenresViewModel
+){
+
+
+}
+
+
+@Composable
+fun AppNavigationExpanded(
+    navigationController: NavHostController,
+    apiViewModel: APIViewModel,
+    seriesViewModel: SeriesViewModel,
+    listViewModel: ListViewModel,
+    genresViewModel: GenresViewModel
+){
+
+
 }

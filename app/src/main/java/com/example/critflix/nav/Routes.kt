@@ -1,6 +1,8 @@
 package com.example.critflix.nav
 
 sealed class Routes(val route: String) {
+
+    // COMPACT
     object PreferenciasInicio : Routes("preferencias_inicio")
     object AutentificacionCorreo : Routes("autentificacion_correo")
     object InicioSesion : Routes("inicio_sesion")
@@ -9,12 +11,18 @@ sealed class Routes(val route: String) {
     object Listas : Routes("listas")
     object Notificaciones : Routes("notificaciones")
     object Perfil : Routes("perfil")
+
+    //TODO: Crear Info
     object InfoPelis : Routes("info_pelis/{id}") {
         fun createRoute(id: Int) = "info_pelis/$id"
     }
     object InfoSeries : Routes("info_series/{id}") {
         fun createRoute(id: Int) = "info_series/$id"
     }
+
     object Busqueda : Routes("busqueda")
     object Anuncios : Routes("anuncios")
+
+
+
 }
