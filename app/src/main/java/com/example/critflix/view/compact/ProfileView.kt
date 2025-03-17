@@ -61,7 +61,7 @@ fun ProfileView(navController: NavHostController, apiViewModel: APIViewModel) {
                     .background(Color.LightGray)
             ) {
                 Image(
-                    painter = painterResource(id = R.drawable.perfil),
+                    painter = painterResource(id = R.drawable.user),
                     contentDescription = "Foto de perfil",
                     modifier = Modifier.fillMaxSize(),
                     contentScale = ContentScale.Crop

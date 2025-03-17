@@ -19,6 +19,12 @@ fun EntryPoint(navigationController: NavHostController, apiViewModel: APIViewMod
         navController = navigationController,
         startDestination = Routes.Registro.route
     ) {
+        composable(Routes.PreferenciasInicio.route){
+            PreferenciasInicio(navigationController)
+        }
+        composable(Routes.AutentificacionCorreo.route){
+            AutentificacionCorreo(navigationController)
+        }
         composable(Routes.Registro.route) {
             Registro(navigationController)
         }
