@@ -36,8 +36,8 @@ fun Busqueda(navController: NavHostController, apiViewModel: APIViewModel, serie
     val series: List<SeriesPopulares> by seriesViewModel.series.observeAsState(emptyList())
 
     LaunchedEffect(Unit) {
-        apiViewModel.getPelis(totalMoviesNeeded = 3000)
-        seriesViewModel.getSeries(totalSeriesNeeded = 3000)
+        apiViewModel.getPelis(totalMoviesNeeded = 200)
+        seriesViewModel.getSeries(totalSeriesNeeded = 200)
     }
 
     Scaffold(
