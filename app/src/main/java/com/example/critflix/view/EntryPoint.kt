@@ -50,30 +50,39 @@ fun AppNavigationCompact(
         navController = navigationController,
         startDestination = Routes.Registro.route
     ) {
-        composable(Routes.PreferenciasInicio.route){
-            PreferenciasInicio(navigationController)
-        }
-        composable(Routes.AutentificacionCorreo.route){
-            AutentificacionCorreo(navigationController)
-        }
+        // Registro
         composable(Routes.Registro.route) {
             Registro(navigationController)
         }
+        // Autentificacion de correo
+        composable(Routes.AutentificacionCorreo.route){
+            AutentificacionCorreo(navigationController)
+        }
+        // Inicio de Sesion
         composable(Routes.InicioSesion.route) {
             InicioSesion(navigationController)
         }
+        // Preferencias Etiquetas
+        composable(Routes.PreferenciasInicio.route){
+            PreferenciasInicio(navigationController)
+        }
+        // Home
         composable(Routes.Home.route) {
             HomeScreen(navigationController, apiViewModel, seriesViewModel)
         }
+        // Listas
         composable(Routes.Listas.route) {
             ListView(navigationController, apiViewModel, listViewModel)
         }
+        // Notificaciones
         composable(Routes.Notificaciones.route) {
             NotificationView(navigationController, apiViewModel)
         }
+        // Perfil
         composable(Routes.Perfil.route) {
             ProfileView(navigationController, apiViewModel)
         }
+        // InfoPelis
         composable(
             route = Routes.InfoPelis.route,
             arguments = listOf(
@@ -89,7 +98,7 @@ fun AppNavigationCompact(
                 genresViewModel = genresViewModel
             )
         }
-
+        // InfoSeries
         composable(
             route = Routes.InfoSeries.route,
             arguments = listOf(
@@ -104,14 +113,24 @@ fun AppNavigationCompact(
                 id = backStackEntry.arguments?.getInt("id") ?: 0
             )
         }
+        // Anuncios
         composable(Routes.Anuncios.route) {
             Anuncios(navigationController, apiViewModel)
         }
+        // Busqueda
         composable(Routes.Busqueda.route) {
             Busqueda(navigationController, apiViewModel, seriesViewModel)
         }
+        //Perfil -> Ajustes
+        composable(Routes.Ajustes.route){
+            Ajustes(navigationController)
+        }
+        // Perfil -> Ayuda
+        composable(Routes.Ayuda.route){
+            Ayuda(navigationController)
+        }
+        
     }
-
 }
 
 
