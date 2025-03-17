@@ -156,6 +156,7 @@ fun ProfileView(navController: NavHostController, apiViewModel: APIViewModel) {
                         headlineContent = { Text("Configuración de la aplicación") },
                         leadingContent = { Icon(Icons.Default.Settings, contentDescription = null) },
                         modifier = Modifier.clickable {
+                            navController.navigate(Routes.Ajustes.route)
                             showOptionsBottomSheet = false
                             /* TODO: Settings action */
                         }
