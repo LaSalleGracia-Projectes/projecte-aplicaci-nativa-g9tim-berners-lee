@@ -7,6 +7,7 @@ import androidx.activity.viewModels
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.navigation.compose.rememberNavController
 import com.example.critflix.ui.theme.CritflixTheme
 import com.example.critflix.view.EntryPoint
@@ -29,8 +30,16 @@ class MainActivity : ComponentActivity() {
                 Surface(
                     color = MaterialTheme.colorScheme.background
                 ) {
+
                     val navigationController = rememberNavController()
-                    EntryPoint(navigationController, apiViewModel, seriesViewModel, listaViewModel, genresViewModel)
+                    val configuration = LocalConfiguration.current
+                    val deviceType = when {
+                        configuration.smallestScreenWidthDp >= 840 -> "expanded"
+                        configuration.smallestScreenWidthDp >= 600 -> "medium"
+                        else -> "compact"
+                    }
+
+                    EntryPoint(navigationController, apiViewModel, seriesViewModel, listaViewModel, genresViewModel, deviceType)
                 }
             }
         }
