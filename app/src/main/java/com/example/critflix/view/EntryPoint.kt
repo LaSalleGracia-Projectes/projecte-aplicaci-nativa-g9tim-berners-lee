@@ -12,6 +12,7 @@ import com.example.critflix.viewmodel.APIViewModel
 import com.example.critflix.viewmodel.GenresViewModel
 import com.example.critflix.viewmodel.ListViewModel
 import com.example.critflix.viewmodel.ProfileViewModel
+import com.example.critflix.viewmodel.RepartoViewModel
 import com.example.critflix.viewmodel.SeriesViewModel
 
 @Composable
@@ -22,11 +23,12 @@ fun EntryPoint(
     listViewModel: ListViewModel,
     genresViewModel: GenresViewModel,
     profileViewModel: ProfileViewModel,
+    repartoViewModel: RepartoViewModel,
     deviceType: String
 ) {
     when (deviceType){
         "compact" ->{
-            AppNavigationCompact(navigationController, apiViewModel, seriesViewModel, listViewModel, genresViewModel,profileViewModel)
+            AppNavigationCompact(navigationController, apiViewModel, seriesViewModel, listViewModel, genresViewModel,profileViewModel, repartoViewModel)
         }
         "medium" ->{
             AppNavigationMedium(navigationController, apiViewModel, seriesViewModel, listViewModel, genresViewModel)
@@ -47,7 +49,8 @@ fun AppNavigationCompact(
     seriesViewModel: SeriesViewModel,
     listViewModel: ListViewModel,
     genresViewModel: GenresViewModel,
-    profileViewModel: ProfileViewModel
+    profileViewModel: ProfileViewModel,
+    repartoViewModel: RepartoViewModel
 ){
     NavHost(
         navController = navigationController,
@@ -98,7 +101,8 @@ fun AppNavigationCompact(
                 navController = navigationController,
                 apiViewModel = apiViewModel,
                 id = backStackEntry.arguments?.getInt("id") ?: 0,
-                genresViewModel = genresViewModel
+                genresViewModel = genresViewModel,
+                repartoViewModel = repartoViewModel
             )
         }
         // InfoSeries
@@ -113,7 +117,8 @@ fun AppNavigationCompact(
             InfoSeries(
                 navController = navigationController,
                 seriesViewModel = seriesViewModel,
-                id = backStackEntry.arguments?.getInt("id") ?: 0
+                id = backStackEntry.arguments?.getInt("id") ?: 0,
+                repartoViewModel = repartoViewModel
             )
         }
         // Anuncios
