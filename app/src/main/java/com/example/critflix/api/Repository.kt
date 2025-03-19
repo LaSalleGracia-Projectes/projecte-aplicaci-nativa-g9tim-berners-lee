@@ -1,9 +1,12 @@
 package com.example.critflix.api
 
+import com.example.critflix.model.MovieCredits
 import com.example.critflix.model.PelisPopulares
 import com.example.critflix.model.SeriesPopulares
+import com.example.critflix.model.TvCredits
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import retrofit2.Response
 
 class Repository {
     private val apiInterface = APIInterface.create()
@@ -46,5 +49,13 @@ class Repository {
             }
         }
         return allSeries
+    }
+
+    suspend fun getMovieCredits(movieId: Int): Response<MovieCredits> {
+        return apiInterface.getMovieCredits(movieId = movieId)
+    }
+
+    suspend fun getTvCredits(tvId: Int): Response<TvCredits> {
+        return apiInterface.getTvCredits(tvId = tvId)
     }
 }
