@@ -1,6 +1,7 @@
 package com.example.critflix
 
 import android.os.Bundle
+import android.provider.ContactsContract.Profile
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
@@ -18,6 +19,7 @@ class MainActivity : ComponentActivity() {
     val seriesViewModel: SeriesViewModel by viewModels()
     val listaViewModel: ListViewModel by viewModels()
     val genresViewModel: GenresViewModel by viewModels()
+    val profileViewModel: ProfileViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -39,7 +41,15 @@ class MainActivity : ComponentActivity() {
                         else -> "compact"
                     }
 
-                    EntryPoint(navigationController, apiViewModel, seriesViewModel, listaViewModel, genresViewModel, deviceType)
+                    EntryPoint(
+                        navigationController,
+                        apiViewModel,
+                        seriesViewModel,
+                        listaViewModel,
+                        genresViewModel,
+                        profileViewModel,
+                        deviceType
+                    )
                 }
             }
         }

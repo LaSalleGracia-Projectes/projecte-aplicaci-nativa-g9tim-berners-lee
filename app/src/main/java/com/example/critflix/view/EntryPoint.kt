@@ -11,6 +11,7 @@ import com.example.critflix.view.compact.*
 import com.example.critflix.viewmodel.APIViewModel
 import com.example.critflix.viewmodel.GenresViewModel
 import com.example.critflix.viewmodel.ListViewModel
+import com.example.critflix.viewmodel.ProfileViewModel
 import com.example.critflix.viewmodel.SeriesViewModel
 
 @Composable
@@ -20,11 +21,12 @@ fun EntryPoint(
     seriesViewModel: SeriesViewModel,
     listViewModel: ListViewModel,
     genresViewModel: GenresViewModel,
+    profileViewModel: ProfileViewModel,
     deviceType: String
 ) {
     when (deviceType){
         "compact" ->{
-            AppNavigationCompact(navigationController, apiViewModel, seriesViewModel, listViewModel, genresViewModel)
+            AppNavigationCompact(navigationController, apiViewModel, seriesViewModel, listViewModel, genresViewModel,profileViewModel)
         }
         "medium" ->{
             AppNavigationMedium(navigationController, apiViewModel, seriesViewModel, listViewModel, genresViewModel)
@@ -33,7 +35,7 @@ fun EntryPoint(
             AppNavigationExpanded(navigationController, apiViewModel, seriesViewModel, listViewModel, genresViewModel)
         }
         else -> {
-            AppNavigationCompact(navigationController, apiViewModel, seriesViewModel, listViewModel, genresViewModel)
+            AppNavigationCompact(navigationController, apiViewModel, seriesViewModel, listViewModel, genresViewModel, profileViewModel)
         }
     }
 }
@@ -44,7 +46,8 @@ fun AppNavigationCompact(
     apiViewModel: APIViewModel,
     seriesViewModel: SeriesViewModel,
     listViewModel: ListViewModel,
-    genresViewModel: GenresViewModel
+    genresViewModel: GenresViewModel,
+    profileViewModel: ProfileViewModel
 ){
     NavHost(
         navController = navigationController,
@@ -80,7 +83,7 @@ fun AppNavigationCompact(
         }
         // Perfil
         composable(Routes.Perfil.route) {
-            ProfileView(navigationController, apiViewModel)
+            ProfileView(navigationController, apiViewModel, profileViewModel)
         }
         // InfoPelis
         composable(
