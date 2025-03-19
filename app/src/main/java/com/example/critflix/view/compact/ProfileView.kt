@@ -22,10 +22,11 @@ import androidx.navigation.NavHostController
 import com.example.critflix.R
 import com.example.critflix.nav.Routes
 import com.example.critflix.viewmodel.APIViewModel
+import com.example.critflix.viewmodel.ProfileViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ProfileView(navController: NavHostController, apiViewModel: APIViewModel) {
+fun ProfileView(navController: NavHostController, apiViewModel: APIViewModel, profileViewModel: ProfileViewModel) {
     var showOptionsBottomSheet by remember { mutableStateOf(false) }
     var showUserBottomSheet by remember { mutableStateOf(false) }
 
