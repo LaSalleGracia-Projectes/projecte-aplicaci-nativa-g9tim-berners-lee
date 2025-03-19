@@ -27,6 +27,7 @@ import androidx.navigation.NavHostController
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
 import com.example.critflix.model.PelisPopulares
+import com.example.critflix.view.util.ActorCarousel
 import com.example.critflix.viewmodel.APIViewModel
 import com.example.critflix.viewmodel.GenresViewModel
 import com.example.critflix.viewmodel.RepartoViewModel
@@ -37,6 +38,13 @@ fun InfoPelis(navController: NavHostController, apiViewModel: APIViewModel, id: 
     val peliculas: List<PelisPopulares> by apiViewModel.pelis.observeAsState(emptyList())
     val pelicula = peliculas.find { it.id == id }
     var isFavorite by remember { mutableStateOf(false) }
+
+    LaunchedEffect(id) {
+        repartoViewModel.getMovieCredits(id)
+    }
+    val movieCredits by repartoViewModel.movieCredits.observeAsState()
+    val isLoading by repartoViewModel.isLoading.observeAsState(initial = false)
+    val error by repartoViewModel.error.observeAsState()
 
     Scaffold(
         topBar = {
@@ -147,6 +155,38 @@ fun InfoPelis(navController: NavHostController, apiViewModel: APIViewModel, id: 
                         lineHeight = 24.sp,
                         modifier = Modifier.padding(bottom = 16.dp)
                     )
+
+                    // Sección de reparto
+                    if (isLoading) {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(150.dp),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            CircularProgressIndicator()
+                        }
+                    } else if (error != null) {
+                        Text(
+                            text = "Error al cargar el reparto",
+                            color = Color.Red,
+                            modifier = Modifier.padding(vertical = 16.dp)
+                        )
+                    } else {
+                        movieCredits?.let { credits ->
+                            val mainCast = credits.cast.take(10)
+                            if (mainCast.isNotEmpty()) {
+                                ActorCarousel(actores = mainCast)
+                            } else {
+                                Text(
+                                    text = "No hay información de reparto disponible",
+                                    modifier = Modifier.padding(vertical = 16.dp)
+                                )
+                            }
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.height(16.dp))
 
                     // Botones de acción
                     Row(

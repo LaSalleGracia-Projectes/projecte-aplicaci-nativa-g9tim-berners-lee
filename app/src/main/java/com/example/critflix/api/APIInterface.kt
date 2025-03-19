@@ -2,6 +2,8 @@ package com.example.critflix.api
 
 import com.example.critflix.model.Data
 import com.example.critflix.model.DataSeries
+import com.example.critflix.model.MovieCredits
+import com.example.critflix.model.TvCredits
 import com.example.critflix.model.Generos
 import com.example.critflix.model.PelisPopulares
 import com.example.critflix.model.SeriesPopulares
@@ -33,6 +35,20 @@ interface APIInterface {
         @Query("api_key") apiKey: String = "42b10f869a4ae1b57a4acf356320b942",
         @Query("language") language: String = "es-ES"
     ): Response<Generos>
+
+    @GET("movie/{movie_id}/credits")
+    suspend fun getMovieCredits(
+        @Path("movie_id") movieId: Int,
+        @Query("api_key") apiKey: String = "42b10f869a4ae1b57a4acf356320b942",
+        @Query("language") language: String = "es-ES"
+    ): Response<MovieCredits>
+
+    @GET("tv/{tv_id}/credits")
+    suspend fun getTvCredits(
+        @Path("tv_id") tvId: Int,
+        @Query("api_key") apiKey: String = "42b10f869a4ae1b57a4acf356320b942",
+        @Query("language") language: String = "es-ES"
+    ): Response<TvCredits>
 
     companion object {
         private const val BASE_URL = "https://api.themoviedb.org/3/"

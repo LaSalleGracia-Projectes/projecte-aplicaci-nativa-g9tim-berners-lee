@@ -34,6 +34,7 @@ import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
 import com.example.critflix.model.PelisPopulares
 import com.example.critflix.model.SeriesPopulares
+import com.example.critflix.view.util.ActorCarousel
 import com.example.critflix.viewmodel.RepartoViewModel
 import com.example.critflix.viewmodel.SeriesViewModel
 
@@ -43,6 +44,13 @@ fun InfoSeries(navController: NavHostController, seriesViewModel: SeriesViewMode
     val series: List<SeriesPopulares> by seriesViewModel.series.observeAsState(emptyList())
     val serie = series.find { it.id == id }
     var isFavorite by remember { mutableStateOf(false) }
+
+    LaunchedEffect(id) {
+        repartoViewModel.getTvCredits(id)
+    }
+    val tvCredits by repartoViewModel.tvCredits.observeAsState()
+    val isLoading by repartoViewModel.isLoading.observeAsState(initial = false)
+    val error by repartoViewModel.error.observeAsState()
 
     Scaffold(
         topBar = {
@@ -154,6 +162,38 @@ fun InfoSeries(navController: NavHostController, seriesViewModel: SeriesViewMode
                         lineHeight = 24.sp,
                         modifier = Modifier.padding(bottom = 16.dp)
                     )
+
+                    // Sección de reparto
+                    if (isLoading) {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(150.dp),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            CircularProgressIndicator()
+                        }
+                    } else if (error != null) {
+                        Text(
+                            text = "Error al cargar el reparto",
+                            color = Color.Red,
+                            modifier = Modifier.padding(vertical = 16.dp)
+                        )
+                    } else {
+                        tvCredits?.let { credits ->
+                            val mainCast = credits.cast.take(10)
+                            if (mainCast.isNotEmpty()) {
+                                ActorCarousel(actores = mainCast)
+                            } else {
+                                Text(
+                                    text = "No hay información de reparto disponible",
+                                    modifier = Modifier.padding(vertical = 16.dp)
+                                )
+                            }
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.height(16.dp))
 
                     // Botones de acción
                     Row(
