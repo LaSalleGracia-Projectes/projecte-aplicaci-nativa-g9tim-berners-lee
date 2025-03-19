@@ -20,6 +20,7 @@ class MainActivity : ComponentActivity() {
     val listaViewModel: ListViewModel by viewModels()
     val genresViewModel: GenresViewModel by viewModels()
     val profileViewModel: ProfileViewModel by viewModels()
+    val repartoViewModel: RepartoViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -48,6 +49,7 @@ class MainActivity : ComponentActivity() {
                         listaViewModel,
                         genresViewModel,
                         profileViewModel,
+                        repartoViewModel,
                         deviceType
                     )
                 }

@@ -29,10 +29,11 @@ import com.bumptech.glide.integration.compose.GlideImage
 import com.example.critflix.model.PelisPopulares
 import com.example.critflix.viewmodel.APIViewModel
 import com.example.critflix.viewmodel.GenresViewModel
+import com.example.critflix.viewmodel.RepartoViewModel
 
 @OptIn(ExperimentalGlideComposeApi::class, ExperimentalMaterial3Api::class)
 @Composable
-fun InfoPelis(navController: NavHostController, apiViewModel: APIViewModel, id: Int, genresViewModel: GenresViewModel) {
+fun InfoPelis(navController: NavHostController, apiViewModel: APIViewModel, id: Int, genresViewModel: GenresViewModel, repartoViewModel: RepartoViewModel) {
     val peliculas: List<PelisPopulares> by apiViewModel.pelis.observeAsState(emptyList())
     val pelicula = peliculas.find { it.id == id }
     var isFavorite by remember { mutableStateOf(false) }
