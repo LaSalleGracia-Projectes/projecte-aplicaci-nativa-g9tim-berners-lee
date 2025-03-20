@@ -1,12 +1,18 @@
 package com.example.critflix.view
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
+import androidx.compose.ui.platform.LocalContext
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import com.example.critflix.nav.Routes
 import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import com.example.critflix.model.UserSessionManager
 import com.example.critflix.view.compact.*
 import com.example.critflix.viewmodel.APIViewModel
 import com.example.critflix.viewmodel.GenresViewModel
@@ -14,6 +20,7 @@ import com.example.critflix.viewmodel.ListViewModel
 import com.example.critflix.viewmodel.ProfileViewModel
 import com.example.critflix.viewmodel.RepartoViewModel
 import com.example.critflix.viewmodel.SeriesViewModel
+import com.example.critflix.viewmodel.UserViewModel
 
 @Composable
 fun EntryPoint(
@@ -24,11 +31,18 @@ fun EntryPoint(
     genresViewModel: GenresViewModel,
     profileViewModel: ProfileViewModel,
     repartoViewModel: RepartoViewModel,
+    userViewModel: UserViewModel,
     deviceType: String
 ) {
+    val navController = rememberNavController()
+    val userViewModel: UserViewModel = viewModel()
+    val profileViewModel: ProfileViewModel = viewModel()
+    val context = LocalContext.current
+    val sessionManager = remember { UserSessionManager(context) }
+
     when (deviceType){
         "compact" ->{
-            AppNavigationCompact(navigationController, apiViewModel, seriesViewModel, listViewModel, genresViewModel,profileViewModel, repartoViewModel)
+            AppNavigationCompact(navigationController, apiViewModel, seriesViewModel, listViewModel, genresViewModel,profileViewModel, repartoViewModel, userViewModel, sessionManager)
         }
         "medium" ->{
             AppNavigationMedium(navigationController, apiViewModel, seriesViewModel, listViewModel, genresViewModel)
@@ -37,7 +51,7 @@ fun EntryPoint(
             AppNavigationExpanded(navigationController, apiViewModel, seriesViewModel, listViewModel, genresViewModel)
         }
         else -> {
-            AppNavigationCompact(navigationController, apiViewModel, seriesViewModel, listViewModel, genresViewModel, profileViewModel, repartoViewModel)
+            AppNavigationCompact(navigationController, apiViewModel, seriesViewModel, listViewModel, genresViewModel, profileViewModel, repartoViewModel, userViewModel, sessionManager)
         }
     }
 }
@@ -50,11 +64,13 @@ fun AppNavigationCompact(
     listViewModel: ListViewModel,
     genresViewModel: GenresViewModel,
     profileViewModel: ProfileViewModel,
-    repartoViewModel: RepartoViewModel
+    repartoViewModel: RepartoViewModel,
+    userViewModel: UserViewModel,
+    sessionManager: UserSessionManager
 ){
     NavHost(
         navController = navigationController,
-        startDestination = Routes.Registro.route
+        startDestination = if (sessionManager.isLoggedIn()) Routes.Home.route else Routes.InicioSesion.route
     ) {
         // Registro
         composable(Routes.Registro.route) {
@@ -86,7 +102,21 @@ fun AppNavigationCompact(
         }
         // Perfil
         composable(Routes.Perfil.route) {
-            ProfileView(navigationController, apiViewModel, profileViewModel)
+            val user = sessionManager.getUserData()
+            val token = sessionManager.getToken()
+
+            LaunchedEffect(Unit) {
+                if (user != null) {
+                    profileViewModel.setCurrentUser(user)
+                }
+
+                // Opcionalmente, refrescar los datos del usuario desde la API
+                if (user != null && token != null) {
+                    profileViewModel.getUserProfile(user.id, token)
+                }
+            }
+
+            ProfileView(navigationController, apiViewModel, profileViewModel, userViewModel)
         }
         // InfoPelis
         composable(
