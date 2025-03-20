@@ -17,10 +17,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.example.critflix.R
+import com.example.critflix.model.UserSessionManager
 import com.example.critflix.nav.Routes
 import com.example.critflix.viewmodel.APIViewModel
 import com.example.critflix.viewmodel.ProfileViewModel
@@ -33,6 +35,8 @@ fun ProfileView(navController: NavHostController, apiViewModel: APIViewModel, pr
     var showUserBottomSheet by remember { mutableStateOf(false) }
     val profileState by profileViewModel.profileState.observeAsState()
     val currentUser by profileViewModel.currentUser.observeAsState()
+    val context = LocalContext.current
+    val sessionManager = remember { UserSessionManager(context) }
 
     Scaffold(
         topBar = {
@@ -180,6 +184,7 @@ fun ProfileView(navController: NavHostController, apiViewModel: APIViewModel, pr
                         leadingContent = { Icon(Icons.Default.ExitToApp, contentDescription = null) },
                         modifier = Modifier.clickable {
                             showOptionsBottomSheet = false
+                            sessionManager.logout()
                         }
                     )
                 }
