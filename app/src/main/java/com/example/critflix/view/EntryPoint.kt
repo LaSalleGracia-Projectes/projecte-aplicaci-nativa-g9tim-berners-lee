@@ -118,6 +118,10 @@ fun AppNavigationCompact(
 
             ProfileView(navigationController, apiViewModel, profileViewModel, userViewModel)
         }
+        // Editar Perfil
+        composable(Routes.EditarPerfil.route) {
+            EditarPerfil(navigationController, profileViewModel, userViewModel)
+        }
         // InfoPelis
         composable(
             route = Routes.InfoPelis.route,
