@@ -1,5 +1,7 @@
 package com.example.critflix.viewmodel
 
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.example.critflix.api.RetrofitClient
 import com.example.critflix.model.LoginRequest
@@ -16,12 +18,13 @@ import retrofit2.Response
 
 class UserViewModel : ViewModel() {
     // Estado para el registro
-    private val _registrationState = MutableStateFlow<RegistrationState>(RegistrationState.Idle)
-    val registrationState: StateFlow<RegistrationState> = _registrationState.asStateFlow()
+    private val _registrationState = MutableLiveData<RegistrationState>(RegistrationState.Idle)
+    val registrationState: LiveData<RegistrationState> = _registrationState
 
     // Estado para el inicio de sesión
-    private val _loginState = MutableStateFlow<LoginState>(LoginState.Idle)
-    val loginState: StateFlow<LoginState> = _loginState.asStateFlow()
+    private val _loginState = MutableLiveData<LoginState>(LoginState.Idle)
+    val loginState: LiveData<LoginState> = _loginState
+
 
     // Función para registrar usuario
     fun registerUser(

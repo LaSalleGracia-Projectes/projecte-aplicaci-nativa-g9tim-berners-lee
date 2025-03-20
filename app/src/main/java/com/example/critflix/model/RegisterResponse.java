@@ -3,6 +3,8 @@ package com.example.critflix.model;
 public class RegisterResponse {
     private User user;
     private String token;
+    private String message;
+
 
     // Constructor vacío para Gson
     public RegisterResponse() {}
@@ -22,5 +24,13 @@ public class RegisterResponse {
 
     public void setToken(String token) {
         this.token = token;
+    }
+
+    public String getMessage(){
+        return message;
+    }
+
+    public void setMessage(String message){
+        this.message = message;
     }
 }

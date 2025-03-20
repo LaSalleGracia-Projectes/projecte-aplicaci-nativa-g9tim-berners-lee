@@ -26,12 +26,14 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
@@ -39,6 +41,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.example.critflix.R
+import com.example.critflix.model.UserSessionManager
 import com.example.critflix.nav.Routes
 import com.example.critflix.viewmodel.LoginState
 import com.example.critflix.viewmodel.UserViewModel
@@ -52,13 +55,17 @@ fun InicioSesion(navController: NavHostController) {
     var errorMessage by remember { mutableStateOf("") }
 
     val userViewModel: UserViewModel = viewModel()
-    val loginState by userViewModel.loginState.collectAsState()
+    val loginState by userViewModel.loginState.observeAsState()
+
+    val context = LocalContext.current
+    val sessionManager = remember { UserSessionManager(context) }
 
     // Observar el estado de inicio de sesión
     LaunchedEffect(loginState) {
         when (loginState) {
             is LoginState.Success -> {
-                // Navegar a la pantalla de inicio tras iniciar sesión exitosamente
+                val state = loginState as LoginState.Success
+                sessionManager.saveUserSession(state.token, state.user)
                 navController.navigate(Routes.Home.route) {
                     popUpTo(Routes.InicioSesion.route) { inclusive = true }
                 }

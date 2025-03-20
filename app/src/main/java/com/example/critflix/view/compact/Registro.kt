@@ -6,9 +6,11 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
@@ -16,6 +18,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.example.critflix.R
+import com.example.critflix.model.UserSessionManager
 import com.example.critflix.nav.Routes
 import com.example.critflix.viewmodel.RegistrationState
 import com.example.critflix.viewmodel.UserViewModel
@@ -31,13 +34,16 @@ fun Registro(navController: NavHostController) {
     var errorMessage by remember { mutableStateOf("") }
 
     val userViewModel: UserViewModel = viewModel()
-    val registrationState by userViewModel.registrationState.collectAsState()
+    val registrationState by userViewModel.registrationState.observeAsState()
+    val context = LocalContext.current
+    val sessionManager = remember { UserSessionManager(context) }
 
     // Observar el estado de registro
     LaunchedEffect(registrationState) {
         when (registrationState) {
             is RegistrationState.Success -> {
-                // Navegar a la pantalla de inicio tras el registro exitoso
+                val state = registrationState as RegistrationState.Success
+                sessionManager.saveUserSession(state.token, state.user)
                 navController.navigate(Routes.InicioSesion.route) {
                     popUpTo(Routes.Registro.route) { inclusive = true }
                 }

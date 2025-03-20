@@ -11,6 +11,7 @@ import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.foundation.Image
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.draw.clip
@@ -23,12 +24,15 @@ import com.example.critflix.R
 import com.example.critflix.nav.Routes
 import com.example.critflix.viewmodel.APIViewModel
 import com.example.critflix.viewmodel.ProfileViewModel
+import com.example.critflix.viewmodel.UserViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ProfileView(navController: NavHostController, apiViewModel: APIViewModel, profileViewModel: ProfileViewModel) {
+fun ProfileView(navController: NavHostController, apiViewModel: APIViewModel, profileViewModel: ProfileViewModel, userViewModel: UserViewModel) {
     var showOptionsBottomSheet by remember { mutableStateOf(false) }
     var showUserBottomSheet by remember { mutableStateOf(false) }
+    val profileState by profileViewModel.profileState.observeAsState()
+    val currentUser by profileViewModel.currentUser.observeAsState()
 
     Scaffold(
         topBar = {
@@ -76,7 +80,7 @@ fun ProfileView(navController: NavHostController, apiViewModel: APIViewModel, pr
                     .padding(vertical = 8.dp)
             ) {
                 Text(
-                    text = "usuario",
+                    text = currentUser?.name ?: "Cargando...",
                     style = MaterialTheme.typography.titleLarge
                 )
                 Icon(
@@ -86,7 +90,7 @@ fun ProfileView(navController: NavHostController, apiViewModel: APIViewModel, pr
             }
 
             Text(
-                text = "admin",
+                text = currentUser?.rol ?: "usuario",
                 style = MaterialTheme.typography.bodyMedium,
                 color = Color.Gray,
                 modifier = Modifier.padding(bottom = 16.dp)
@@ -109,6 +113,7 @@ fun ProfileView(navController: NavHostController, apiViewModel: APIViewModel, pr
                         shape = RoundedCornerShape(8.dp)
                     )
             )
+
 
             Text(
                 text = "Categorías Favoritas",
@@ -175,7 +180,6 @@ fun ProfileView(navController: NavHostController, apiViewModel: APIViewModel, pr
                         leadingContent = { Icon(Icons.Default.ExitToApp, contentDescription = null) },
                         modifier = Modifier.clickable {
                             showOptionsBottomSheet = false
-                            /* TODO: Logout action */
                         }
                     )
                 }
