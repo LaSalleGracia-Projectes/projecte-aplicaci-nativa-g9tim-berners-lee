@@ -17,6 +17,7 @@ import retrofit2.Callback
 import retrofit2.Response
 
 class UserViewModel : ViewModel() {
+
     // Estado para el registro
     private val _registrationState = MutableLiveData<RegistrationState>(RegistrationState.Idle)
     val registrationState: LiveData<RegistrationState> = _registrationState
@@ -112,6 +113,8 @@ class UserViewModel : ViewModel() {
             })
         }
     }
+
+
 
     // Validación de campos de registro
     private fun validateRegistrationFields(

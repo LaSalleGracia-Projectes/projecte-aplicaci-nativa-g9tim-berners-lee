@@ -158,6 +158,7 @@ fun ProfileView(navController: NavHostController, apiViewModel: APIViewModel, pr
                         headlineContent = { Text("Editar perfil") },
                         leadingContent = { Icon(Icons.Default.Edit, contentDescription = null) },
                         modifier = Modifier.clickable {
+                            navController.navigate(Routes.EditarPerfil.route)
                             showOptionsBottomSheet = false
                             /* TODO: Edit profile action */
                         }
