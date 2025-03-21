@@ -4,12 +4,14 @@ import com.example.critflix.model.LoginRequest;
 import com.example.critflix.model.LoginResponse;
 import com.example.critflix.model.RegisterRequest;
 import com.example.critflix.model.RegisterResponse;
+import com.example.critflix.model.UpdateUserRequest;
 import com.example.critflix.model.User;
 import retrofit2.Call;
 import retrofit2.http.Body;
 import retrofit2.http.GET;
 import retrofit2.http.Header;
 import retrofit2.http.POST;
+import retrofit2.http.PUT;
 import retrofit2.http.Path;
 
 public interface ApiService {
@@ -22,5 +24,6 @@ public interface ApiService {
     @GET("usuarios/{id}")
     Call<User> getUserProfile(@Path("id") int userId);
 
-
+    @PUT("usuarios/{id}")
+    Call<User> updateUser(@Path("id") int userId, @Body UpdateUserRequest updateUserRequest);
 }
