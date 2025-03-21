@@ -15,6 +15,7 @@ import androidx.navigation.navArgument
 import com.example.critflix.model.UserSessionManager
 import com.example.critflix.view.compact.*
 import com.example.critflix.viewmodel.APIViewModel
+import com.example.critflix.viewmodel.BusquedaViewModel
 import com.example.critflix.viewmodel.GenresViewModel
 import com.example.critflix.viewmodel.ListViewModel
 import com.example.critflix.viewmodel.ProfileViewModel
@@ -32,6 +33,7 @@ fun EntryPoint(
     profileViewModel: ProfileViewModel,
     repartoViewModel: RepartoViewModel,
     userViewModel: UserViewModel,
+    busquedaViewModel: BusquedaViewModel,
     deviceType: String
 ) {
     val navController = rememberNavController()
@@ -42,7 +44,7 @@ fun EntryPoint(
 
     when (deviceType){
         "compact" ->{
-            AppNavigationCompact(navigationController, apiViewModel, seriesViewModel, listViewModel, genresViewModel,profileViewModel, repartoViewModel, userViewModel, sessionManager)
+            AppNavigationCompact(navigationController, apiViewModel, seriesViewModel, listViewModel, genresViewModel,profileViewModel, repartoViewModel, userViewModel, sessionManager, busquedaViewModel)
         }
         "medium" ->{
             AppNavigationMedium(navigationController, apiViewModel, seriesViewModel, listViewModel, genresViewModel)
@@ -51,7 +53,7 @@ fun EntryPoint(
             AppNavigationExpanded(navigationController, apiViewModel, seriesViewModel, listViewModel, genresViewModel)
         }
         else -> {
-            AppNavigationCompact(navigationController, apiViewModel, seriesViewModel, listViewModel, genresViewModel, profileViewModel, repartoViewModel, userViewModel, sessionManager)
+            AppNavigationCompact(navigationController, apiViewModel, seriesViewModel, listViewModel, genresViewModel, profileViewModel, repartoViewModel, userViewModel, sessionManager, busquedaViewModel)
         }
     }
 }
@@ -66,7 +68,8 @@ fun AppNavigationCompact(
     profileViewModel: ProfileViewModel,
     repartoViewModel: RepartoViewModel,
     userViewModel: UserViewModel,
-    sessionManager: UserSessionManager
+    sessionManager: UserSessionManager,
+    busquedaViewModel: BusquedaViewModel
 ){
     NavHost(
         navController = navigationController,
@@ -161,7 +164,7 @@ fun AppNavigationCompact(
         }
         // Busqueda
         composable(Routes.Busqueda.route) {
-            Busqueda(navigationController, apiViewModel, seriesViewModel)
+            Busqueda(navigationController, apiViewModel, seriesViewModel, busquedaViewModel)
         }
         //Perfil -> Ajustes
         composable(Routes.Ajustes.route){
