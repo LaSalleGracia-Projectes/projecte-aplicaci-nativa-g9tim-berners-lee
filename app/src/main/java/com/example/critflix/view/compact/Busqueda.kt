@@ -26,11 +26,17 @@ import com.example.critflix.nav.Routes
 import com.example.critflix.model.PelisPopulares
 import com.example.critflix.model.SeriesPopulares
 import com.example.critflix.viewmodel.APIViewModel
+import com.example.critflix.viewmodel.BusquedaViewModel
 import com.example.critflix.viewmodel.SeriesViewModel
 
 // Funcion principal, divide las partes de la view
 @Composable
-fun Busqueda(navController: NavHostController, apiViewModel: APIViewModel, seriesViewModel: SeriesViewModel) {
+fun Busqueda(
+    navController: NavHostController,
+    apiViewModel: APIViewModel,
+    seriesViewModel: SeriesViewModel,
+    busquedaViewModel: BusquedaViewModel
+) {
     val showLoading: Boolean by apiViewModel.loading.observeAsState(true)
     val peliculas: List<PelisPopulares> by apiViewModel.pelis.observeAsState(emptyList())
     val series: List<SeriesPopulares> by seriesViewModel.series.observeAsState(emptyList())
@@ -52,7 +58,8 @@ fun Busqueda(navController: NavHostController, apiViewModel: APIViewModel, serie
                 peliculas = peliculas,
                 series = series,
                 apiViewModel = apiViewModel,
-                seriesViewModel = seriesViewModel
+                seriesViewModel = seriesViewModel,
+                busquedaViewModel = busquedaViewModel
             )
         }
     }
@@ -104,7 +111,6 @@ fun TopBarBusqueda(navController: NavHostController) {
     }
 }
 
-// Un poco de la logica (hay que pasarlo al viewmodel correspondiente)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ContenidoPrincipal(
@@ -113,30 +119,13 @@ fun ContenidoPrincipal(
     peliculas: List<PelisPopulares>,
     series: List<SeriesPopulares>,
     apiViewModel: APIViewModel,
-    seriesViewModel: SeriesViewModel
+    seriesViewModel: SeriesViewModel,
+    busquedaViewModel: BusquedaViewModel
 ) {
-    var busqueda by remember { mutableStateOf("") }
-    var isSearchActive by remember { mutableStateOf(false) }
-
-    val filteredPeliculas = remember(busqueda, peliculas) {
-        if (busqueda.isBlank()) {
-            emptyList()
-        } else {
-            peliculas.filter {
-                it.title.contains(busqueda, ignoreCase = true)
-            }
-        }
-    }
-
-    val filteredSeries = remember(busqueda, series) {
-        if (busqueda.isBlank()) {
-            emptyList()
-        } else {
-            series.filter {
-                it.name.contains(busqueda, ignoreCase = true)
-            }
-        }
-    }
+    val busqueda: String by busquedaViewModel.searchQuery.observeAsState("")
+    val isSearchActive: Boolean by busquedaViewModel.isSearchActive.observeAsState(false)
+    val filteredPeliculas: List<PelisPopulares> by busquedaViewModel.filteredPeliculas.observeAsState(emptyList())
+    val filteredSeries: List<SeriesPopulares> by busquedaViewModel.filteredSeries.observeAsState(emptyList())
 
     Column(
         modifier = Modifier
@@ -145,13 +134,11 @@ fun ContenidoPrincipal(
     ) {
         SearchBar(
             query = busqueda,
-            onQueryChange = {
-                busqueda = it
-                isSearchActive = it.isNotBlank()
+            onQueryChange = { newQuery ->
+                busquedaViewModel.updateSearchQuery(newQuery, peliculas, series)
             },
             onClearQuery = {
-                busqueda = ""
-                isSearchActive = false
+                busquedaViewModel.clearSearch()
             }
         )
 
@@ -299,7 +286,6 @@ fun DefaultContent(
     }
 }
 
-// Barra de busqueda + filtro
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SearchBar(
