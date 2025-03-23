@@ -88,7 +88,7 @@ fun AppNavigationCompact(
         }
         // Inicio de Sesion
         composable(Routes.InicioSesion.route) {
-            InicioSesion(navigationController, profileViewModel)
+            InicioSesion(navigationController)
         }
         // Preferencias Etiquetas
         composable(Routes.PreferenciasInicio.route){
@@ -126,6 +126,11 @@ fun AppNavigationCompact(
         }
         // Editar Perfil
         composable(Routes.EditarPerfil.route) {
+
+            LaunchedEffect(Unit) {
+                editarPerfilViewModel.resetUpdateState()
+            }
+
             EditarPerfil(navigationController, profileViewModel, userViewModel, editarPerfilViewModel)
         }
         // InfoPelis
