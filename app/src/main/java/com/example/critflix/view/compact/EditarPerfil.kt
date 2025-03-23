@@ -20,8 +20,10 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.navigation.NavController
 import com.example.critflix.R
+import com.example.critflix.model.UserSessionManager
 import com.example.critflix.viewmodel.EditarPerfilViewModel
 import com.example.critflix.viewmodel.ProfileViewModel
+import com.example.critflix.viewmodel.UpdateProfileState
 import com.example.critflix.viewmodel.UserViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -33,11 +35,63 @@ fun EditarPerfil(
     editarPerfilViewModel: EditarPerfilViewModel
 ) {
     val context = LocalContext.current
+    val userSessionManager = remember { UserSessionManager(context) }
     val currentUser by profileViewModel.currentUser.observeAsState()
+    val updateProfileState by editarPerfilViewModel.updateProfileState.observeAsState()
 
     // Variables para los campos editables
     var name by remember { mutableStateOf(currentUser?.name ?: "") }
     var description by remember { mutableStateOf(currentUser?.biografia ?: "") }
+
+    // Reiniciar el estado al entrar a la pantalla
+    LaunchedEffect(key1 = true) {
+        editarPerfilViewModel.resetUpdateState()
+    }
+
+    // Actualizar campos si cambia el usuario actual
+    LaunchedEffect(currentUser) {
+        currentUser?.let { user ->
+            name = user.name ?: ""
+            description = user.biografia ?: ""
+        }
+    }
+
+    // Efecto para manejar el estado de actualización
+    LaunchedEffect(updateProfileState) {
+        when (updateProfileState) {
+            is UpdateProfileState.Success -> {
+                // Actualizar el usuario actual en el ProfileViewModel
+                profileViewModel.setCurrentUser((updateProfileState as UpdateProfileState.Success).user)
+
+                // Actualizar los datos en UserSessionManager
+                val token = userSessionManager.getToken()
+                if (token != null) {
+                    userSessionManager.saveUserSession(token, (updateProfileState as UpdateProfileState.Success).user)
+                }
+
+                Toast.makeText(context, "Perfil actualizado con éxito", Toast.LENGTH_SHORT).show()
+                navController.popBackStack()
+
+                // Reiniciar el estado después de navegar
+                editarPerfilViewModel.resetUpdateState()
+            }
+            is UpdateProfileState.Error -> {
+                Toast.makeText(
+                    context,
+                    "Error: ${(updateProfileState as UpdateProfileState.Error).message}",
+                    Toast.LENGTH_LONG
+                ).show()
+            }
+            else -> {}
+        }
+    }
+
+    // Limpiar el estado al salir de la pantalla
+    DisposableEffect(Unit) {
+        onDispose {
+            editarPerfilViewModel.resetUpdateState()
+        }
+    }
 
     Scaffold(
         topBar = {
@@ -45,6 +99,7 @@ fun EditarPerfil(
                 title = { Text("Editar Perfil") },
                 navigationIcon = {
                     IconButton(onClick = {
+                        editarPerfilViewModel.resetUpdateState() // Resetear antes de navegar
                         navController.popBackStack()
                     }) {
                         Icon(Icons.Default.ArrowBack, contentDescription = "Regresar")
@@ -105,10 +160,38 @@ fun EditarPerfil(
 
                 // Botón para guardar los cambios
                 Button(
-                    onClick = {/*   */},
+                    onClick = {
+                        val userId = userSessionManager.getUserId()
+                        val token = userSessionManager.getToken()
+
+                        if (userId != -1 && token != null) {
+                            editarPerfilViewModel.updateUserProfile(userId, token, name, description)
+                        } else {
+                            Toast.makeText(context, "Error: Sesión no válida", Toast.LENGTH_SHORT).show()
+                        }
+                    },
                     modifier = Modifier.fillMaxWidth(),
+                    enabled = updateProfileState !is UpdateProfileState.Loading
                 ) {
-                    Text("Guardar Cambios")
+                    if (updateProfileState is UpdateProfileState.Loading) {
+                        CircularProgressIndicator(
+                            modifier = Modifier.size(24.dp),
+                            color = MaterialTheme.colorScheme.onPrimary
+                        )
+                    } else {
+                        Text("Guardar Cambios")
+                    }
+                }
+            }
+
+            if (updateProfileState is UpdateProfileState.Loading) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(Color.Black.copy(alpha = 0.5f)),
+                    contentAlignment = Alignment.Center
+                ) {
+                    CircularProgressIndicator()
                 }
             }
         }
