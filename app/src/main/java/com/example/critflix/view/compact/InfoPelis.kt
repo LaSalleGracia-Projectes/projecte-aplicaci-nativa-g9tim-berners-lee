@@ -86,7 +86,8 @@ fun InfoPelis(navController: NavHostController, apiViewModel: APIViewModel, id: 
                     GlideImage(
                         model = "https://image.tmdb.org/t/p/w500${pelicula.poster_path}",
                         contentDescription = pelicula.title,
-                        modifier = Modifier.fillMaxSize(),
+                        modifier = Modifier
+                            .fillMaxSize(),
                         contentScale = ContentScale.Crop
                     )
                     Box(

@@ -102,6 +102,10 @@ fun AppNavigationCompact(
         composable(Routes.Listas.route) {
             ListView(navigationController, apiViewModel, listViewModel)
         }
+        // Crear Lista
+        composable(Routes.CrearLista.route) {
+            CrearLista(navigationController)
+        }
         // Notificaciones
         composable(Routes.Notificaciones.route) {
             NotificationView(navigationController, apiViewModel)
