@@ -106,6 +106,20 @@ fun AppNavigationCompact(
         composable(Routes.CrearLista.route) {
             CrearLista(navigationController)
         }
+        // Renombrar Lista
+       /* composable(
+            route = Routes.RenombrarLista.route,
+            arguments = listOf(
+                navArgument("id") {
+                    type = NavType.StringType
+                }
+            )
+        ) { backStackEntry ->
+            RenombrarLista(
+                navController = navigationController,
+                id = backStackEntry.arguments?.getString("id").orEmpty()
+            )
+        }*/
         // Notificaciones
         composable(Routes.Notificaciones.route) {
             NotificationView(navigationController, apiViewModel)
