@@ -116,8 +116,14 @@ fun ProfileView(navController: NavHostController, apiViewModel: APIViewModel, pr
                         color = Color.LightGray.copy(alpha = 0.3f),
                         shape = RoundedCornerShape(8.dp)
                     )
-            )
-
+            ){
+                Text(
+                    text = currentUser?.biografia ?: "No hay descripción disponible",
+                    style = MaterialTheme.typography.titleMedium,
+                    modifier = Modifier
+                        .padding(bottom = 8.dp)
+                )
+            }
 
             Text(
                 text = "Categorías Favoritas",

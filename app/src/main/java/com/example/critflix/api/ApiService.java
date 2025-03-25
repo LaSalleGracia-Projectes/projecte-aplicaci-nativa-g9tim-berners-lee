@@ -26,4 +26,6 @@ public interface ApiService {
 
     @PUT("usuarios/{id}")
     Call<User> updateUser(@Path("id") int userId, @Body UpdateUserRequest updateUserRequest);
+
+
 }

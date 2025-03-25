@@ -20,6 +20,7 @@ import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
 import com.example.critflix.model.Lista
 import com.example.critflix.model.PelisPopulares
+import com.example.critflix.nav.Routes
 import com.example.critflix.viewmodel.APIViewModel
 import com.example.critflix.viewmodel.ListViewModel
 
@@ -217,7 +218,7 @@ fun Listas(
                 color = MaterialTheme.colorScheme.primary,
                 modifier = Modifier
                     .clickable {
-                        navController.navigate("crear_lista")
+                        navController.navigate(Routes.CrearLista.route)
                     }
                     .padding(vertical = 8.dp)
             )
