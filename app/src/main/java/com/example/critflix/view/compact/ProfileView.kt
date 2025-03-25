@@ -191,7 +191,7 @@ fun ProfileView(navController: NavHostController, apiViewModel: APIViewModel, pr
                         leadingContent = { Icon(Icons.Default.ExitToApp, contentDescription = null) },
                         modifier = Modifier.clickable {
                             showOptionsBottomSheet = false
-                            sessionManager.logout()
+                            sessionManager.logout(navController)
                         }
                     )
                 }

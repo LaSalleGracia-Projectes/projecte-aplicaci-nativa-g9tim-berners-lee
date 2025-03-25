@@ -16,6 +16,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
+import androidx.navigation.navArgument
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
 import com.example.critflix.model.Lista
@@ -241,10 +242,10 @@ fun Listas(
                         expandedMenuIndex = if (expandedMenuIndex == lista.id) null else lista.id
                     },
                     onListClick = {
-                        navController.navigate("lista_detalle/${lista.id}")
+                       /* navController.navigate(Routes.RenombrarLista.createRoute(lista.id))*/
                     },
                     onRename = {
-                        navController.navigate("renombrar_lista/${lista.id}")
+                      /*  navController.navigate(Routes.RenombrarLista.createRoute(lista.id))*/
                     },
                     onDelete = {
                         viewModel.deleteList(lista.id)

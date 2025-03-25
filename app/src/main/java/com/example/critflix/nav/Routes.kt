@@ -20,6 +20,11 @@ sealed class Routes(val route: String) {
         fun createRoute(id: Int) = "info_series/$id"
     }
     object CrearLista: Routes("crear_lista")
+
+   /* object RenombrarLista : Routes("renombrar_lista") {
+        fun createRoute(id: String) = "renombrar_lista/$id"
+    }*/
+
     object Busqueda : Routes("busqueda")
     object Anuncios : Routes("anuncios")
     object Ajustes : Routes("ajustes")

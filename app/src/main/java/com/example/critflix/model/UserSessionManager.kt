@@ -2,7 +2,9 @@ package com.example.critflix.model
 
 import android.content.Context
 import android.content.SharedPreferences
+import androidx.navigation.NavController
 import com.example.critflix.model.User
+import com.example.critflix.nav.Routes
 import com.google.gson.Gson
 
 class UserSessionManager(context: Context) {
@@ -52,8 +54,9 @@ class UserSessionManager(context: Context) {
     }
 
     // Cerrar sesión
-    fun logout() {
+    fun logout(navController: NavController) {
         editor.clear()
         editor.apply()
+        navController.navigate(Routes.InicioSesion.route)
     }
 }
