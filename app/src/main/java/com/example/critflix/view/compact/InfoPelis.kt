@@ -2,6 +2,8 @@ package com.example.critflix.view.compact
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
@@ -45,6 +47,8 @@ fun InfoPelis(navController: NavHostController, apiViewModel: APIViewModel, id: 
     val movieCredits by repartoViewModel.movieCredits.observeAsState()
     val isLoading by repartoViewModel.isLoading.observeAsState(initial = false)
     val error by repartoViewModel.error.observeAsState()
+    val genreMap by genresViewModel.genreMap.observeAsState(emptyMap())
+    val genresLoading by genresViewModel.loading.observeAsState(initial = true)
 
     Scaffold(
         topBar = {
@@ -84,7 +88,7 @@ fun InfoPelis(navController: NavHostController, apiViewModel: APIViewModel, id: 
                         .height(250.dp)
                 ) {
                     GlideImage(
-                        model = "https://image.tmdb.org/t/p/w500${pelicula.poster_path}",
+                        model = "https://image.tmdb.org/t/p/w500${pelicula.backdrop_path}",
                         contentDescription = pelicula.title,
                         modifier = Modifier
                             .fillMaxSize(),
@@ -142,6 +146,57 @@ fun InfoPelis(navController: NavHostController, apiViewModel: APIViewModel, id: 
                         )
                     }
 
+                    // Categorías/Géneros
+                    Text(
+                        text = "Categorías",
+                        fontSize = 18.sp,
+                        fontWeight = FontWeight.Bold,
+                        modifier = Modifier.padding(bottom = 8.dp)
+                    )
+
+                    if (genresLoading) {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(40.dp),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            CircularProgressIndicator(
+                                modifier = Modifier.size(24.dp),
+                                strokeWidth = 2.dp
+                            )
+                        }
+                    } else {
+                        LazyRow(
+                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(bottom = 16.dp)
+                        ) {
+                            items(pelicula.genre_ids) { genreId ->
+                                genreMap[genreId]?.let { genreName ->
+                                    Surface(
+                                        shape = RoundedCornerShape(16.dp),
+                                        color = MaterialTheme.colorScheme.primaryContainer,
+                                        modifier = Modifier.height(32.dp)
+                                    ) {
+                                        Box(
+                                            modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
+                                            contentAlignment = Alignment.Center
+                                        ) {
+                                            Text(
+                                                text = genreName,
+                                                color = MaterialTheme.colorScheme.onPrimaryContainer,
+                                                style = MaterialTheme.typography.bodyMedium,
+                                                fontWeight = FontWeight.Medium
+                                            )
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+
                     // Sinopsis
                     Text(
                         text = "Sinopsis",
@@ -151,7 +206,7 @@ fun InfoPelis(navController: NavHostController, apiViewModel: APIViewModel, id: 
                     )
 
                     Text(
-                        text = pelicula.overview,
+                        text = if (pelicula.overview.isNotEmpty()) pelicula.overview else "No hay sinopsis que mostrar",
                         fontSize = 16.sp,
                         lineHeight = 24.sp,
                         modifier = Modifier.padding(bottom = 16.dp)

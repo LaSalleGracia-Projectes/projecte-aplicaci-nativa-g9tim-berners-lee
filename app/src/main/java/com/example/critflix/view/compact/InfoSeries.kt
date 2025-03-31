@@ -10,7 +10,10 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
@@ -32,15 +35,15 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
-import com.example.critflix.model.PelisPopulares
 import com.example.critflix.model.SeriesPopulares
 import com.example.critflix.view.util.ActorCarousel
+import com.example.critflix.viewmodel.GenresViewModel
 import com.example.critflix.viewmodel.RepartoViewModel
 import com.example.critflix.viewmodel.SeriesViewModel
 
 @OptIn(ExperimentalGlideComposeApi::class, ExperimentalMaterial3Api::class)
 @Composable
-fun InfoSeries(navController: NavHostController, seriesViewModel: SeriesViewModel, id: Int, repartoViewModel: RepartoViewModel) {
+fun InfoSeries(navController: NavHostController, seriesViewModel: SeriesViewModel, id: Int, repartoViewModel: RepartoViewModel, genresViewModel: GenresViewModel) {
     val series: List<SeriesPopulares> by seriesViewModel.series.observeAsState(emptyList())
     val serie = series.find { it.id == id }
     var isFavorite by remember { mutableStateOf(false) }
@@ -51,11 +54,13 @@ fun InfoSeries(navController: NavHostController, seriesViewModel: SeriesViewMode
     val tvCredits by repartoViewModel.tvCredits.observeAsState()
     val isLoading by repartoViewModel.isLoading.observeAsState(initial = false)
     val error by repartoViewModel.error.observeAsState()
+    val genreMap by genresViewModel.genreMap.observeAsState(emptyMap())
+    val genresLoading by genresViewModel.loading.observeAsState(initial = true)
 
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Detalles de la película") },
+                title = { Text("Detalles de la serie") },
                 navigationIcon = {
                     IconButton(onClick = { navController.popBackStack() }) {
                         Icon(Icons.Default.ArrowBack, contentDescription = "Volver")
@@ -90,7 +95,7 @@ fun InfoSeries(navController: NavHostController, seriesViewModel: SeriesViewMode
                         .height(250.dp)
                 ) {
                     GlideImage(
-                        model = "https://image.tmdb.org/t/p/w500${serie.poster_path}",
+                        model = "https://image.tmdb.org/t/p/w500${serie.backdrop_path}",
                         contentDescription = serie.name,
                         modifier = Modifier.fillMaxSize(),
                         contentScale = ContentScale.Crop
@@ -148,6 +153,57 @@ fun InfoSeries(navController: NavHostController, seriesViewModel: SeriesViewMode
                         )
                     }
 
+                    // Categorías/Géneros
+                    Text(
+                        text = "Categorías",
+                        fontSize = 18.sp,
+                        fontWeight = FontWeight.Bold,
+                        modifier = Modifier.padding(bottom = 8.dp)
+                    )
+
+                    if (genresLoading) {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(40.dp),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            CircularProgressIndicator(
+                                modifier = Modifier.size(24.dp),
+                                strokeWidth = 2.dp
+                            )
+                        }
+                    } else {
+                        LazyRow(
+                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(bottom = 16.dp)
+                        ) {
+                            items(serie.genre_ids) { genreId ->
+                                genreMap[genreId]?.let { genreName ->
+                                    Surface(
+                                        shape = RoundedCornerShape(16.dp),
+                                        color = MaterialTheme.colorScheme.primaryContainer,
+                                        modifier = Modifier.height(32.dp)
+                                    ) {
+                                        Box(
+                                            modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
+                                            contentAlignment = Alignment.Center
+                                        ) {
+                                            Text(
+                                                text = genreName,
+                                                color = MaterialTheme.colorScheme.onPrimaryContainer,
+                                                style = MaterialTheme.typography.bodyMedium,
+                                                fontWeight = FontWeight.Medium
+                                            )
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+
                     // Sinopsis
                     Text(
                         text = "Sinopsis",
@@ -157,7 +213,7 @@ fun InfoSeries(navController: NavHostController, seriesViewModel: SeriesViewMode
                     )
 
                     Text(
-                        text = serie.overview,
+                        text = if (serie.overview.isNotEmpty()) serie.overview else "No hay sinopsis que mostrar",
                         fontSize = 16.sp,
                         lineHeight = 24.sp,
                         modifier = Modifier.padding(bottom = 16.dp)
@@ -218,7 +274,6 @@ fun InfoSeries(navController: NavHostController, seriesViewModel: SeriesViewMode
                 }
             }
         } else {
-            // Estado de carga o película no encontrada
             Box(
                 modifier = Modifier
                     .fillMaxSize()
