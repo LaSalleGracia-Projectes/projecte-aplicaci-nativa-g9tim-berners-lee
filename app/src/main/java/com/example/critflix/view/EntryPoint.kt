@@ -181,7 +181,8 @@ fun AppNavigationCompact(
                 navController = navigationController,
                 seriesViewModel = seriesViewModel,
                 id = backStackEntry.arguments?.getInt("id") ?: 0,
-                repartoViewModel = repartoViewModel
+                repartoViewModel = repartoViewModel,
+                genresViewModel = genresViewModel
             )
         }
         // Anuncios
