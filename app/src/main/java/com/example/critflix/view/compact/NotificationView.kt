@@ -6,8 +6,11 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -22,7 +25,9 @@ import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.example.critflix.viewmodel.APIViewModel
 import com.example.critflix.model.Notification
+import com.example.critflix.nav.Routes
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun NotificationView(navController: NavHostController, apiViewModel: APIViewModel) {
     // Lista de ejemplo con imágenes
@@ -31,66 +36,81 @@ fun NotificationView(navController: NavHostController, apiViewModel: APIViewMode
             1,
             "Ejemplo",
             "Esta es una notificación de ejemplo",
-            "https://apexgamingpcs.com/cdn/shop/articles/4K-vs-1080p-for-Gaming_1600x.jpg?v=1633718118" // Reemplaza con tu URL de imagen real
+            "https://apexgamingpcs.com/cdn/shop/articles/4K-vs-1080p-for-Gaming_1600x.jpg?v=1633718118"
         ),
         Notification(
             2,
             "Ejemplo2",
             "Esta es una notificación de ejemplo2",
-            "https://wallpapers.com/images/hd/4k-gaming-background-bud9k5ffqi3r2ds9.jpg" // Reemplaza con tu URL de imagen real
+            "https://wallpapers.com/images/hd/4k-gaming-background-bud9k5ffqi3r2ds9.jpg"
         ),
         Notification(
             3,
             "Ejemplo3",
             "Esta es una notificación de ejemplo",
-            "https://sobreverso.com/wp-content/uploads/2022/10/sony-playstation-controller-crash-dualshock-hd-wallpaper-preview.jpg" // Reemplaza con tu URL de imagen real
+            "https://sobreverso.com/wp-content/uploads/2022/10/sony-playstation-controller-crash-dualshock-hd-wallpaper-preview.jpg"
         ),
         Notification(
             4,
             "Ejemplo4",
             "Esta es una notificación de ejemplo2",
-            "https://apexgamingpcs.com/cdn/shop/articles/4K-vs-1080p-for-Gaming_1600x.jpg?v=1633718118" // Reemplaza con tu URL de imagen real
+            "https://apexgamingpcs.com/cdn/shop/articles/4K-vs-1080p-for-Gaming_1600x.jpg?v=1633718118"
         ),
         Notification(
             5,
             "Ejemplo5",
             "Esta es una notificación de ejemplo",
-            "https://i.pinimg.com/736x/ef/fb/a8/effba89f77965834f4374cfb3750c530.jpg" // Reemplaza con tu URL de imagen real
+            "https://i.pinimg.com/736x/ef/fb/a8/effba89f77965834f4374cfb3750c530.jpg"
         ),
         Notification(
             6,
             "Ejemplo6",
             "Esta es una notificación de ejemplo2",
-            "https://apexgamingpcs.com/cdn/shop/articles/4K-vs-1080p-for-Gaming_1600x.jpg?v=1633718118" // Reemplaza con tu URL de imagen real
+            "https://apexgamingpcs.com/cdn/shop/articles/4K-vs-1080p-for-Gaming_1600x.jpg?v=1633718118"
         ),
         Notification(
             7,
             "Ejemplo7",
             "Esta es una notificación de ejemplo",
-            "https://apexgamingpcs.com/cdn/shop/articles/4K-vs-1080p-for-Gaming_1600x.jpg?v=1633718118" // Reemplaza con tu URL de imagen real
+            "https://apexgamingpcs.com/cdn/shop/articles/4K-vs-1080p-for-Gaming_1600x.jpg?v=1633718118"
         ),
         Notification(
             8,
             "Ejemplo8",
             "Esta es una notificación de ejemplo2",
-            "https://sobreverso.com/wp-content/uploads/2022/10/sony-playstation-controller-crash-dualshock-hd-wallpaper-preview.jpg" // Reemplaza con tu URL de imagen real
+            "https://sobreverso.com/wp-content/uploads/2022/10/sony-playstation-controller-crash-dualshock-hd-wallpaper-preview.jpg"
         ),
         Notification(
             9,
             "Ejemplo9",
             "Esta es una notificación de ejemplo",
-            "https://apexgamingpcs.com/cdn/shop/articles/4K-vs-1080p-for-Gaming_1600x.jpg?v=1633718118" // Reemplaza con tu URL de imagen real
+            "https://apexgamingpcs.com/cdn/shop/articles/4K-vs-1080p-for-Gaming_1600x.jpg?v=1633718118"
         ),
         Notification(
             10,
             "Ejemplo10",
             "Esta es una notificación de ejemplo2",
-            "https://wallpapers.com/images/hd/4k-gaming-background-bud9k5ffqi3r2ds9.jpg" // Reemplaza con tu URL de imagen real
+            "https://wallpapers.com/images/hd/4k-gaming-background-bud9k5ffqi3r2ds9.jpg"
         )
         // Agrega más notificaciones según necesites
     )
 
+    var showOptionsBottomSheet by remember { mutableStateOf(false) }
+
     Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text("Notificaciones") },
+                actions = {
+                    IconButton(onClick = { navController.navigate(Routes.Busqueda.route) }) {
+                        Icon(Icons.Default.Search, contentDescription = "Buscar")
+                    }
+                    IconButton(onClick = { showOptionsBottomSheet = true }) {
+                        Icon(Icons.Default.Menu, contentDescription = "Opciones")
+                    }
+                }
+            )
+        },
         bottomBar = {
             BottomNavigationBar(navController)
         }
@@ -101,13 +121,6 @@ fun NotificationView(navController: NavHostController, apiViewModel: APIViewMode
                 .padding(innerPadding),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Text(
-                text = "Notificaciones",
-                style = MaterialTheme.typography.headlineMedium,
-                modifier = Modifier.padding(16.dp),
-                fontWeight = FontWeight.Bold
-            )
-
             LazyColumn(
                 modifier = Modifier
                     .fillMaxSize()
@@ -116,6 +129,36 @@ fun NotificationView(navController: NavHostController, apiViewModel: APIViewMode
                 items(notifications) { notification ->
                     NotificationItem(notification, navController)
                     Spacer(modifier = Modifier.height(8.dp))
+                }
+            }
+        }
+
+        // BottomSheet para opciones (similar al de ProfileView)
+        if (showOptionsBottomSheet) {
+            ModalBottomSheet(
+                onDismissRequest = { showOptionsBottomSheet = false }
+            ) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp)
+                ) {
+                    ListItem(
+                        headlineContent = { Text("Marcar todas como leídas") },
+                        leadingContent = { Icon(Icons.Default.Menu, contentDescription = null) },
+                        modifier = Modifier.clickable {
+                            showOptionsBottomSheet = false
+                            /* TODO: Mark all as read action */
+                        }
+                    )
+                    ListItem(
+                        headlineContent = { Text("Configuración de notificaciones") },
+                        leadingContent = { Icon(Icons.Default.Menu, contentDescription = null) },
+                        modifier = Modifier.clickable {
+                            showOptionsBottomSheet = false
+                            /* TODO: Notification settings action */
+                        }
+                    )
                 }
             }
         }
@@ -128,7 +171,7 @@ fun NotificationItem(notification: Notification, navController: NavHostControlle
         modifier = Modifier
             .fillMaxWidth()
             .padding(vertical = 4.dp)
-            .clickable { navController },
+            .clickable { /* Acción al hacer clic en la notificación */ },
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
     ) {
         Row(
@@ -168,4 +211,3 @@ fun NotificationItem(notification: Notification, navController: NavHostControlle
         }
     }
 }
-
