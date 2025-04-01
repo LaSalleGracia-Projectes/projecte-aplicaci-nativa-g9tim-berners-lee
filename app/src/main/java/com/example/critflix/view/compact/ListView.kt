@@ -1,5 +1,6 @@
 package com.example.critflix.view.compact
 
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -13,6 +14,7 @@ import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
@@ -21,6 +23,7 @@ import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
 import com.example.critflix.model.Lista
 import com.example.critflix.model.PelisPopulares
+import com.example.critflix.model.UserSessionManager
 import com.example.critflix.nav.Routes
 import com.example.critflix.viewmodel.APIViewModel
 import com.example.critflix.viewmodel.ListViewModel
@@ -192,8 +195,12 @@ fun Listas(
     navController: NavHostController,
     viewModel: ListViewModel
 ) {
+    val context = LocalContext.current
     var expandedMenuIndex by remember { mutableStateOf<String?>(null) }
     val listas by viewModel.listas.observeAsState(emptyList())
+    val userSessionManager = remember { UserSessionManager(context) }
+    val token = userSessionManager.getToken() ?: ""
+    var showDeleteConfirmation by remember { mutableStateOf<String?>(null) }
 
     Column(
         modifier = Modifier
@@ -224,6 +231,30 @@ fun Listas(
                     .padding(vertical = 8.dp)
             )
         }
+        // Diálogo de confirmación para eliminar
+        if (showDeleteConfirmation != null) {
+            AlertDialog(
+                onDismissRequest = { showDeleteConfirmation = null },
+                title = { Text("Confirmar eliminación") },
+                text = { Text("¿Estás seguro que deseas eliminar esta lista?") },
+                confirmButton = {
+                    Button(
+                        onClick = {
+                            viewModel.deleteList(showDeleteConfirmation!!, token)
+                            Toast.makeText(context, "Lista eliminada", Toast.LENGTH_SHORT).show()
+                            showDeleteConfirmation = null
+                        }
+                    ) {
+                        Text("Eliminar")
+                    }
+                },
+                dismissButton = {
+                    Button(onClick = { showDeleteConfirmation = null }) {
+                        Text("Cancelar")
+                    }
+                }
+            )
+        }
 
         LazyColumn(
             modifier = Modifier
@@ -242,13 +273,13 @@ fun Listas(
                         expandedMenuIndex = if (expandedMenuIndex == lista.id) null else lista.id
                     },
                     onListClick = {
-                       /* navController.navigate(Routes.RenombrarLista.createRoute(lista.id))*/
+
                     },
                     onRename = {
-                      /*  navController.navigate(Routes.RenombrarLista.createRoute(lista.id))*/
+                        navController.navigate("${Routes.RenombrarLista.route}/${lista.id}")
                     },
                     onDelete = {
-                        viewModel.deleteList(lista.id)
+                        showDeleteConfirmation = lista.id
                     }
                 )
             }
@@ -257,7 +288,14 @@ fun Listas(
 }
 
 @Composable
-private fun ListContainer(lista: Lista, isMenuExpanded: Boolean, onMenuClick: () -> Unit, onListClick: () -> Unit, onRename: () -> Unit, onDelete: () -> Unit) {
+private fun ListContainer(
+    lista: Lista,
+    isMenuExpanded: Boolean,
+    onMenuClick: () -> Unit,
+    onListClick: () -> Unit,
+    onRename: () -> Unit,
+    onDelete: () -> Unit
+) {
     Surface(
         modifier = Modifier
             .fillMaxWidth()
@@ -280,19 +318,21 @@ private fun ListContainer(lista: Lista, isMenuExpanded: Boolean, onMenuClick: ()
                     style = MaterialTheme.typography.titleMedium,
                     color = MaterialTheme.colorScheme.onSurface
                 )
-                    Box {
-                        IconButton(onClick = onMenuClick) {
-                            Icon(
-                                imageVector = Icons.Default.MoreVert,
-                                contentDescription = "Más opciones",
-                                tint = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
-                        }
+                Box {
+                    IconButton(onClick = onMenuClick) {
+                        Icon(
+                            imageVector = Icons.Default.MoreVert,
+                            contentDescription = "Más opciones",
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
 
-                        DropdownMenu(
-                            expanded = isMenuExpanded,
-                            onDismissRequest = onMenuClick
-                        ) {
+                    DropdownMenu(
+                        expanded = isMenuExpanded,
+                        onDismissRequest = onMenuClick
+                    ) {
+                        // Solo mostrar opciones para listas no predeterminadas
+                        if (!lista.isDefault) {
                             DropdownMenuItem(
                                 text = { Text("Renombrar Critilista") },
                                 onClick = {
@@ -312,8 +352,16 @@ private fun ListContainer(lista: Lista, isMenuExpanded: Boolean, onMenuClick: ()
                                     onMenuClick()
                                 }
                             )
+                        } else {
+                            // Para listas predeterminadas, mostrar mensaje
+                            DropdownMenuItem(
+                                text = { Text("Lista predeterminada (no editable)") },
+                                onClick = onMenuClick,
+                                enabled = false
+                            )
                         }
                     }
+                }
 
             }
 
