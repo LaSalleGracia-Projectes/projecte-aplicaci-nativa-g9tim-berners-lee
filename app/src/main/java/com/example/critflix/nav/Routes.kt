@@ -21,10 +21,9 @@ sealed class Routes(val route: String) {
     }
     object CrearLista: Routes("crear_lista")
 
-   /* object RenombrarLista : Routes("renombrar_lista") {
-        fun createRoute(id: String) = "renombrar_lista/$id"
-    }*/
-
+    object RenombrarLista : Routes("renombrar_lista/{listId}") {
+        fun createRoute(listId: String) = "renombrar_lista/$listId"
+    }
     object Busqueda : Routes("busqueda")
     object Anuncios : Routes("anuncios")
     object Ajustes : Routes("ajustes")
