@@ -9,6 +9,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -153,10 +154,10 @@ fun NotificationView(navController: NavHostController, apiViewModel: APIViewMode
                     )
                     ListItem(
                         headlineContent = { Text("Configuración de notificaciones") },
-                        leadingContent = { Icon(Icons.Default.Menu, contentDescription = null) },
+                        leadingContent = { Icon(Icons.Default.Settings, contentDescription = null) },
                         modifier = Modifier.clickable {
                             showOptionsBottomSheet = false
-                            /* TODO: Notification settings action */
+                            navController.navigate(Routes.Ajustes.route)
                         }
                     )
                 }
