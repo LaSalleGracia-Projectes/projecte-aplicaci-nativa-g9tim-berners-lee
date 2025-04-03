@@ -1,12 +1,16 @@
 package com.example.critflix.view.compact
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.ArrowDownward
+import androidx.compose.material.icons.filled.ArrowUpward
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.FilterList
 import androidx.compose.material.icons.filled.Search
@@ -19,6 +23,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Dialog
 import androidx.navigation.NavHostController
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
@@ -27,7 +33,11 @@ import com.example.critflix.model.PelisPopulares
 import com.example.critflix.model.SeriesPopulares
 import com.example.critflix.viewmodel.APIViewModel
 import com.example.critflix.viewmodel.BusquedaViewModel
+import com.example.critflix.viewmodel.ContentType
 import com.example.critflix.viewmodel.SeriesViewModel
+import com.example.critflix.viewmodel.SortCriteria
+import com.example.critflix.viewmodel.SortDirection
+
 
 // Funcion principal, divide las partes de la view
 @Composable
@@ -111,7 +121,7 @@ fun TopBarBusqueda(navController: NavHostController) {
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
+// Contenido principal de la view que ordena la view
 @Composable
 fun ContenidoPrincipal(
     paddingValues: PaddingValues,
@@ -122,10 +132,16 @@ fun ContenidoPrincipal(
     seriesViewModel: SeriesViewModel,
     busquedaViewModel: BusquedaViewModel
 ) {
+    // Barra de busqueda
     val busqueda: String by busquedaViewModel.searchQuery.observeAsState("")
     val isSearchActive: Boolean by busquedaViewModel.isSearchActive.observeAsState(false)
     val filteredPeliculas: List<PelisPopulares> by busquedaViewModel.filteredPeliculas.observeAsState(emptyList())
     val filteredSeries: List<SeriesPopulares> by busquedaViewModel.filteredSeries.observeAsState(emptyList())
+    // Filtros
+    val showFilterDialog: Boolean by busquedaViewModel.showFilterDialog.observeAsState(false)
+    val contentType: ContentType by busquedaViewModel.contentType.observeAsState(ContentType.ALL)
+    val sortCriteria: SortCriteria by busquedaViewModel.sortCriteria.observeAsState(SortCriteria.POPULARITY)
+    val sortDirection: SortDirection by busquedaViewModel.sortDirection.observeAsState(SortDirection.DESCENDING)
 
     Column(
         modifier = Modifier
@@ -139,6 +155,24 @@ fun ContenidoPrincipal(
             },
             onClearQuery = {
                 busquedaViewModel.clearSearch()
+            },
+            onFilterClick = {
+                busquedaViewModel.toggleFilterDialog()
+            }
+        )
+
+        // Dialogo de filtros
+        FilterDialog(
+            show = showFilterDialog,
+            contentType = contentType,
+            sortCriteria = sortCriteria,
+            sortDirection = sortDirection,
+            onContentTypeChanged = { busquedaViewModel.updateContentType(it) },
+            onSortCriteriaChanged = { busquedaViewModel.updateSortCriteria(it) },
+            onSortDirectionChanged = { busquedaViewModel.updateSortDirection(it) },
+            onDismiss = { busquedaViewModel.toggleFilterDialog() },
+            onApply = {
+                busquedaViewModel.applyFiltersAndSort(busqueda, peliculas, series)
             }
         )
 
@@ -147,7 +181,8 @@ fun ContenidoPrincipal(
                 query = busqueda,
                 filteredPeliculas = filteredPeliculas,
                 filteredSeries = filteredSeries,
-                navController = navController
+                navController = navController,
+                contentType = contentType
             )
         } else {
             DefaultContent(
@@ -159,13 +194,14 @@ fun ContenidoPrincipal(
     }
 }
 
-// Muestra una cosa u otra dependiendo si se encuentra
+// Lo que se muestra dependiendo de la busqueda
 @Composable
 fun SearchResults(
     query: String,
     filteredPeliculas: List<PelisPopulares>,
     filteredSeries: List<SeriesPopulares>,
-    navController: NavHostController
+    navController: NavHostController,
+    contentType: ContentType
 ) {
     Column(
         modifier = Modifier.fillMaxWidth()
@@ -198,7 +234,7 @@ fun SearchResults(
                 modifier = Modifier.fillMaxWidth(),
                 contentPadding = PaddingValues(bottom = 16.dp)
             ) {
-                if (filteredPeliculas.isNotEmpty()) {
+                if (filteredPeliculas.isNotEmpty() && contentType != ContentType.SERIES) {
                     item {
                         Text(
                             text = "PELÍCULAS",
@@ -214,7 +250,7 @@ fun SearchResults(
                     }
                 }
 
-                if (filteredSeries.isNotEmpty()) {
+                if (filteredSeries.isNotEmpty() && contentType != ContentType.MOVIES) {
                     item {
                         Text(
                             text = "SERIES",
@@ -234,7 +270,7 @@ fun SearchResults(
     }
 }
 
-// Contenido normal de la vista
+// Contenido default de la vista
 @Composable
 fun DefaultContent(
     peliculas: List<PelisPopulares>,
@@ -286,12 +322,14 @@ fun DefaultContent(
     }
 }
 
+// Actualización de la barra de búsqueda con el botón de filtros
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SearchBar(
     query: String,
     onQueryChange: (String) -> Unit,
-    onClearQuery: () -> Unit
+    onClearQuery: () -> Unit,
+    onFilterClick: () -> Unit
 ) {
     Row(
         modifier = Modifier
@@ -334,12 +372,213 @@ fun SearchBar(
 
         Spacer(modifier = Modifier.width(8.dp))
 
-        IconButton(onClick = { /* FILTRO */ }) {
+        IconButton(
+            onClick = onFilterClick,
+            modifier = Modifier
+                .size(48.dp)
+                .background(
+                    color = MaterialTheme.colorScheme.primaryContainer,
+                    shape = CircleShape
+                )
+        ) {
             Icon(
                 imageVector = Icons.Default.FilterList,
-                contentDescription = "Filtrar"
+                contentDescription = "Filtrar",
+                tint = MaterialTheme.colorScheme.onPrimaryContainer
             )
         }
+    }
+}
+
+// Diálogo de filtros
+@Composable
+fun FilterDialog(
+    show: Boolean,
+    contentType: ContentType,
+    sortCriteria: SortCriteria,
+    sortDirection: SortDirection,
+    onContentTypeChanged: (ContentType) -> Unit,
+    onSortCriteriaChanged: (SortCriteria) -> Unit,
+    onSortDirectionChanged: (SortDirection) -> Unit,
+    onDismiss: () -> Unit,
+    onApply: () -> Unit
+) {
+    if (show) {
+        Dialog(onDismissRequest = onDismiss) {
+            Surface(
+                shape = RoundedCornerShape(16.dp),
+                color = MaterialTheme.colorScheme.surface,
+                tonalElevation = 6.dp,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp)
+            ) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp)
+                ) {
+                    // Título
+                    Text(
+                        text = "Busqueda avanzada",
+                        style = MaterialTheme.typography.headlineSmall,
+                        color = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.padding(bottom = 16.dp)
+                    )
+
+                    // Sección: Tipo de contenido
+                    Text(
+                        text = "TIPO DE CONTENIDO",
+                        style = MaterialTheme.typography.titleSmall,
+                        color = MaterialTheme.colorScheme.secondary,
+                        modifier = Modifier.padding(vertical = 8.dp)
+                    )
+
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 8.dp),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        FilterChip(
+                            selected = contentType == ContentType.ALL,
+                            onClick = { onContentTypeChanged(ContentType.ALL) },
+                            label = { Text("Todos", fontSize = 12.sp) },
+                            modifier = Modifier.weight(1f)
+                        )
+                        FilterChip(
+                            selected = contentType == ContentType.MOVIES,
+                            onClick = { onContentTypeChanged(ContentType.MOVIES) },
+                            label = { Text("Pelis", fontSize = 12.sp) },
+                            modifier = Modifier.weight(1f)
+                        )
+                        FilterChip(
+                            selected = contentType == ContentType.SERIES,
+                            onClick = { onContentTypeChanged(ContentType.SERIES) },
+                            label = { Text("Series", fontSize = 12.sp) },
+                            modifier = Modifier.weight(1f)
+                        )
+                    }
+
+                    Divider(modifier = Modifier.padding(vertical = 8.dp))
+
+                    // Sección: Criterio de ordenación
+                    Text(
+                        text = "ORDENAR POR",
+                        style = MaterialTheme.typography.titleSmall,
+                        color = MaterialTheme.colorScheme.secondary,
+                        modifier = Modifier.padding(vertical = 8.dp)
+                    )
+
+                    Column(modifier = Modifier.fillMaxWidth()) {
+                        RadioButtonWithText(
+                            text = "Alfabético",
+                            selected = sortCriteria == SortCriteria.ALPHABETICAL,
+                            onClick = { onSortCriteriaChanged(SortCriteria.ALPHABETICAL) }
+                        )
+                        RadioButtonWithText(
+                            text = "Fecha de lanzamiento",
+                            selected = sortCriteria == SortCriteria.RELEASE_DATE,
+                            onClick = { onSortCriteriaChanged(SortCriteria.RELEASE_DATE) }
+                        )
+                        RadioButtonWithText(
+                            text = "Popularidad",
+                            selected = sortCriteria == SortCriteria.POPULARITY,
+                            onClick = { onSortCriteriaChanged(SortCriteria.POPULARITY) }
+                        )
+                        RadioButtonWithText(
+                            text = "Puntuación",
+                            selected = sortCriteria == SortCriteria.RATING,
+                            onClick = { onSortCriteriaChanged(SortCriteria.RATING) }
+                        )
+                    }
+
+                    Divider(modifier = Modifier.padding(vertical = 8.dp))
+
+                    // Sección: Orden
+                    Text(
+                        text = "ORDEN",
+                        style = MaterialTheme.typography.titleSmall,
+                        color = MaterialTheme.colorScheme.secondary,
+                        modifier = Modifier.padding(vertical = 8.dp)
+                    )
+
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 8.dp),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        FilterChip(
+                            selected = sortDirection == SortDirection.ASCENDING,
+                            onClick = { onSortDirectionChanged(SortDirection.ASCENDING) },
+                            label = {
+                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                    Icon(Icons.Default.ArrowUpward, contentDescription = null, modifier = Modifier.size(16.dp))
+                                    Spacer(modifier = Modifier.width(4.dp))
+                                    Text("Ascendente", fontSize = 12.sp)
+                                }
+                            },
+                            modifier = Modifier.weight(1f)
+                        )
+                        FilterChip(
+                            selected = sortDirection == SortDirection.DESCENDING,
+                            onClick = { onSortDirectionChanged(SortDirection.DESCENDING) },
+                            label = {
+                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                    Icon(Icons.Default.ArrowDownward, contentDescription = null, modifier = Modifier.size(16.dp))
+                                    Spacer(modifier = Modifier.width(4.dp))
+                                    Text("Descendente", fontSize = 12.sp)
+                                }
+                            },
+                            modifier = Modifier.weight(1f)
+                        )
+                    }
+
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    // Botones de Cancelar y Aplicar
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.End
+                    ) {
+                        TextButton(onClick = onDismiss) {
+                            Text("Cancelar")
+                        }
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Button(onClick = {
+                            onApply()
+                            onDismiss()
+                        }) {
+                            Text("Aplicar")
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+// Componente para radio buttons con texto
+@Composable
+fun RadioButtonWithText(
+    text: String,
+    selected: Boolean,
+    onClick: () -> Unit
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable(onClick = onClick)
+            .padding(vertical = 8.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        RadioButton(
+            selected = selected,
+            onClick = onClick
+        )
+        Spacer(modifier = Modifier.width(8.dp))
+        Text(text = text)
     }
 }
 
