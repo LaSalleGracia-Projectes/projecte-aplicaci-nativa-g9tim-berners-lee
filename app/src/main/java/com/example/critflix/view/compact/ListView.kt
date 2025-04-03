@@ -1,6 +1,7 @@
 package com.example.critflix.view.compact
 
 import android.widget.Toast
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -58,7 +59,11 @@ fun ListView(navController: NavHostController, apiViewModel: APIViewModel, listV
 @Composable
 fun TopBarPeliculas(tabSeleccionado: Int, onTabSelected: (Int) -> Unit) {
 
-    Column(modifier = Modifier.fillMaxWidth()) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(color = Color.Black)
+    ) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -78,7 +83,7 @@ fun TopBarPeliculas(tabSeleccionado: Int, onTabSelected: (Int) -> Unit) {
 
         TabRow(
             selectedTabIndex = tabSeleccionado,
-            containerColor = MaterialTheme.colorScheme.background
+            containerColor = Color.Black
         ) {
             Tab(
                 selected = tabSeleccionado == 0,
@@ -101,6 +106,7 @@ fun ContenidoPrincipal(peliculas: List<PelisPopulares>, paddingValues: PaddingVa
         modifier = Modifier
             .fillMaxSize()
             .padding(paddingValues)
+            .background(color = Color.Black)
     ) {
         ContadorYBotonAnadir(cantidadPeliculas = peliculas.size)
 
@@ -206,6 +212,7 @@ fun Listas(
         modifier = Modifier
             .fillMaxSize()
             .padding(paddingValues)
+            .background(color = Color.Black)
     ) {
         Row(
             modifier = Modifier
@@ -300,8 +307,9 @@ private fun ListContainer(
         modifier = Modifier
             .fillMaxWidth()
             .clickable(onClick = onListClick),
-        color = MaterialTheme.colorScheme.surfaceVariant,
-        //shape = MaterialTheme.shapes.medium
+        color = Color.Black,
+        border = BorderStroke(2.dp, Color.Green)
+
     ) {
         Column(
             modifier = Modifier
