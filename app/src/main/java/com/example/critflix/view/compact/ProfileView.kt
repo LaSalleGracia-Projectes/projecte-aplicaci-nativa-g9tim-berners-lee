@@ -42,6 +42,10 @@ fun ProfileView(navController: NavHostController, apiViewModel: APIViewModel, pr
         topBar = {
             TopAppBar(
                 title = { Text("Mi Perfil") },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = Color.Black,
+                    actionIconContentColor = Color.White,
+                ),
                 actions = {
                     IconButton(onClick = { navController.navigate(Routes.Busqueda.route) }) {
                         Icon(Icons.Default.Search, contentDescription = "Buscar")
@@ -60,6 +64,7 @@ fun ProfileView(navController: NavHostController, apiViewModel: APIViewModel, pr
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
+                .background(color = Color.Black)
                 .padding(horizontal = 16.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
