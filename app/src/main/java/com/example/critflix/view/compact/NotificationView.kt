@@ -1,6 +1,8 @@
 package com.example.critflix.view.compact
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -101,13 +103,30 @@ fun NotificationView(navController: NavHostController, apiViewModel: APIViewMode
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Notificaciones") },
+                title = {
+                    Text(
+                        text = "Notificaciones",
+                        color = Color.White
+                    )
+                },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = Color.Black,
+                    actionIconContentColor = Color.White,
+                ),
                 actions = {
                     IconButton(onClick = { navController.navigate(Routes.Busqueda.route) }) {
-                        Icon(Icons.Default.Search, contentDescription = "Buscar")
+                        Icon(
+                            Icons.Default.Search,
+                            contentDescription = "Buscar",
+                            tint = Color.White
+                        )
                     }
                     IconButton(onClick = { showOptionsBottomSheet = true }) {
-                        Icon(Icons.Default.Menu, contentDescription = "Opciones")
+                        Icon(
+                            Icons.Default.Menu,
+                            contentDescription = "Opciones",
+                            tint = Color.White
+                        )
                     }
                 }
             )
@@ -119,7 +138,8 @@ fun NotificationView(navController: NavHostController, apiViewModel: APIViewMode
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(innerPadding),
+                .padding(innerPadding)
+                .background(color = Color.Black),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             LazyColumn(
@@ -172,12 +192,15 @@ fun NotificationItem(notification: Notification, navController: NavHostControlle
         modifier = Modifier
             .fillMaxWidth()
             .padding(vertical = 4.dp)
+            .background(color = Color.Black)
+            .border(width = 1.dp, color = Color.Green)
             .clickable { /* Acción al hacer clic en la notificación */ },
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
     ) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
+                .background(color = Color.Black)
                 .padding(16.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
