@@ -111,7 +111,7 @@ fun TopBarBusqueda(navController: NavHostController) {
             verticalAlignment = Alignment.CenterVertically
         ) {
             IconButton(
-                onClick = { navController.navigate(Routes.Home.route) },
+                onClick = { navController.popBackStack() },
                 modifier = Modifier.size(48.dp),
             ) {
                 Icon(
@@ -131,7 +131,6 @@ fun TopBarBusqueda(navController: NavHostController) {
                 modifier = Modifier.padding(horizontal = 8.dp)
             )
 
-            // Espacio equilibrado (mismo tamaño que el IconButton para mantener simetría)
             Spacer(modifier = Modifier.size(48.dp))
         }
     }
