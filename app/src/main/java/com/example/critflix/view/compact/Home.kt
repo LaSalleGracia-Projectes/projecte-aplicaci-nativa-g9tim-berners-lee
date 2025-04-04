@@ -1,6 +1,8 @@
 package com.example.critflix.view.compact
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -57,7 +59,9 @@ fun HomeScreen(navController: NavHostController, apiViewModel: APIViewModel, ser
     ) { innerPadding ->
         if (showLoading) {
             Box(
-                modifier = Modifier.fillMaxSize(),
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(color = Color.Black),
                 contentAlignment = Alignment.Center
             ) {
                 CircularProgressIndicator(
@@ -82,6 +86,7 @@ fun TopBar(navController: NavHostController) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
+            .background(color = Color.Black)
             .height(60.dp)
             .padding(horizontal = 16.dp),
         horizontalArrangement = Arrangement.SpaceBetween,
@@ -102,7 +107,8 @@ fun TopBar(navController: NavHostController) {
                 contentDescription = "Anuncios",
                 modifier = Modifier
                     .size(24.dp)
-                    .clickable { navController.navigate(Routes.Anuncios.route) }
+                    .clickable { navController.navigate(Routes.Anuncios.route) },
+                tint = Color.White
             )
 
             Icon(
@@ -110,7 +116,8 @@ fun TopBar(navController: NavHostController) {
                 contentDescription = "Búsqueda",
                 modifier = Modifier
                     .size(24.dp)
-                    .clickable { navController.navigate(Routes.Busqueda.route) }
+                    .clickable { navController.navigate(Routes.Busqueda.route) },
+                tint = Color.White
             )
         }
     }
@@ -139,7 +146,9 @@ fun HomeContent(innerPadding: PaddingValues, peliculas: List<PelisPopulares>, se
 
 
     LazyColumn(
-        modifier = Modifier.fillMaxSize(),
+        modifier = Modifier
+            .fillMaxSize()
+            .background(color = Color.Black),
         contentPadding = PaddingValues(
             top = innerPadding.calculateTopPadding(),
             bottom = innerPadding.calculateBottomPadding() + 16.dp
@@ -173,6 +182,7 @@ fun BotonesFiltro(selectedFilter: String, onFilterSelected: (String) -> Unit) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
+            .background(color = Color.Black)
             .padding(horizontal = 16.dp, vertical = 8.dp),
         horizontalArrangement = Arrangement.spacedBy(8.dp)
     ) {
@@ -185,7 +195,6 @@ fun BotonesFiltro(selectedFilter: String, onFilterSelected: (String) -> Unit) {
         BotonFiltro("Películas", selected = selectedFilter == "Películas") {
             onFilterSelected("Películas")
         }
-        BotonFiltro("Categorías", selected = false)
     }
 }
 
@@ -193,7 +202,11 @@ fun BotonesFiltro(selectedFilter: String, onFilterSelected: (String) -> Unit) {
 fun BotonFiltro(text: String, selected: Boolean, onClick: () -> Unit = {}) {
     Surface(
         shape = RoundedCornerShape(16.dp),
-        color = if (selected) Color.Green else Color.LightGray,
+        color = Color.Black,
+        border = BorderStroke(
+            width = 1.dp,
+            color = if (selected) Color.Green else Color.White
+        ),
         modifier = Modifier
             .wrapContentWidth()
             .height(32.dp)
@@ -206,15 +219,8 @@ fun BotonFiltro(text: String, selected: Boolean, onClick: () -> Unit = {}) {
             Text(
                 text = text,
                 style = MaterialTheme.typography.bodyMedium,
-                color = Color.Black
+                color = if (selected) Color.Green else Color.White
             )
-            if (text == "Categorías") {
-                Icon(
-                    painter = painterResource(id = R.drawable.desplegable),
-                    contentDescription = "Seleccionado",
-                    modifier = Modifier.size(16.dp)
-                )
-            }
         }
     }
 }
@@ -414,13 +420,13 @@ fun BottomNavigationBar(navController: NavHostController) {
                     imageVector = Icons.Default.Home,
                     contentDescription = "Home",
                     tint = if (currentDestination?.hierarchy?.any { it.route == Routes.Home.route } == true) {
-                        Color(0xFF4CAF50)
+                        Color.Green
                     } else {
-                        LocalContentColor.current
+                        Color.White
                     }
                 )
             },
-            label = { Text("Inicio") },
+            label = { Text("Inicio", color = Color.White) },
             selected = currentDestination?.hierarchy?.any { it.route == Routes.Home.route } == true,
             onClick = { navController.navigate(Routes.Home.route) }
         )
@@ -431,13 +437,13 @@ fun BottomNavigationBar(navController: NavHostController) {
                     imageVector = Icons.Default.List,
                     contentDescription = "Lists",
                     tint = if (currentDestination?.hierarchy?.any { it.route == Routes.Listas.route } == true) {
-                        Color(0xFF27CE2E)
+                        Color.Green
                     } else {
-                        LocalContentColor.current
+                        Color.White
                     }
                 )
             },
-            label = { Text("Listas") },
+            label = { Text("Listas", color = Color.White) },
             selected = currentDestination?.hierarchy?.any { it.route == Routes.Listas.route } == true,
             onClick = { navController.navigate(Routes.Listas.route) }
         )
@@ -448,13 +454,13 @@ fun BottomNavigationBar(navController: NavHostController) {
                     imageVector = Icons.Default.Notifications,
                     contentDescription = "Notifications",
                     tint = if (currentDestination?.hierarchy?.any { it.route == Routes.Notificaciones.route } == true) {
-                        Color(0xFF4CAF50)
+                        Color.Green
                     } else {
-                        LocalContentColor.current
+                        Color.White
                     }
                 )
             },
-            label = { Text("Notificaciones") },
+            label = { Text("Notificaciones", color = Color.White) },
             selected = currentDestination?.hierarchy?.any { it.route == Routes.Notificaciones.route } == true,
             onClick = { navController.navigate(Routes.Notificaciones.route) }
         )
@@ -465,13 +471,13 @@ fun BottomNavigationBar(navController: NavHostController) {
                     imageVector = Icons.Default.AccountCircle,
                     contentDescription = "Profile",
                     tint = if (currentDestination?.hierarchy?.any { it.route == Routes.Perfil.route } == true) {
-                        Color(0xFF4CAF50)
+                        Color.Green
                     } else {
-                        LocalContentColor.current
+                        Color.White
                     }
                 )
             },
-            label = { Text("Perfil") },
+            label = { Text("Perfil", color = Color.White) },
             selected = currentDestination?.hierarchy?.any { it.route == Routes.Perfil.route } == true,
             onClick = { navController.navigate(Routes.Perfil.route) }
         )
