@@ -1,5 +1,6 @@
 package com.example.critflix.view.compact
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -21,6 +22,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -52,8 +54,8 @@ fun Busqueda(
     val series: List<SeriesPopulares> by seriesViewModel.series.observeAsState(emptyList())
 
     LaunchedEffect(Unit) {
-        apiViewModel.getPelis(totalMoviesNeeded = 2000)
-        seriesViewModel.getSeries(totalSeriesNeeded = 2000)
+        apiViewModel.getPelis(totalMoviesNeeded = 200)
+        seriesViewModel.getSeries(totalSeriesNeeded = 200)
     }
 
     Scaffold(
@@ -79,12 +81,15 @@ fun Busqueda(
 @Composable
 fun LoadingIndicator() {
     Box(
-        modifier = Modifier.fillMaxSize(),
+        modifier = Modifier
+            .fillMaxSize()
+            .background(color = Color.Black),
         contentAlignment = Alignment.Center
     ) {
         CircularProgressIndicator(
             color = MaterialTheme.colorScheme.secondary
         )
+
     }
 }
 
@@ -94,8 +99,9 @@ fun TopBarBusqueda(navController: NavHostController) {
     Surface(
         modifier = Modifier
             .fillMaxWidth()
-            .height(60.dp),
-        color = MaterialTheme.colorScheme.surfaceVariant
+            .height(64.dp),
+        color = Color.Black,
+        shadowElevation = 4.dp
     ) {
         Row(
             modifier = Modifier
@@ -104,19 +110,29 @@ fun TopBarBusqueda(navController: NavHostController) {
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            IconButton(onClick = { navController.navigate(Routes.Home.route) }) {
+            IconButton(
+                onClick = { navController.navigate(Routes.Home.route) },
+                modifier = Modifier.size(48.dp),
+            ) {
                 Icon(
                     imageVector = Icons.Default.ArrowBack,
-                    contentDescription = "Volver"
+                    contentDescription = "Volver",
+                    tint = Color.White,
+                    modifier = Modifier.size(24.dp)
                 )
             }
 
             Text(
                 text = "Búsqueda",
-                style = MaterialTheme.typography.titleMedium
+                style = MaterialTheme.typography.titleMedium.copy(
+                    fontWeight = FontWeight.SemiBold,
+                    color = Color.White
+                ),
+                modifier = Modifier.padding(horizontal = 8.dp)
             )
 
-            Spacer(modifier = Modifier.width(24.dp))
+            // Espacio equilibrado (mismo tamaño que el IconButton para mantener simetría)
+            Spacer(modifier = Modifier.size(48.dp))
         }
     }
 }
@@ -146,6 +162,7 @@ fun ContenidoPrincipal(
     Column(
         modifier = Modifier
             .fillMaxSize()
+            .background(color = Color.Black)
             .padding(paddingValues)
     ) {
         SearchBar(
@@ -204,7 +221,7 @@ fun SearchResults(
     contentType: ContentType
 ) {
     Column(
-        modifier = Modifier.fillMaxWidth()
+        modifier = Modifier.fillMaxWidth().background(color = Color.Black)
     ) {
         Text(
             text = "Resultados para \"$query\"",
@@ -278,7 +295,7 @@ fun DefaultContent(
     navController: NavHostController
 ) {
     LazyColumn(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier.fillMaxWidth().background(color = Color.Black),
         contentPadding = PaddingValues(bottom = 16.dp)
     ) {
 
@@ -305,20 +322,6 @@ fun DefaultContent(
         items(series.drop(3).take(2)) { serie ->
             SerieCard(serie = serie, navController = navController)
         }
-
-        item {
-            SectionHeader("TODAS LAS PELÍCULAS")
-        }
-        items(peliculas.take(10)) { pelicula ->
-            MovieCard(pelicula = pelicula, navController = navController)
-        }
-
-        item {
-            SectionHeader("TODAS LAS SERIES")
-        }
-        items(series.take(10)) { serie ->
-            SerieCard(serie = serie, navController = navController)
-        }
     }
 }
 
@@ -334,6 +337,7 @@ fun SearchBar(
     Row(
         modifier = Modifier
             .fillMaxWidth()
+            .background(color = Color.Black)
             .padding(horizontal = 16.dp, vertical = 16.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -376,10 +380,6 @@ fun SearchBar(
             onClick = onFilterClick,
             modifier = Modifier
                 .size(48.dp)
-                .background(
-                    color = MaterialTheme.colorScheme.primaryContainer,
-                    shape = CircleShape
-                )
         ) {
             Icon(
                 imageVector = Icons.Default.FilterList,
@@ -407,8 +407,9 @@ fun FilterDialog(
         Dialog(onDismissRequest = onDismiss) {
             Surface(
                 shape = RoundedCornerShape(16.dp),
-                color = MaterialTheme.colorScheme.surface,
+                color = Color.Black,
                 tonalElevation = 6.dp,
+                border = BorderStroke(2.dp, Color.Green),
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(16.dp)
@@ -417,16 +418,19 @@ fun FilterDialog(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(16.dp)
+                        .background(color = Color.Black)
                 ) {
                     // Título
                     Text(
                         text = "Busqueda avanzada",
                         style = MaterialTheme.typography.headlineSmall,
-                        color = MaterialTheme.colorScheme.primary,
-                        modifier = Modifier.padding(bottom = 16.dp)
+                        color = Color.White,
+                        modifier = Modifier
+                            .padding(bottom = 16.dp)
+                            .align(Alignment.CenterHorizontally)
                     )
 
-                    // Sección: Tipo de contenido
+                    // Tipo de contenido
                     Text(
                         text = "TIPO DE CONTENIDO",
                         style = MaterialTheme.typography.titleSmall,
@@ -437,32 +441,62 @@ fun FilterDialog(
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(vertical = 8.dp),
+                            .padding(vertical = 8.dp)
+                            .background(color = Color.Black),
                         horizontalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
                         FilterChip(
                             selected = contentType == ContentType.ALL,
                             onClick = { onContentTypeChanged(ContentType.ALL) },
-                            label = { Text("Todos", fontSize = 12.sp) },
-                            modifier = Modifier.weight(1f)
+                            label = {
+                                Text(
+                                    "Todos",
+                                    fontSize = 12.sp,
+                                    color = if (contentType == ContentType.ALL) Color.White else Color.Gray
+                                )
+                            },
+                            modifier = Modifier.weight(1f),
+                            colors = FilterChipDefaults.filterChipColors(
+                                selectedContainerColor = Color.Green.copy(alpha = 0.7f),
+                            )
                         )
+
                         FilterChip(
                             selected = contentType == ContentType.MOVIES,
                             onClick = { onContentTypeChanged(ContentType.MOVIES) },
-                            label = { Text("Pelis", fontSize = 12.sp) },
-                            modifier = Modifier.weight(1f)
+                            label = {
+                                Text(
+                                    "Pelis",
+                                    fontSize = 12.sp,
+                                    color = if (contentType == ContentType.MOVIES) Color.White else Color.Gray
+                                )
+                            },
+                            modifier = Modifier.weight(1f),
+                            colors = FilterChipDefaults.filterChipColors(
+                                selectedContainerColor = Color.Green.copy(alpha = 0.7f),
+                            )
                         )
+
                         FilterChip(
                             selected = contentType == ContentType.SERIES,
                             onClick = { onContentTypeChanged(ContentType.SERIES) },
-                            label = { Text("Series", fontSize = 12.sp) },
-                            modifier = Modifier.weight(1f)
+                            label = {
+                                Text(
+                                    "Series",
+                                    fontSize = 12.sp,
+                                    color = if (contentType == ContentType.SERIES) Color.White else Color.Gray
+                                )
+                            },
+                            modifier = Modifier.weight(1f),
+                            colors = FilterChipDefaults.filterChipColors(
+                                selectedContainerColor = Color.Green.copy(alpha = 0.7f),
+                            )
                         )
                     }
 
                     Divider(modifier = Modifier.padding(vertical = 8.dp))
 
-                    // Sección: Criterio de ordenación
+                    // Criterio de ordenación
                     Text(
                         text = "ORDENAR POR",
                         style = MaterialTheme.typography.titleSmall,
@@ -495,7 +529,7 @@ fun FilterDialog(
 
                     Divider(modifier = Modifier.padding(vertical = 8.dp))
 
-                    // Sección: Orden
+                    // Orden
                     Text(
                         text = "ORDEN",
                         style = MaterialTheme.typography.titleSmall,
@@ -519,7 +553,10 @@ fun FilterDialog(
                                     Text("Ascendente", fontSize = 12.sp)
                                 }
                             },
-                            modifier = Modifier.weight(1f)
+                            modifier = Modifier.weight(1f),
+                            colors = FilterChipDefaults.filterChipColors(
+                                selectedContainerColor = Color.Green.copy(alpha = 0.7f),
+                            )
                         )
                         FilterChip(
                             selected = sortDirection == SortDirection.DESCENDING,
@@ -531,7 +568,10 @@ fun FilterDialog(
                                     Text("Descendente", fontSize = 12.sp)
                                 }
                             },
-                            modifier = Modifier.weight(1f)
+                            modifier = Modifier.weight(1f),
+                            colors = FilterChipDefaults.filterChipColors(
+                                selectedContainerColor = Color.Green.copy(alpha = 0.7f),
+                            )
                         )
                     }
 
@@ -542,14 +582,28 @@ fun FilterDialog(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.End
                     ) {
-                        TextButton(onClick = onDismiss) {
+                        TextButton(
+                            onClick = onDismiss,
+                            border = BorderStroke(1.dp, Color.White),
+                            colors = ButtonDefaults.textButtonColors(
+                                contentColor = Color.Red
+                            ),
+                            modifier = Modifier.padding(end = 8.dp)
+                        ) {
                             Text("Cancelar")
                         }
-                        Spacer(modifier = Modifier.width(8.dp))
-                        Button(onClick = {
-                            onApply()
-                            onDismiss()
-                        }) {
+
+                        Button(
+                            onClick = {
+                                onApply()
+                                onDismiss()
+                            },
+                            border = BorderStroke(1.dp, Color.White),
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = Color.Transparent,
+                                contentColor = Color.Green
+                            )
+                        ) {
                             Text("Aplicar")
                         }
                     }
