@@ -1,6 +1,7 @@
 package com.example.critflix.view.compact
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -60,10 +61,19 @@ fun InfoSeries(navController: NavHostController, seriesViewModel: SeriesViewMode
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Detalles de la serie") },
+                title = {
+                    Text(
+                        "Detalles de la serie",
+                        color = Color.White // Texto blanco para mejor contraste
+                    )
+                },
                 navigationIcon = {
                     IconButton(onClick = { navController.popBackStack() }) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Volver")
+                        Icon(
+                            Icons.Default.ArrowBack,
+                            contentDescription = "Volver",
+                            tint = Color.White // Icono blanco
+                        )
                     }
                 },
                 actions = {
@@ -71,13 +81,22 @@ fun InfoSeries(navController: NavHostController, seriesViewModel: SeriesViewMode
                         Icon(
                             if (isFavorite) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
                             contentDescription = "Favorito",
-                            tint = if (isFavorite) Color.Red else Color.Gray
+                            tint = if (isFavorite) Color.Red else Color.White // Icono blanco o rojo
                         )
                     }
                     IconButton(onClick = { /* Compartir lógica */ }) {
-                        Icon(Icons.Default.Share, contentDescription = "Compartir")
+                        Icon(
+                            Icons.Default.Share,
+                            contentDescription = "Compartir",
+                            tint = Color.White // Icono blanco
+                        )
                     }
-                }
+                },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = Color.Black, // Fondo negro
+                    actionIconContentColor = Color.White, // Color de iconos de acciones
+                    navigationIconContentColor = Color.White // Color de icono de navegación
+                )
             )
         }
     ) { innerPadding ->
@@ -85,6 +104,7 @@ fun InfoSeries(navController: NavHostController, seriesViewModel: SeriesViewMode
             Column(
                 modifier = Modifier
                     .fillMaxSize()
+                    .background(color = Color.Black)
                     .padding(innerPadding)
                     .verticalScroll(rememberScrollState())
             ) {
@@ -100,7 +120,6 @@ fun InfoSeries(navController: NavHostController, seriesViewModel: SeriesViewMode
                         modifier = Modifier.fillMaxSize(),
                         contentScale = ContentScale.Crop
                     )
-                    // Overlay para mejor legibilidad
                     Box(
                         modifier = Modifier
                             .fillMaxSize()
