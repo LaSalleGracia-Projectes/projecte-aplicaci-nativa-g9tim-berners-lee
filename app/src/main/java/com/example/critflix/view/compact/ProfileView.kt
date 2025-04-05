@@ -11,6 +11,7 @@ import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.border
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.Alignment
@@ -19,6 +20,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.example.critflix.R
@@ -105,9 +107,12 @@ fun ProfileView(navController: NavHostController, apiViewModel: APIViewModel, pr
                 modifier = Modifier.padding(bottom = 16.dp)
             )
 
+            // Descripción con mejor jerarquía visual
             Text(
                 text = "Descripción",
-                style = MaterialTheme.typography.titleMedium,
+                style = MaterialTheme.typography.titleMedium.copy(
+                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.8f)
+                ),
                 modifier = Modifier
                     .align(Alignment.Start)
                     .padding(bottom = 8.dp)
@@ -116,42 +121,69 @@ fun ProfileView(navController: NavHostController, apiViewModel: APIViewModel, pr
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(100.dp)
+                    .height(120.dp)
                     .background(
-                        color = Color.LightGray.copy(alpha = 0.3f),
-                        shape = RoundedCornerShape(8.dp)
+                        color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.4f),
+                        shape = RoundedCornerShape(12.dp)
                     )
-            ){
+                    .border(
+                        width = 1.dp,
+                        color = MaterialTheme.colorScheme.outline.copy(alpha = 0.2f),
+                        shape = RoundedCornerShape(12.dp)
+                    )
+                    .padding(horizontal = 16.dp, vertical = 12.dp)
+            ) {
                 Text(
                     text = currentUser?.biografia ?: "No hay descripción disponible",
-                    style = MaterialTheme.typography.titleMedium,
-                    modifier = Modifier
-                        .padding(bottom = 8.dp)
+                    style = MaterialTheme.typography.bodyMedium.copy(
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    ),
+                    modifier = Modifier.fillMaxWidth()
                 )
             }
 
+            Spacer(modifier = Modifier.height(16.dp))
+
             Text(
                 text = "Categorías Favoritas",
-                style = MaterialTheme.typography.titleMedium,
+                style = MaterialTheme.typography.titleMedium.copy(
+                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.8f)
+                ),
                 modifier = Modifier
                     .align(Alignment.Start)
-                    .padding(vertical = 16.dp)
+                    .padding(vertical = 8.dp)
             )
 
             LazyRow(
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
+                contentPadding = PaddingValues(vertical = 8.dp),
                 modifier = Modifier.fillMaxWidth()
             ) {
-                items(7) {
+                items(7) { index ->
                     Box(
+                        contentAlignment = Alignment.Center,
                         modifier = Modifier
-                            .height(32.dp)
-                            .width(80.dp)
+                            .height(36.dp)
+                            .width(100.dp)
                             .background(
-                                color = Color.LightGray.copy(alpha = 0.3f),
-                                shape = RoundedCornerShape(16.dp)
+                                color = MaterialTheme.colorScheme.primary.copy(alpha = 0.1f),
+                                shape = RoundedCornerShape(20.dp)
                             )
-                    )
+                            .border(
+                                width = 1.dp,
+                                color = MaterialTheme.colorScheme.primary.copy(alpha = 0.3f),
+                                shape = RoundedCornerShape(20.dp)
+                            )
+                            .padding(horizontal = 12.dp, vertical = 8.dp)
+                    ) {
+                        Text(
+                            text = "Categoría ${index + 1}",
+                            style = MaterialTheme.typography.labelMedium,
+                            color = MaterialTheme.colorScheme.primary,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
+                        )
+                    }
                 }
             }
         }
