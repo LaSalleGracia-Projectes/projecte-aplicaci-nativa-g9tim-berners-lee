@@ -35,29 +35,39 @@ import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
 import com.example.critflix.R
 import com.example.critflix.nav.Routes
+import com.example.critflix.model.Genre
 import com.example.critflix.model.PelisPopulares
 import com.example.critflix.model.SeriesPopulares
 import com.example.critflix.viewmodel.APIViewModel
+import com.example.critflix.viewmodel.GenresViewModel
 import com.example.critflix.viewmodel.SeriesViewModel
 
 @Composable
-fun HomeScreen(navController: NavHostController, apiViewModel: APIViewModel, seriesViewModel: SeriesViewModel) {
+fun HomeScreen(
+    navController: NavHostController,
+    apiViewModel: APIViewModel,
+    seriesViewModel: SeriesViewModel,
+    genresViewModel: GenresViewModel
+) {
     val showLoading: Boolean by apiViewModel.loading.observeAsState(true)
     val peliculas: List<PelisPopulares> by apiViewModel.pelis.observeAsState(emptyList())
     val series: List<SeriesPopulares> by seriesViewModel.series.observeAsState(emptyList())
+    val generos: List<Genre> by genresViewModel.genres.observeAsState(emptyList())
+    val genreMap: Map<Int, String> by genresViewModel.genreMap.observeAsState(emptyMap())
 
     var selectedFilter by remember { mutableStateOf("Todos") }
 
     LaunchedEffect(Unit) {
         apiViewModel.getPelis(totalMoviesNeeded = 50)
         seriesViewModel.getSeries(totalSeriesNeeded = 50)
+        genresViewModel.loadGenres()
     }
 
     Scaffold(
         topBar = { TopBar(navController) },
         bottomBar = { BottomNavigationBar(navController) }
     ) { innerPadding ->
-        if (showLoading) {
+        if (showLoading || generos.isEmpty()) {
             Box(
                 modifier = Modifier
                     .fillMaxSize()
@@ -73,6 +83,8 @@ fun HomeScreen(navController: NavHostController, apiViewModel: APIViewModel, ser
                 innerPadding = innerPadding,
                 peliculas = peliculas,
                 series = series,
+                generos = generos,
+                genreMap = genreMap,
                 selectedFilter = selectedFilter,
                 onFilterSelected = { selectedFilter = it },
                 navController = navController
@@ -124,26 +136,31 @@ fun TopBar(navController: NavHostController) {
 }
 
 @Composable
-fun HomeContent(innerPadding: PaddingValues, peliculas: List<PelisPopulares>, series: List<SeriesPopulares>, selectedFilter: String, onFilterSelected: (String) -> Unit, navController: NavHostController) {
-    val generos = listOf("Acción", "Comedia", "Drama", "Terror", "Ciencia Ficción")
-
+fun HomeContent(
+    innerPadding: PaddingValues,
+    peliculas: List<PelisPopulares>,
+    series: List<SeriesPopulares>,
+    generos: List<Genre>,
+    genreMap: Map<Int, String>,
+    selectedFilter: String,
+    onFilterSelected: (String) -> Unit,
+    navController: NavHostController
+) {
     val contenidoFiltrado = when (selectedFilter) {
         "Películas" -> peliculas.map { ContentItem.Movie(it) }
         "Series" -> series.map { ContentItem.Series(it) }
-        else -> (peliculas + series).map {
-            when {
-                it is PelisPopulares -> ContentItem.Movie(it)
-                it is SeriesPopulares -> ContentItem.Series(it)
-                else -> null
-            }
-        }.filterNotNull().sortedByDescending {
-            when (it) {
-                is ContentItem.Movie -> it.pelicula.popularity
-                is ContentItem.Series -> it.serie.popularity
+        else -> {
+            val combinedList = mutableListOf<ContentItem>()
+            peliculas.forEach { combinedList.add(ContentItem.Movie(it)) }
+            series.forEach { combinedList.add(ContentItem.Series(it)) }
+            combinedList.sortedByDescending {
+                when (it) {
+                    is ContentItem.Movie -> it.pelicula.popularity
+                    is ContentItem.Series -> it.serie.popularity
+                }
             }
         }
     }
-
 
     LazyColumn(
         modifier = Modifier
@@ -168,11 +185,21 @@ fun HomeContent(innerPadding: PaddingValues, peliculas: List<PelisPopulares>, se
         }
 
         items(generos) { genero ->
-            GeneroSeccion(
-                genero = genero,
-                contenido = contenidoFiltrado,
-                navController = navController
-            )
+            val contenidoPorGenero = contenidoFiltrado.filter { contenido ->
+                when (contenido) {
+                    is ContentItem.Movie -> contenido.pelicula.genre_ids.contains(genero.id)
+                    is ContentItem.Series -> contenido.serie.genre_ids.contains(genero.id)
+                }
+            }
+
+            if (contenidoPorGenero.isNotEmpty()) {
+                GeneroSeccion(
+                    genero = genero.name,
+                    contenido = contenidoPorGenero,
+                    navController = navController,
+                    cantidadContenido = contenidoPorGenero.size
+                )
+            }
         }
     }
 }
@@ -292,8 +319,12 @@ fun SeriePopular(serie: SeriesPopulares, navController: NavHostController) {
 }
 
 @Composable
-fun GeneroSeccion(genero: String, contenido: List<ContentItem>, navController: NavHostController) {
-
+fun GeneroSeccion(
+    genero: String,
+    contenido: List<ContentItem>,
+    navController: NavHostController,
+    cantidadContenido: Int
+) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -309,26 +340,41 @@ fun GeneroSeccion(genero: String, contenido: List<ContentItem>, navController: N
             Text(
                 text = genero,
                 style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.Bold
+                fontWeight = FontWeight.Bold,
+                color = Color.White
             )
 
             Text(
-                text = "${contenido.size} títulos",
+                text = "$cantidadContenido títulos",
                 style = MaterialTheme.typography.bodySmall,
                 color = Color.Gray
             )
         }
 
-        LazyRow(
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
-            contentPadding = PaddingValues(horizontal = 16.dp)
-        ) {
-            items(contenido) { item ->
-                if (item is ContentItem.Movie) {
-                    PeliCarrusel(item.pelicula, navController)
-                } else if (item is ContentItem.Series) {
-                    SerieCarrusel(item.serie, navController)
+        if (contenido.isNotEmpty()) {
+            LazyRow(
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                contentPadding = PaddingValues(horizontal = 16.dp)
+            ) {
+                items(contenido) { item ->
+                    when (item) {
+                        is ContentItem.Movie -> PeliCarrusel(item.pelicula, navController)
+                        is ContentItem.Series -> SerieCarrusel(item.serie, navController)
+                    }
                 }
+            }
+        } else {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = "No hay contenido disponible para este género",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = Color.Gray
+                )
             }
         }
     }
@@ -366,7 +412,8 @@ fun PeliCarrusel(pelicula: PelisPopulares, navController: NavHostController) {
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
             textAlign = TextAlign.Center,
-            modifier = Modifier.padding(top = 4.dp, start = 4.dp, end = 4.dp)
+            modifier = Modifier.padding(top = 4.dp, start = 4.dp, end = 4.dp),
+            color = Color.White
         )
     }
 }
@@ -403,7 +450,8 @@ fun SerieCarrusel(serie: SeriesPopulares, navController: NavHostController) {
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
             textAlign = TextAlign.Center,
-            modifier = Modifier.padding(top = 4.dp, start = 4.dp, end = 4.dp)
+            modifier = Modifier.padding(top = 4.dp, start = 4.dp, end = 4.dp),
+            color = Color.White
         )
     }
 }

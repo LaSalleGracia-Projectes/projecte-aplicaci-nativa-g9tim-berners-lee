@@ -96,7 +96,7 @@ fun AppNavigationCompact(
         }
         // Home
         composable(Routes.Home.route) {
-            HomeScreen(navigationController, apiViewModel, seriesViewModel)
+            HomeScreen(navigationController, apiViewModel, seriesViewModel, genresViewModel)
         }
         // Listas
         composable(Routes.Listas.route) {
