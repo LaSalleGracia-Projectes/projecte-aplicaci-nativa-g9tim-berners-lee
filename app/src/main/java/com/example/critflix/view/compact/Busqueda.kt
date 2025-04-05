@@ -6,8 +6,10 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.ArrowDownward
@@ -22,20 +24,25 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.layout.Layout
+import androidx.compose.ui.layout.Placeable
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
+import androidx.lifecycle.LiveData
 import androidx.navigation.NavHostController
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
+import com.example.critflix.model.Genre
 import com.example.critflix.nav.Routes
 import com.example.critflix.model.PelisPopulares
 import com.example.critflix.model.SeriesPopulares
 import com.example.critflix.viewmodel.APIViewModel
 import com.example.critflix.viewmodel.BusquedaViewModel
 import com.example.critflix.viewmodel.ContentType
+import com.example.critflix.viewmodel.GenresViewModel
 import com.example.critflix.viewmodel.SeriesViewModel
 import com.example.critflix.viewmodel.SortCriteria
 import com.example.critflix.viewmodel.SortDirection
@@ -47,31 +54,33 @@ fun Busqueda(
     navController: NavHostController,
     apiViewModel: APIViewModel,
     seriesViewModel: SeriesViewModel,
-    busquedaViewModel: BusquedaViewModel
+    busquedaViewModel: BusquedaViewModel,
+    genresViewModel: GenresViewModel
 ) {
     val showLoading: Boolean by apiViewModel.loading.observeAsState(true)
     val peliculas: List<PelisPopulares> by apiViewModel.pelis.observeAsState(emptyList())
     val series: List<SeriesPopulares> by seriesViewModel.series.observeAsState(emptyList())
+    val genresLoading: Boolean by genresViewModel.loading.observeAsState(true)
 
     LaunchedEffect(Unit) {
-        apiViewModel.getPelis(totalMoviesNeeded = 200)
-        seriesViewModel.getSeries(totalSeriesNeeded = 200)
+        apiViewModel.getPelis(totalMoviesNeeded = 5000)
+        seriesViewModel.getSeries(totalSeriesNeeded = 5000)
+        genresViewModel.loadGenres()
     }
 
     Scaffold(
         topBar = { TopBarBusqueda(navController) }
     ) { innerPadding ->
-        if (showLoading) {
+        if (showLoading || genresLoading) {
             LoadingIndicator()
         } else {
             ContenidoPrincipal(
                 paddingValues = innerPadding,
                 navController = navController,
-                peliculas = peliculas,
-                series = series,
-                apiViewModel = apiViewModel,
-                seriesViewModel = seriesViewModel,
-                busquedaViewModel = busquedaViewModel
+                viewModel = busquedaViewModel,
+                peliculasLiveData = apiViewModel.pelis,
+                seriesLiveData = seriesViewModel.series,
+                genresLiveData = genresViewModel.genres,
             )
         }
     }
@@ -141,22 +150,25 @@ fun TopBarBusqueda(navController: NavHostController) {
 fun ContenidoPrincipal(
     paddingValues: PaddingValues,
     navController: NavHostController,
-    peliculas: List<PelisPopulares>,
-    series: List<SeriesPopulares>,
-    apiViewModel: APIViewModel,
-    seriesViewModel: SeriesViewModel,
-    busquedaViewModel: BusquedaViewModel
+    viewModel: BusquedaViewModel,
+    peliculasLiveData: LiveData<List<PelisPopulares>>,
+    seriesLiveData: LiveData<List<SeriesPopulares>>,
+    genresLiveData: LiveData<List<Genre>>,
 ) {
-    // Barra de busqueda
-    val busqueda: String by busquedaViewModel.searchQuery.observeAsState("")
-    val isSearchActive: Boolean by busquedaViewModel.isSearchActive.observeAsState(false)
-    val filteredPeliculas: List<PelisPopulares> by busquedaViewModel.filteredPeliculas.observeAsState(emptyList())
-    val filteredSeries: List<SeriesPopulares> by busquedaViewModel.filteredSeries.observeAsState(emptyList())
-    // Filtros
-    val showFilterDialog: Boolean by busquedaViewModel.showFilterDialog.observeAsState(false)
-    val contentType: ContentType by busquedaViewModel.contentType.observeAsState(ContentType.ALL)
-    val sortCriteria: SortCriteria by busquedaViewModel.sortCriteria.observeAsState(SortCriteria.POPULARITY)
-    val sortDirection: SortDirection by busquedaViewModel.sortDirection.observeAsState(SortDirection.DESCENDING)
+    val peliculas by peliculasLiveData.observeAsState(initial = emptyList())
+    val series by seriesLiveData.observeAsState(initial = emptyList())
+    val genres by genresLiveData.observeAsState(initial = emptyList())
+
+    val query by viewModel.searchQuery.observeAsState("")
+    val isSearchActive by viewModel.isSearchActive.observeAsState(false)
+    val filteredPeliculas by viewModel.filteredPeliculas.observeAsState(emptyList())
+    val filteredSeries by viewModel.filteredSeries.observeAsState(emptyList())
+
+    val contentType by viewModel.contentType.observeAsState(ContentType.ALL)
+    val sortCriteria by viewModel.sortCriteria.observeAsState(SortCriteria.POPULARITY)
+    val sortDirection by viewModel.sortDirection.observeAsState(SortDirection.DESCENDING)
+    val selectedGenreIds by viewModel.selectedGenreIds.observeAsState(emptySet())
+    val showFilterDialog by viewModel.showFilterDialog.observeAsState(false)
 
     Column(
         modifier = Modifier
@@ -165,46 +177,49 @@ fun ContenidoPrincipal(
             .padding(paddingValues)
     ) {
         SearchBar(
-            query = busqueda,
+            query = query,
             onQueryChange = { newQuery ->
-                busquedaViewModel.updateSearchQuery(newQuery, peliculas, series)
+                viewModel.updateSearchQuery(newQuery, peliculas, series)
             },
             onClearQuery = {
-                busquedaViewModel.clearSearch()
+                viewModel.clearSearch()
             },
             onFilterClick = {
-                busquedaViewModel.toggleFilterDialog()
+                viewModel.toggleFilterDialog()
             }
         )
 
-        // Dialogo de filtros
         FilterDialog(
             show = showFilterDialog,
             contentType = contentType,
             sortCriteria = sortCriteria,
             sortDirection = sortDirection,
-            onContentTypeChanged = { busquedaViewModel.updateContentType(it) },
-            onSortCriteriaChanged = { busquedaViewModel.updateSortCriteria(it) },
-            onSortDirectionChanged = { busquedaViewModel.updateSortDirection(it) },
-            onDismiss = { busquedaViewModel.toggleFilterDialog() },
+            availableGenres = genres,
+            selectedGenreIds = selectedGenreIds,
+            onContentTypeChanged = { viewModel.updateContentType(it) },
+            onSortCriteriaChanged = { viewModel.updateSortCriteria(it) },
+            onSortDirectionChanged = { viewModel.updateSortDirection(it) },
+            onGenreToggled = { viewModel.toggleGenreSelection(it) },
+            onClearGenres = { viewModel.clearGenreSelection() },
+            onDismiss = { viewModel.toggleFilterDialog() },
             onApply = {
-                busquedaViewModel.applyFiltersAndSort(busqueda, peliculas, series)
+                viewModel.applyFiltersAndSort(query, peliculas, series)
             }
         )
 
         if (isSearchActive) {
             SearchResults(
-                query = busqueda,
+                query = query,
                 filteredPeliculas = filteredPeliculas,
                 filteredSeries = filteredSeries,
                 navController = navController,
-                contentType = contentType
+                contentType = contentType,
             )
         } else {
             DefaultContent(
                 peliculas = peliculas,
                 series = series,
-                navController = navController
+                navController = navController,
             )
         }
     }
@@ -396,9 +411,13 @@ fun FilterDialog(
     contentType: ContentType,
     sortCriteria: SortCriteria,
     sortDirection: SortDirection,
+    availableGenres: List<Genre>,
+    selectedGenreIds: Set<Int>,
     onContentTypeChanged: (ContentType) -> Unit,
     onSortCriteriaChanged: (SortCriteria) -> Unit,
     onSortDirectionChanged: (SortDirection) -> Unit,
+    onGenreToggled: (Int) -> Unit,
+    onClearGenres: () -> Unit,
     onDismiss: () -> Unit,
     onApply: () -> Unit
 ) {
@@ -416,8 +435,10 @@ fun FilterDialog(
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
+                        .heightIn(max = 500.dp)
                         .padding(16.dp)
                         .background(color = Color.Black)
+                        .verticalScroll(rememberScrollState())
                 ) {
                     // Título
                     Text(
@@ -491,6 +512,61 @@ fun FilterDialog(
                                 selectedContainerColor = Color.Green.copy(alpha = 0.7f),
                             )
                         )
+                    }
+
+                    Divider(modifier = Modifier.padding(vertical = 8.dp))
+
+                    // Géneros
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 8.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Text(
+                            text = "GÉNEROS",
+                            style = MaterialTheme.typography.titleSmall,
+                            color = MaterialTheme.colorScheme.secondary,
+                        )
+
+                        if (selectedGenreIds.isNotEmpty()) {
+                            TextButton(
+                                onClick = onClearGenres,
+                                colors = ButtonDefaults.textButtonColors(
+                                    contentColor = Color.Green
+                                )
+                            ) {
+                                Text("Limpiar", fontSize = 12.sp)
+                            }
+                        }
+                    }
+
+                    FlowRow(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 8.dp),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        maxItemsInEachRow = 3
+                    ) {
+                        availableGenres.forEach { genre ->
+                            val isSelected = selectedGenreIds.contains(genre.id)
+                            FilterChip(
+                                selected = isSelected,
+                                onClick = { onGenreToggled(genre.id) },
+                                label = {
+                                    Text(
+                                        genre.name,
+                                        fontSize = 12.sp,
+                                        color = if (isSelected) Color.White else Color.Gray
+                                    )
+                                },
+                                colors = FilterChipDefaults.filterChipColors(
+                                    selectedContainerColor = Color.Green.copy(alpha = 0.7f),
+                                ),
+                                modifier = Modifier.padding(bottom = 8.dp)
+                            )
+                        }
                     }
 
                     Divider(modifier = Modifier.padding(vertical = 8.dp))
@@ -612,6 +688,65 @@ fun FilterDialog(
     }
 }
 
+// Componente auxiliar para los chips de género en filas
+@Composable
+fun FlowRow(
+    modifier: Modifier = Modifier,
+    horizontalArrangement: Arrangement.Horizontal = Arrangement.Start,
+    maxItemsInEachRow: Int = Int.MAX_VALUE,
+    content: @Composable () -> Unit
+) {
+    Layout(
+        content = content,
+        modifier = modifier
+    ) { measurables, constraints ->
+        val rows = mutableListOf<MutableList<Placeable>>()
+        val itemConstraints = constraints.copy(minWidth = 0)
+        var currentRow = mutableListOf<Placeable>()
+        var currentRowWidth = 0
+        var itemsInCurrentRow = 0
+
+        measurables.forEach { measurable ->
+            val placeable = measurable.measure(itemConstraints)
+
+            if (currentRowWidth + placeable.width > constraints.maxWidth || itemsInCurrentRow >= maxItemsInEachRow) {
+                rows.add(currentRow)
+                currentRow = mutableListOf()
+                currentRowWidth = 0
+                itemsInCurrentRow = 0
+            }
+
+            currentRow.add(placeable)
+            currentRowWidth += placeable.width
+            itemsInCurrentRow++
+        }
+
+        if (currentRow.isNotEmpty()) {
+            rows.add(currentRow)
+        }
+
+        val height = rows.sumOf { row ->
+            row.maxOfOrNull { it.height } ?: 0
+        }
+
+        layout(constraints.maxWidth, height) {
+            var y = 0
+
+            rows.forEach { row ->
+                var x = 0
+                val rowHeight = row.maxOfOrNull { it.height } ?: 0
+
+                row.forEach { placeable ->
+                    placeable.place(x, y)
+                    x += placeable.width
+                }
+
+                y += rowHeight
+            }
+        }
+    }
+}
+
 // Componente para radio buttons con texto
 @Composable
 fun RadioButtonWithText(
@@ -628,10 +763,18 @@ fun RadioButtonWithText(
     ) {
         RadioButton(
             selected = selected,
-            onClick = onClick
+            onClick = onClick,
+            colors = RadioButtonDefaults.colors(
+                selectedColor = Color.Green,
+                unselectedColor = Color.Gray
+            )
         )
-        Spacer(modifier = Modifier.width(8.dp))
-        Text(text = text)
+        Text(
+            text = text,
+            style = MaterialTheme.typography.bodyMedium,
+            color = if (selected) Color.White else Color.Gray,
+            modifier = Modifier.padding(start = 8.dp)
+        )
     }
 }
 

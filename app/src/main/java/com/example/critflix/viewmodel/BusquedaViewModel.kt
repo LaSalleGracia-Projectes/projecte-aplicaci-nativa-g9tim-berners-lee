@@ -3,6 +3,7 @@ package com.example.critflix.viewmodel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import com.example.critflix.model.Genre
 import com.example.critflix.model.PelisPopulares
 import com.example.critflix.model.SeriesPopulares
 
@@ -45,6 +46,13 @@ class BusquedaViewModel : ViewModel() {
 
     private val _sortDirection = MutableLiveData<SortDirection>(SortDirection.DESCENDING)
     val sortDirection: LiveData<SortDirection> = _sortDirection
+
+    // Géneros
+    private val _availableGenres = MutableLiveData<List<Genre>>(emptyList())
+    val availableGenres: LiveData<List<Genre>> = _availableGenres
+
+    private val _selectedGenreIds = MutableLiveData<Set<Int>>(emptySet())
+    val selectedGenreIds: LiveData<Set<Int>> = _selectedGenreIds
 
     private val _showFilterDialog = MutableLiveData<Boolean>(false)
     val showFilterDialog: LiveData<Boolean> = _showFilterDialog
@@ -90,6 +98,18 @@ class BusquedaViewModel : ViewModel() {
             }
             ContentType.SERIES -> {
                 filteredShows = series.filter { it.name.contains(query, ignoreCase = true) }
+            }
+        }
+
+        // Aplicar filtro de géneros si hay géneros seleccionados
+        val selectedGenres = _selectedGenreIds.value ?: emptySet()
+        if (selectedGenres.isNotEmpty()) {
+            filteredMovies = filteredMovies.filter { pelicula ->
+                pelicula.genre_ids.any { it in selectedGenres }
+            }
+
+            filteredShows = filteredShows.filter { serie ->
+                serie.genre_ids.any { it in selectedGenres }
             }
         }
 
@@ -178,5 +198,24 @@ class BusquedaViewModel : ViewModel() {
     // Actualizar dirección de ordenación
     fun updateSortDirection(direction: SortDirection) {
         _sortDirection.value = direction
+    }
+
+    // Funciones para manejar géneros
+    fun setAvailableGenres(genres: List<Genre>) {
+        _availableGenres.value = genres
+    }
+
+    fun toggleGenreSelection(genreId: Int) {
+        val currentSelection = _selectedGenreIds.value ?: emptySet()
+        val newSelection = if (currentSelection.contains(genreId)) {
+            currentSelection - genreId
+        } else {
+            currentSelection + genreId
+        }
+        _selectedGenreIds.value = newSelection
+    }
+
+    fun clearGenreSelection() {
+        _selectedGenreIds.value = emptySet()
     }
 }
