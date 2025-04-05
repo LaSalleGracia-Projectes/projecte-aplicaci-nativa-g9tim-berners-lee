@@ -193,7 +193,7 @@ fun AppNavigationCompact(
         }
         // Busqueda
         composable(Routes.Busqueda.route) {
-            Busqueda(navigationController, apiViewModel, seriesViewModel, busquedaViewModel)
+            Busqueda(navigationController, apiViewModel, seriesViewModel, busquedaViewModel, genresViewModel)
         }
         //Perfil -> Ajustes
         composable(Routes.Ajustes.route){
