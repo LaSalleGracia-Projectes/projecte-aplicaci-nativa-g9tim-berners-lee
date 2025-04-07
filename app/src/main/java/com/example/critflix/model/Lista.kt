@@ -6,10 +6,10 @@ import java.util.Date
 import java.util.Locale
 
 data class Lista(
-    val id: String,
-    val name: String,
+    val id: String = "",
+    val name: String = "",
     val itemCount: Int = 0,
-    val lastUpdated: String,
+    val lastUpdated: String = SimpleDateFormat("MMM dd, yyyy", Locale.getDefault()).format(Date()),
     val isDefault: Boolean = false,
     val user_id: Int? = null
 ) {
@@ -18,12 +18,12 @@ data class Lista(
             Log.d("Lista", "Response map: $map")
 
             val id = map["id"]?.toString() ?: ""
-            val name = map["nombre_lista"]?.toString() ?: ""
+            val name = map["nombre_lista"]?.toString() ?: "" // Ensure this is never null
             val userId = (map["user_id"] as? Number)?.toInt()
 
             return Lista(
                 id = id,
-                name = name,
+                name = name.ifEmpty { "Nueva lista" }, // Provide default value if empty
                 itemCount = 0,
                 lastUpdated = SimpleDateFormat("MMM dd, yyyy", Locale.getDefault()).format(Date()),
                 isDefault = false,

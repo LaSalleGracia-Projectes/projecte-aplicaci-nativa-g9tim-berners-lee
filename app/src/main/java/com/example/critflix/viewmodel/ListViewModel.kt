@@ -102,7 +102,7 @@ class ListViewModel : ViewModel() {
         Log.d("ListViewModel", "Creando lista: $name para usuario: $userId")
         if ((_listas.value?.size ?: 0) - defaultLists.size < maxListas) {
             _createListState.value = CreateListState.Loading
-
+            
             val listaRequest = ListaRequest(
                 user_id = userId,
                 nombre_lista = name
@@ -115,7 +115,10 @@ class ListViewModel : ViewModel() {
                     apiService.createList(listaRequest).enqueue(object : Callback<Lista> {
                         override fun onResponse(call: Call<Lista>, response: Response<Lista>) {
                             if (response.isSuccessful && response.body() != null) {
-                                val newList = response.body()!!
+                                val newList = response.body()!!.copy(
+                                    name = name.ifEmpty { "Nueva Lista" },  // valor por defecto
+                                    lastUpdated = SimpleDateFormat("MMM dd, yyyy", Locale.getDefault()).format(Date())
+                                )
                                 val currentLists = _listas.value ?: emptyList()
                                 _listas.value = currentLists + newList
                                 _createListState.value = CreateListState.Success(newList)
@@ -131,7 +134,10 @@ class ListViewModel : ViewModel() {
                                                 object : TypeToken<Map<String, Any>>() {}.type
                                             )
 
-                                            val lista = Lista.fromApiResponse(responseMap)
+                                            val lista = Lista.fromApiResponse(responseMap).copy(
+                                                name = name.ifEmpty { "Nueva Lista" },  // valor por defecto
+                                                lastUpdated = SimpleDateFormat("MMM dd, yyyy", Locale.getDefault()).format(Date())
+                                            )
                                             val currentLists = _listas.value ?: emptyList()
                                             _listas.value = currentLists + lista
                                             _createListState.value = CreateListState.Success(lista)
