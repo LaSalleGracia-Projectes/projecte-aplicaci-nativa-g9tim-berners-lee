@@ -63,8 +63,8 @@ fun Busqueda(
     val genresLoading: Boolean by genresViewModel.loading.observeAsState(true)
 
     LaunchedEffect(Unit) {
-        apiViewModel.getPelis(totalMoviesNeeded = 5000)
-        seriesViewModel.getSeries(totalSeriesNeeded = 5000)
+        apiViewModel.getPelis(totalMoviesNeeded = 500)
+        seriesViewModel.getSeries(totalSeriesNeeded = 500)
         genresViewModel.loadGenres()
     }
 
