@@ -81,21 +81,21 @@ fun InfoSeries(navController: NavHostController, seriesViewModel: SeriesViewMode
                         Icon(
                             if (isFavorite) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
                             contentDescription = "Favorito",
-                            tint = if (isFavorite) Color.Red else Color.White // Icono blanco o rojo
+                            tint = if (isFavorite) Color.Red else Color.White
                         )
                     }
-                    IconButton(onClick = { /* Compartir lógica */ }) {
+                    IconButton(onClick = { /* Compartir */ }) {
                         Icon(
                             Icons.Default.Share,
                             contentDescription = "Compartir",
-                            tint = Color.White // Icono blanco
+                            tint = Color.White
                         )
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = Color.Black, // Fondo negro
-                    actionIconContentColor = Color.White, // Color de iconos de acciones
-                    navigationIconContentColor = Color.White // Color de icono de navegación
+                    containerColor = Color.Black,
+                    actionIconContentColor = Color.White,
+                    navigationIconContentColor = Color.White
                 )
             )
         }

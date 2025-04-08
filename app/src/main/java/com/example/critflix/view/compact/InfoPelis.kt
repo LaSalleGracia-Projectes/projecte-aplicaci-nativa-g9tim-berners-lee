@@ -53,10 +53,19 @@ fun InfoPelis(navController: NavHostController, apiViewModel: APIViewModel, id: 
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Detalles de la película") },
+                title = {
+                    Text(
+                        "Detalles de la película",
+                        color = Color.White
+                    )
+                },
                 navigationIcon = {
                     IconButton(onClick = { navController.popBackStack() }) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Volver")
+                        Icon(
+                            Icons.Default.ArrowBack,
+                            contentDescription = "Volver",
+                            tint = Color.White
+                        )
                     }
                 },
                 actions = {
@@ -64,13 +73,22 @@ fun InfoPelis(navController: NavHostController, apiViewModel: APIViewModel, id: 
                         Icon(
                             if (isFavorite) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
                             contentDescription = "Favorito",
-                            tint = if (isFavorite) Color.Red else Color.Gray
+                            tint = if (isFavorite) Color.Red else Color.White
                         )
                     }
                     IconButton(onClick = { /* Compartir */ }) {
-                        Icon(Icons.Default.Share, contentDescription = "Compartir")
+                        Icon(
+                            Icons.Default.Share,
+                            contentDescription = "Compartir",
+                            tint = Color.White
+                        )
                     }
-                }
+                },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = Color.Black,
+                    actionIconContentColor = Color.White,
+                    navigationIconContentColor = Color.White
+                )
             )
         }
     ) { innerPadding ->
@@ -78,6 +96,7 @@ fun InfoPelis(navController: NavHostController, apiViewModel: APIViewModel, id: 
             Column(
                 modifier = Modifier
                     .fillMaxSize()
+                    .background(color = Color.Black)
                     .padding(innerPadding)
                     .verticalScroll(rememberScrollState())
             ) {
