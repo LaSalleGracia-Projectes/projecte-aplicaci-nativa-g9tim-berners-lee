@@ -32,9 +32,19 @@ import com.example.critflix.viewmodel.ListViewModel
 @Composable
 fun ListView(navController: NavHostController, apiViewModel: APIViewModel, listViewModel: ListViewModel) {
     var tabSeleccionado by remember { mutableStateOf(0) }
+    val context = LocalContext.current
+    val userSessionManager = remember { UserSessionManager(context) }
+    val token = userSessionManager.getToken() ?: ""
+    val userId = userSessionManager.getUserId()
 
     LaunchedEffect(Unit) {
         apiViewModel.getPelis(totalMoviesNeeded = 30)
+    }
+
+    LaunchedEffect(userId) {
+        if (userId > 0) {
+            listViewModel.loadUserLists(userId, token)
+        }
     }
 
     Scaffold(

@@ -200,6 +200,8 @@ class ListViewModel : ViewModel() {
     }
 
     fun renameList(id: String, newName: String, token: String) {
+        _createListState.value = CreateListState.Loading
+        
         // No renombrar listas por defecto
         val lista = _listas.value?.find { it.id == id } ?: return
         if (lista.isDefault) {
@@ -216,16 +218,27 @@ class ListViewModel : ViewModel() {
 
         apiService.updateList(id, listaRequest).enqueue(object : Callback<Lista> {
             override fun onResponse(call: Call<Lista>, response: Response<Lista>) {
-                if (response.isSuccessful && response.body() != null) {
-                    val updatedList = response.body()!!
-                    _listas.value = _listas.value?.map {
-                        if (it.id == id) updatedList else it
+                if (response.isSuccessful) {
+                    try {
+                        val updatedList = response.body() ?: lista.copy(name = newName)
+                        val currentLists = _listas.value?.toMutableList() ?: mutableListOf()
+                        val index = currentLists.indexOfFirst { it.id == id }
+                        if (index != -1) {
+                            currentLists[index] = updatedList
+                            _listas.value = currentLists
+                        }
+                        _createListState.value = CreateListState.Success(updatedList)
+                    } catch (e: Exception) {
+                        _createListState.value = CreateListState.Error("Error al actualizar la lista: ${e.message}")
                     }
+                } else {
+                    _createListState.value = CreateListState.Error("Error: ${response.code()}")
                 }
             }
 
             override fun onFailure(call: Call<Lista>, t: Throwable) {
                 Log.e("ListViewModel", "Error renaming list", t)
+                _createListState.value = CreateListState.Error("Error de conexión: ${t.message}")
             }
         })
     }
@@ -237,3 +250,4 @@ sealed class CreateListState {
     data class Success(val lista: Lista) : CreateListState()
     data class Error(val message: String) : CreateListState()
 }
+
