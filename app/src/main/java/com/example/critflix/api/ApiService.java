@@ -9,6 +9,7 @@ import com.example.critflix.model.RegisterResponse;
 import com.example.critflix.model.UpdateUserRequest;
 import com.example.critflix.model.User;
 import java.util.List;
+import java.util.Map;
 import retrofit2.Call;
 import retrofit2.http.Body;
 import retrofit2.http.DELETE;
@@ -39,7 +40,7 @@ public interface ApiService {
     Call<Lista> createList(@Body ListaRequest listaRequest);
 
     @GET("listas/user/{userId}")
-    Call<List<Lista>> getUserLists(@Path("userId") int userId);
+    Call<Map<String, Object>> getUserLists(@Path("userId") int userId);
 
     @PUT("listas/{id}")
     Call<Lista> updateList(@Path("id") String id, @Body ListaRequest listaRequest);

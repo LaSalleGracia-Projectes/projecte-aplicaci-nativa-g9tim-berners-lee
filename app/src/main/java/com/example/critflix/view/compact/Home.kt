@@ -23,6 +23,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -38,8 +39,10 @@ import com.example.critflix.nav.Routes
 import com.example.critflix.model.Genre
 import com.example.critflix.model.PelisPopulares
 import com.example.critflix.model.SeriesPopulares
+import com.example.critflix.model.UserSessionManager
 import com.example.critflix.viewmodel.APIViewModel
 import com.example.critflix.viewmodel.GenresViewModel
+import com.example.critflix.viewmodel.ListViewModel
 import com.example.critflix.viewmodel.SeriesViewModel
 
 @Composable
@@ -47,20 +50,30 @@ fun HomeScreen(
     navController: NavHostController,
     apiViewModel: APIViewModel,
     seriesViewModel: SeriesViewModel,
-    genresViewModel: GenresViewModel
+    genresViewModel: GenresViewModel,
+    listViewModel: ListViewModel
 ) {
     val showLoading: Boolean by apiViewModel.loading.observeAsState(true)
     val peliculas: List<PelisPopulares> by apiViewModel.pelis.observeAsState(emptyList())
     val series: List<SeriesPopulares> by seriesViewModel.series.observeAsState(emptyList())
     val generos: List<Genre> by genresViewModel.genres.observeAsState(emptyList())
     val genreMap: Map<Int, String> by genresViewModel.genreMap.observeAsState(emptyMap())
-
+    val context = LocalContext.current
+    val userSessionManager = remember { UserSessionManager(context) }
+    val token = userSessionManager.getToken() ?: ""
+    val userId = userSessionManager.getUserId()
     var selectedFilter by remember { mutableStateOf("Todos") }
 
     LaunchedEffect(Unit) {
         apiViewModel.getPelis(totalMoviesNeeded = 50)
         seriesViewModel.getSeries(totalSeriesNeeded = 50)
         genresViewModel.loadGenres()
+    }
+
+    LaunchedEffect(userId) {
+        if (userId > 0) {
+            listViewModel.loadUserLists(userId, token)
+        }
     }
 
     Scaffold(

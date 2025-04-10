@@ -57,21 +57,13 @@ class ListViewModel : ViewModel() {
     fun loadUserLists(userId: Int, token: String) {
         val apiService = RetrofitClient.getApiService(token)
 
-        apiService.getUserLists(userId).enqueue(object : Callback<List<Lista>> {
-            override fun onResponse(call: Call<List<Lista>>, response: Response<List<Lista>>) {
+        apiService.getUserLists(userId).enqueue(object : Callback<Map<String, Any>> {
+            override fun onResponse(call: Call<Map<String, Any>>, response: Response<Map<String, Any>>) {
                 if (response.isSuccessful) {
-                    val userLists = response.body() ?: emptyList()
-                    _listas.value = defaultLists + userLists
-                } else {
                     try {
-                        val gson = Gson()
-                        val responseBody = response.errorBody()?.string()
-                        val responseMap = gson.fromJson<Map<String, Any>>(
-                            responseBody,
-                            object : TypeToken<Map<String, Any>>() {}.type
-                        )
-
-                        val dataList = responseMap["data"] as? List<*>
+                        val responseBody = response.body()
+                        val dataList = responseBody?.get("data") as? List<*>
+                        
                         if (dataList != null) {
                             val userLists = dataList.mapNotNull { item ->
                                 if (item is Map<*, *>) {
@@ -80,20 +72,17 @@ class ListViewModel : ViewModel() {
                                 } else null
                             }
                             _listas.value = defaultLists + userLists
-                        } else {
-                            Log.e("ListViewModel", "Error parsing API response: $responseBody")
                         }
                     } catch (e: Exception) {
                         Log.e("ListViewModel", "Error parsing response", e)
                     }
+                } else {
+                    Log.e("ListViewModel", "Error loading lists: ${response.code()}")
                 }
             }
 
-            override fun onFailure(call: Call<List<Lista>>, t: Throwable) {
-                Log.e("ListViewModel", "Error creating list", t)
-                _createListState.value = CreateListState.Error(
-                    "Error de conexión: ${t.message ?: "desconocido"}"
-                )
+            override fun onFailure(call: Call<Map<String, Any>>, t: Throwable) {
+                Log.e("ListViewModel", "Error loading lists", t)
             }
         })
     }
