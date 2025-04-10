@@ -208,6 +208,8 @@ fun Listas(
     val token = userSessionManager.getToken() ?: ""
     val userId = userSessionManager.getUserId()
     var showDeleteConfirmation by remember { mutableStateOf<String?>(null) }
+    val customListsCount = listas.count { !it.isDefault }
+    val listsLimitReached = customListsCount >= viewModel.maxListas
 
     Column(
         modifier = Modifier
@@ -223,7 +225,7 @@ fun Listas(
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
-                text = "${listas.size}/${viewModel.maxListas} Listas",
+                text = "${customListsCount}/${viewModel.maxListas} Listas",
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
@@ -231,10 +233,21 @@ fun Listas(
             Text(
                 text = "CREAR NUEVA LISTA",
                 style = MaterialTheme.typography.labelLarge,
-                color = MaterialTheme.colorScheme.primary,
+                color = if (listsLimitReached)
+                    Color.Gray
+                else
+                    MaterialTheme.colorScheme.primary,
                 modifier = Modifier
-                    .clickable {
-                        navController.navigate(Routes.CrearLista.route)
+                    .clickable(enabled = !listsLimitReached) {
+                        if (!listsLimitReached) {
+                            navController.navigate(Routes.CrearLista.route)
+                        } else {
+                            Toast.makeText(
+                                context,
+                                "Has alcanzado el límite máximo de listas (${viewModel.maxListas})",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        }
                     }
                     .padding(vertical = 8.dp)
             )

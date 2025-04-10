@@ -22,6 +22,7 @@ import com.example.critflix.viewmodel.ListViewModel
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CrearLista(navController: NavController, listViewModel: ListViewModel) {
+    val listas by listViewModel.listas.observeAsState(emptyList())
     val context = LocalContext.current
     val userSessionManager = remember { UserSessionManager(context) }
     val userId = userSessionManager.getUserId()
