@@ -9,6 +9,9 @@ sealed class Routes(val route: String) {
     object Registro : Routes("registro")
     object Home : Routes("home")
     object Listas : Routes("listas")
+    object ContenidoListas : Routes("contenido_listas/{id}") {
+        fun createRoute(id: String) = "contenido_listas/$id"
+    }
     object Notificaciones : Routes("notificaciones")
     object Perfil : Routes("perfil")
     object EditarPerfil : Routes("editar_perfil")

@@ -102,6 +102,23 @@ fun AppNavigationCompact(
         composable(Routes.Listas.route) {
             ListView(navigationController, apiViewModel, listViewModel)
         }
+
+        // Contenido Listas
+        composable(
+            route = Routes.ContenidoListas.route,
+            arguments = listOf(
+                navArgument("id") {
+                    type = NavType.IntType
+                }
+            )
+        ) { backStackEntry ->
+            ContenidoListas(
+                navController = navigationController,
+                listViewModel = listViewModel,
+                id = backStackEntry.arguments?.getInt("id") ?: 0,
+            )
+        }
+
         // Crear Lista
         composable(Routes.CrearLista.route) {
             CrearLista(navigationController, listViewModel)
