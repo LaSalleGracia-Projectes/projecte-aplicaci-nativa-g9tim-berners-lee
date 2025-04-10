@@ -18,12 +18,12 @@ data class Lista(
             Log.d("Lista", "Response map: $map")
 
             val id = map["id"]?.toString() ?: ""
-            val name = map["nombre_lista"]?.toString() ?: "" // Ensure this is never null
+            val name = map["nombre_lista"]?.toString() ?: ""
             val userId = (map["user_id"] as? Number)?.toInt()
 
             return Lista(
                 id = id,
-                name = name.ifEmpty { "Nueva lista" }, // Provide default value if empty
+                name = name.ifEmpty { "Nueva lista" },
                 itemCount = 0,
                 lastUpdated = SimpleDateFormat("MMM dd, yyyy", Locale.getDefault()).format(Date()),
                 isDefault = false,

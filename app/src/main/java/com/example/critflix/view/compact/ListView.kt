@@ -240,7 +240,7 @@ fun Listas(
                 modifier = Modifier
                     .clickable(enabled = !listsLimitReached) {
                         if (!listsLimitReached) {
-                            navController.navigate(Routes.CrearLista.route)
+                            navController.navigate(Routes.CrearLista.createRoute())
                         } else {
                             Toast.makeText(
                                 context,
@@ -288,6 +288,7 @@ fun Listas(
                 key = { it.id }
             ) { lista ->
                 ListContainer(
+                    navController = navController,
                     lista = lista,
                     isMenuExpanded = expandedMenuIndex == lista.id,
                     onMenuClick = {
@@ -297,11 +298,11 @@ fun Listas(
 
                     },
                     onRename = {
-                        navController.navigate("${Routes.RenombrarLista.route}/${lista.id}")
+                        navController.navigate("${Routes.CrearLista.route}/${lista.id}")
                     },
                     onDelete = {
                         showDeleteConfirmation = lista.id
-                    }
+                    },
                 )
             }
         }
@@ -310,6 +311,7 @@ fun Listas(
 
 @Composable
 private fun ListContainer(
+    navController: NavHostController,
     lista: Lista,
     isMenuExpanded: Boolean,
     onMenuClick: () -> Unit,
@@ -358,7 +360,7 @@ private fun ListContainer(
                             DropdownMenuItem(
                                 text = { Text("Renombrar Critilista") },
                                 onClick = {
-                                    onRename()
+                                    navController.navigate(Routes.CrearLista.createRoute(lista.id))
                                     onMenuClick()
                                 }
                             )
@@ -396,3 +398,4 @@ private fun ListContainer(
         }
     }
 }
+
