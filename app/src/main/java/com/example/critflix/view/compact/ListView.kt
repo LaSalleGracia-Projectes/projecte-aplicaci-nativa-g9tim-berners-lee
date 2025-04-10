@@ -206,6 +206,7 @@ fun Listas(
     val listas by viewModel.listas.observeAsState(emptyList())
     val userSessionManager = remember { UserSessionManager(context) }
     val token = userSessionManager.getToken() ?: ""
+    val userId = userSessionManager.getUserId()
     var showDeleteConfirmation by remember { mutableStateOf<String?>(null) }
 
     Column(
