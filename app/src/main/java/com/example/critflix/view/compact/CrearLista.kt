@@ -21,28 +21,32 @@ import com.example.critflix.viewmodel.ListViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun CrearLista(navController: NavController, listViewModel: ListViewModel) {
+fun CrearLista(
+    navController: NavController,
+    listViewModel: ListViewModel,
+    listId: String? = null
+) {
     val listas by listViewModel.listas.observeAsState(emptyList())
     val context = LocalContext.current
     val userSessionManager = remember { UserSessionManager(context) }
     val userId = userSessionManager.getUserId()
     val token = userSessionManager.getToken() ?: ""
-    var nombreLista by remember { mutableStateOf("") }
+    val listaActual = listId?.let { id -> listas.find { it.id == id } }
+    var nombreLista by remember { mutableStateOf(listaActual?.name ?: "") }
     var isFormValid by remember { mutableStateOf(false) }
     val createListState by listViewModel.createListState.observeAsState()
+    val isEditMode = listId != null
 
-    // Validar formulario cuando cambia el nombre
     LaunchedEffect(nombreLista) {
         isFormValid = nombreLista.isNotBlank() && nombreLista.length <= 100
     }
 
-    // Cambios en el estado de creación
     LaunchedEffect(createListState) {
         when (createListState) {
             is CreateListState.Success -> {
                 Toast.makeText(
                     context,
-                    "Lista creada exitosamente",
+                    if (isEditMode) "Lista renombrada exitosamente" else "Lista creada exitosamente",
                     Toast.LENGTH_SHORT
                 ).show()
                 navController.popBackStack()
@@ -67,7 +71,7 @@ fun CrearLista(navController: NavController, listViewModel: ListViewModel) {
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Crear Lista") },
+                title = { Text(if (isEditMode) "Renombrar Lista" else "Crear Lista") },
                 navigationIcon = {
                     IconButton(onClick = { navController.popBackStack() }) {
                         Icon(Icons.Default.ArrowBack, contentDescription = "Volver")
@@ -114,11 +118,15 @@ fun CrearLista(navController: NavController, listViewModel: ListViewModel) {
                 Button(
                     onClick = {
                         if (isFormValid && userId > 0) {
-                            listViewModel.createNewList(nombreLista, userId, token)
+                            if (isEditMode) {
+                                listViewModel.renameList(listId!!, nombreLista, token)
+                            } else {
+                                listViewModel.createNewList(nombreLista, userId, token)
+                            }
                         } else if (userId <= 0) {
                             Toast.makeText(
                                 context,
-                                "Debes iniciar sesión para crear una lista",
+                                "Debes iniciar sesión para ${if (isEditMode) "renombrar" else "crear"} una lista",
                                 Toast.LENGTH_SHORT
                             ).show()
                         }
@@ -133,7 +141,7 @@ fun CrearLista(navController: NavController, listViewModel: ListViewModel) {
                             strokeWidth = 2.dp
                         )
                     } else {
-                        Text("Crear Lista")
+                        Text(if (isEditMode) "Renombrar Lista" else "Crear Lista")
                     }
                 }
             }

@@ -22,10 +22,8 @@ sealed class Routes(val route: String) {
     object InfoSeries : Routes("info_series/{id}") {
         fun createRoute(id: Int) = "info_series/$id"
     }
-    object CrearLista: Routes("crear_lista")
-
-    object RenombrarLista : Routes("renombrar_lista/{listId}") {
-        fun createRoute(listId: String) = "renombrar_lista/$listId"
+    object CrearLista: Routes("crear_lista?listId={listId}") {
+        fun createRoute(listId: String? = null) = if (listId != null) "crear_lista?listId=$listId" else "crear_lista"
     }
     object Busqueda : Routes("busqueda")
     object Anuncios : Routes("anuncios")
