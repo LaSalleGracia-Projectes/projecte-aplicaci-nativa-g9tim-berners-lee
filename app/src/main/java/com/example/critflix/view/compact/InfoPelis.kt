@@ -1,13 +1,24 @@
 package com.example.critflix.view.compact
 
+import android.widget.Toast
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material3.Divider
+import androidx.compose.material3.ListItem
+import androidx.compose.material3.Surface
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.ButtonDefaults
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
@@ -20,26 +31,45 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Dialog
 import androidx.navigation.NavHostController
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
 import com.example.critflix.model.PelisPopulares
+import com.example.critflix.model.UserSessionManager
+import com.example.critflix.nav.Routes
 import com.example.critflix.view.util.ActorCarousel
 import com.example.critflix.viewmodel.APIViewModel
 import com.example.critflix.viewmodel.GenresViewModel
+import com.example.critflix.viewmodel.ListViewModel
 import com.example.critflix.viewmodel.RepartoViewModel
 
 @OptIn(ExperimentalGlideComposeApi::class, ExperimentalMaterial3Api::class)
 @Composable
-fun InfoPelis(navController: NavHostController, apiViewModel: APIViewModel, id: Int, genresViewModel: GenresViewModel, repartoViewModel: RepartoViewModel) {
+fun InfoPelis(navController: NavHostController, apiViewModel: APIViewModel, id: Int, genresViewModel: GenresViewModel, repartoViewModel: RepartoViewModel, listViewModel: ListViewModel) {
     val peliculas: List<PelisPopulares> by apiViewModel.pelis.observeAsState(emptyList())
     val pelicula = peliculas.find { it.id == id }
     var isFavorite by remember { mutableStateOf(false) }
+    val context = LocalContext.current
+
+    var showListsPopup by remember { mutableStateOf(false) }
+
+    val listas by listViewModel.listas.observeAsState(emptyList())
+    val userSessionManager = remember { UserSessionManager(context) }
+    val userId = userSessionManager.getUserId()
+    val token = userSessionManager.getToken() ?: ""
+
+    LaunchedEffect(userId) {
+        if (userId > 0) {
+            listViewModel.loadUserLists(userId, token)
+        }
+    }
 
     LaunchedEffect(id) {
         repartoViewModel.getMovieCredits(id)
@@ -56,6 +86,7 @@ fun InfoPelis(navController: NavHostController, apiViewModel: APIViewModel, id: 
                 title = {
                     Text(
                         "Detalles de la película",
+                        fontSize = 20.sp,
                         color = Color.White
                     )
                 },
@@ -69,6 +100,13 @@ fun InfoPelis(navController: NavHostController, apiViewModel: APIViewModel, id: 
                     }
                 },
                 actions = {
+                    IconButton(onClick = { showListsPopup = true }) {
+                        Icon(
+                            Icons.Default.Add,
+                            contentDescription = "Añadir a lista",
+                            tint = Color.White
+                        )
+                    }
                     IconButton(onClick = { isFavorite = !isFavorite }) {
                         Icon(
                             if (isFavorite) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
@@ -293,6 +331,121 @@ fun InfoPelis(navController: NavHostController, apiViewModel: APIViewModel, id: 
                 contentAlignment = Alignment.Center
             ) {
                 CircularProgressIndicator()
+            }
+        }
+
+        // Popup para agregar a listas
+        if (showListsPopup) {
+            Dialog(onDismissRequest = { showListsPopup = false }) {
+                Surface(
+                    modifier = Modifier
+                        .fillMaxWidth(0.9f)
+                        .wrapContentHeight(),
+                    shape = RoundedCornerShape(16.dp),
+                    color = Color.Black,
+                    border = BorderStroke(1.dp, Color.Green)
+                ) {
+                    Column(
+                        modifier = Modifier
+                            .padding(16.dp)
+                    ) {
+                        Text(
+                            text = "Agregar a lista",
+                            style = MaterialTheme.typography.titleLarge,
+                            color = Color.White,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(bottom = 16.dp),
+                            textAlign = TextAlign.Center
+                        )
+
+                        if (listas.isEmpty()) {
+                            Text(
+                                text = "No tienes listas disponibles",
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = Color.Gray,
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(vertical = 16.dp),
+                                textAlign = TextAlign.Center
+                            )
+                        } else {
+                            Column(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .heightIn(max = 300.dp)
+                                    .verticalScroll(rememberScrollState())
+                            ) {
+                                listas.forEach { lista ->
+                                    ListItem(
+                                        headlineContent = {
+                                            Text(
+                                                text = lista.name,
+                                                color = Color.White,
+                                                maxLines = 1,
+                                                overflow = TextOverflow.Ellipsis
+                                            )
+                                        },
+                                        supportingContent = {
+                                            Text(
+                                                text = "${lista.itemCount} ${if (lista.itemCount == 1) "elemento" else "elementos"}",
+                                                color = Color.Gray,
+                                                fontSize = 12.sp
+                                            )
+                                        },
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .clickable {
+                                                Toast.makeText(
+                                                    context,
+                                                    "Película añadida a ${lista.name}",
+                                                    Toast.LENGTH_SHORT
+                                                ).show()
+                                                showListsPopup = false
+                                            }
+                                    )
+
+                                    if (lista != listas.last()) {
+                                        Divider(
+                                            color = Color.DarkGray,
+                                            modifier = Modifier.padding(vertical = 8.dp)
+                                        )
+                                    }
+                                }
+                            }
+                        }
+
+                        Spacer(modifier = Modifier.height(16.dp))
+
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.End
+                        ) {
+                            TextButton(
+                                onClick = { showListsPopup = false },
+                                colors = ButtonDefaults.textButtonColors(
+                                    contentColor = Color.Green
+                                )
+                            ) {
+                                Text("Cancelar")
+                            }
+
+                            Spacer(modifier = Modifier.width(8.dp))
+
+                            TextButton(
+                                onClick = {
+                                    navController.navigate(Routes.CrearLista.createRoute())
+                                    showListsPopup = false
+                                },
+                                colors = ButtonDefaults.textButtonColors(
+                                    contentColor = Color.Green
+                                )
+                            ) {
+                                Text("Crear nueva lista")
+                            }
+                        }
+                    }
+                }
             }
         }
     }

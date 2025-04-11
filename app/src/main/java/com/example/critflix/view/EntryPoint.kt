@@ -187,7 +187,8 @@ fun AppNavigationCompact(
                 apiViewModel = apiViewModel,
                 id = backStackEntry.arguments?.getInt("id") ?: 0,
                 genresViewModel = genresViewModel,
-                repartoViewModel = repartoViewModel
+                repartoViewModel = repartoViewModel,
+                listViewModel = listViewModel
             )
         }
         // InfoSeries
@@ -204,7 +205,8 @@ fun AppNavigationCompact(
                 seriesViewModel = seriesViewModel,
                 id = backStackEntry.arguments?.getInt("id") ?: 0,
                 repartoViewModel = repartoViewModel,
-                genresViewModel = genresViewModel
+                genresViewModel = genresViewModel,
+                listViewModel = listViewModel
             )
         }
         // Anuncios
