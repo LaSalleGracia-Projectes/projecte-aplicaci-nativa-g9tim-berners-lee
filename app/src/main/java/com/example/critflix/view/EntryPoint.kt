@@ -107,6 +107,7 @@ fun AppNavigationCompact(
         }
 
         // Contenido Listas
+        // En AppNavigationCompact, modifica la parte de ContenidoListas:
         composable(
             route = Routes.ContenidoListas.route,
             arguments = listOf(
@@ -118,7 +119,7 @@ fun AppNavigationCompact(
             ContenidoListas(
                 navController = navigationController,
                 listViewModel = listViewModel,
-                id = backStackEntry.arguments?.getString("id")?.toIntOrNull() ?: 0,
+                id = backStackEntry.arguments?.getString("id") ?: "",
                 contenidoListaViewModel = contenidoListaViewModel,
             )
         }
