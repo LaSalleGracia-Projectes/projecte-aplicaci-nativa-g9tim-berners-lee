@@ -25,6 +25,7 @@ class MainActivity : ComponentActivity() {
     val userViewModel: UserViewModel by viewModels()
     val busquedaViewModel: BusquedaViewModel by viewModels()
     val editarPerfilViewModel: EditarPerfilViewModel by viewModels()
+    val contenidoListaViewModel: ContenidoListaViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -57,6 +58,7 @@ class MainActivity : ComponentActivity() {
                         userViewModel,
                         busquedaViewModel,
                         editarPerfilViewModel,
+                        contenidoListaViewModel,
                         deviceType
                     )
                 }
