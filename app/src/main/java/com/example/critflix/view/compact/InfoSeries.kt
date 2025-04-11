@@ -1,7 +1,10 @@
 package com.example.critflix.view.compact
 
+import android.widget.Toast
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -10,15 +13,18 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
@@ -30,24 +36,46 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Dialog
 import androidx.navigation.NavHostController
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
 import com.example.critflix.model.SeriesPopulares
+import com.example.critflix.model.UserSessionManager
+import com.example.critflix.nav.Routes
 import com.example.critflix.view.util.ActorCarousel
 import com.example.critflix.viewmodel.GenresViewModel
+import com.example.critflix.viewmodel.ListViewModel
 import com.example.critflix.viewmodel.RepartoViewModel
 import com.example.critflix.viewmodel.SeriesViewModel
 
 @OptIn(ExperimentalGlideComposeApi::class, ExperimentalMaterial3Api::class)
 @Composable
-fun InfoSeries(navController: NavHostController, seriesViewModel: SeriesViewModel, id: Int, repartoViewModel: RepartoViewModel, genresViewModel: GenresViewModel) {
+fun InfoSeries(navController: NavHostController, seriesViewModel: SeriesViewModel, id: Int, repartoViewModel: RepartoViewModel, genresViewModel: GenresViewModel, listViewModel: ListViewModel) {
     val series: List<SeriesPopulares> by seriesViewModel.series.observeAsState(emptyList())
     val serie = series.find { it.id == id }
     var isFavorite by remember { mutableStateOf(false) }
+
+    val context = LocalContext.current
+
+    var showListsPopup by remember { mutableStateOf(false) }
+
+    val listas by listViewModel.listas.observeAsState(emptyList())
+    val userSessionManager = remember { UserSessionManager(context) }
+    val userId = userSessionManager.getUserId()
+    val token = userSessionManager.getToken() ?: ""
+
+    LaunchedEffect(userId) {
+        if (userId > 0) {
+            listViewModel.loadUserLists(userId, token)
+        }
+    }
 
     LaunchedEffect(id) {
         repartoViewModel.getTvCredits(id)
@@ -64,7 +92,8 @@ fun InfoSeries(navController: NavHostController, seriesViewModel: SeriesViewMode
                 title = {
                     Text(
                         "Detalles de la serie",
-                        color = Color.White // Texto blanco para mejor contraste
+                        fontSize = 20.sp,
+                        color = Color.White
                     )
                 },
                 navigationIcon = {
@@ -77,6 +106,13 @@ fun InfoSeries(navController: NavHostController, seriesViewModel: SeriesViewMode
                     }
                 },
                 actions = {
+                    IconButton(onClick = { showListsPopup = true }) {
+                        Icon(
+                            Icons.Default.Add,
+                            contentDescription = "Añadir a lista",
+                            tint = Color.White
+                        )
+                    }
                     IconButton(onClick = { isFavorite = !isFavorite }) {
                         Icon(
                             if (isFavorite) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
@@ -300,6 +336,121 @@ fun InfoSeries(navController: NavHostController, seriesViewModel: SeriesViewMode
                 contentAlignment = Alignment.Center
             ) {
                 CircularProgressIndicator()
+            }
+        }
+
+        // Popup para agregar a lista
+        if (showListsPopup) {
+            Dialog(onDismissRequest = { showListsPopup = false }) {
+                Surface(
+                    modifier = Modifier
+                        .fillMaxWidth(0.9f)
+                        .wrapContentHeight(),
+                    shape = RoundedCornerShape(16.dp),
+                    color = Color.Black,
+                    border = BorderStroke(1.dp, Color.Green)
+                ) {
+                    Column(
+                        modifier = Modifier
+                            .padding(16.dp)
+                    ) {
+                        Text(
+                            text = "Agregar a lista",
+                            style = MaterialTheme.typography.titleLarge,
+                            color = Color.White,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(bottom = 16.dp),
+                            textAlign = TextAlign.Center
+                        )
+
+                        if (listas.isEmpty()) {
+                            Text(
+                                text = "No tienes listas disponibles",
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = Color.Gray,
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(vertical = 16.dp),
+                                textAlign = TextAlign.Center
+                            )
+                        } else {
+                            Column(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .heightIn(max = 300.dp)
+                                    .verticalScroll(rememberScrollState())
+                            ) {
+                                listas.forEach { lista ->
+                                    ListItem(
+                                        headlineContent = {
+                                            Text(
+                                                text = lista.name,
+                                                color = Color.White,
+                                                maxLines = 1,
+                                                overflow = TextOverflow.Ellipsis
+                                            )
+                                        },
+                                        supportingContent = {
+                                            Text(
+                                                text = "${lista.itemCount} ${if (lista.itemCount == 1) "elemento" else "elementos"}",
+                                                color = Color.Gray,
+                                                fontSize = 12.sp
+                                            )
+                                        },
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .clickable {
+                                                Toast.makeText(
+                                                    context,
+                                                    "Película añadida a ${lista.name}",
+                                                    Toast.LENGTH_SHORT
+                                                ).show()
+                                                showListsPopup = false
+                                            }
+                                    )
+
+                                    if (lista != listas.last()) {
+                                        Divider(
+                                            color = Color.DarkGray,
+                                            modifier = Modifier.padding(vertical = 8.dp)
+                                        )
+                                    }
+                                }
+                            }
+                        }
+
+                        Spacer(modifier = Modifier.height(16.dp))
+
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.End
+                        ) {
+                            TextButton(
+                                onClick = { showListsPopup = false },
+                                colors = ButtonDefaults.textButtonColors(
+                                    contentColor = Color.Green
+                                )
+                            ) {
+                                Text("Cancelar")
+                            }
+
+                            Spacer(modifier = Modifier.width(8.dp))
+
+                            TextButton(
+                                onClick = {
+                                    navController.navigate(Routes.CrearLista.createRoute())
+                                    showListsPopup = false
+                                },
+                                colors = ButtonDefaults.textButtonColors(
+                                    contentColor = Color.Green
+                                )
+                            ) {
+                                Text("Crear nueva lista")
+                            }
+                        }
+                    }
+                }
             }
         }
     }
