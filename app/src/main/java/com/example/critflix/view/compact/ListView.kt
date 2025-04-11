@@ -332,10 +332,11 @@ private fun ListContainer(
     Surface(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable(onClick = onListClick),
+            .clickable {
+                navController.navigate(Routes.ContenidoListas.createRoute(lista.id))
+            },
         color = Color.Black,
         border = BorderStroke(2.dp, Color.Green)
-
     ) {
         Column(
             modifier = Modifier

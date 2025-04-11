@@ -16,6 +16,7 @@ import com.example.critflix.model.UserSessionManager
 import com.example.critflix.view.compact.*
 import com.example.critflix.viewmodel.APIViewModel
 import com.example.critflix.viewmodel.BusquedaViewModel
+import com.example.critflix.viewmodel.ContenidoListaViewModel
 import com.example.critflix.viewmodel.EditarPerfilViewModel
 import com.example.critflix.viewmodel.GenresViewModel
 import com.example.critflix.viewmodel.ListViewModel
@@ -36,6 +37,7 @@ fun EntryPoint(
     userViewModel: UserViewModel,
     busquedaViewModel: BusquedaViewModel,
     editarPerfilViewModel: EditarPerfilViewModel,
+    contenidoListaViewModel: ContenidoListaViewModel,
     deviceType: String
 ) {
     val navController = rememberNavController()
@@ -46,7 +48,7 @@ fun EntryPoint(
 
     when (deviceType){
         "compact" ->{
-            AppNavigationCompact(navigationController, apiViewModel, seriesViewModel, listViewModel, genresViewModel,profileViewModel, repartoViewModel, userViewModel, sessionManager, busquedaViewModel, editarPerfilViewModel)
+            AppNavigationCompact(navigationController, apiViewModel, seriesViewModel, listViewModel, genresViewModel,profileViewModel, repartoViewModel, userViewModel, sessionManager, busquedaViewModel, editarPerfilViewModel, contenidoListaViewModel)
         }
         "medium" ->{
             AppNavigationMedium(navigationController, apiViewModel, seriesViewModel, listViewModel, genresViewModel)
@@ -55,7 +57,7 @@ fun EntryPoint(
             AppNavigationExpanded(navigationController, apiViewModel, seriesViewModel, listViewModel, genresViewModel)
         }
         else -> {
-            AppNavigationCompact(navigationController, apiViewModel, seriesViewModel, listViewModel, genresViewModel, profileViewModel, repartoViewModel, userViewModel, sessionManager, busquedaViewModel, editarPerfilViewModel)
+            AppNavigationCompact(navigationController, apiViewModel, seriesViewModel, listViewModel, genresViewModel, profileViewModel, repartoViewModel, userViewModel, sessionManager, busquedaViewModel, editarPerfilViewModel, contenidoListaViewModel)
         }
     }
 }
@@ -72,7 +74,8 @@ fun AppNavigationCompact(
     userViewModel: UserViewModel,
     sessionManager: UserSessionManager,
     busquedaViewModel: BusquedaViewModel,
-    editarPerfilViewModel: EditarPerfilViewModel
+    editarPerfilViewModel: EditarPerfilViewModel,
+    contenidoListaViewModel: ContenidoListaViewModel
 ){
     NavHost(
         navController = navigationController,
@@ -108,14 +111,15 @@ fun AppNavigationCompact(
             route = Routes.ContenidoListas.route,
             arguments = listOf(
                 navArgument("id") {
-                    type = NavType.IntType
+                    type = NavType.StringType
                 }
             )
         ) { backStackEntry ->
             ContenidoListas(
                 navController = navigationController,
                 listViewModel = listViewModel,
-                id = backStackEntry.arguments?.getInt("id") ?: 0,
+                id = backStackEntry.arguments?.getString("id")?.toIntOrNull() ?: 0,
+                contenidoListaViewModel = contenidoListaViewModel,
             )
         }
 
@@ -247,3 +251,4 @@ fun AppNavigationExpanded(
 
 
 }
+
