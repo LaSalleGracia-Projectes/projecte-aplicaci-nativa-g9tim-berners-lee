@@ -1,5 +1,7 @@
 package com.example.critflix.api;
 
+import com.example.critflix.model.ContenidoLista;
+import com.example.critflix.model.ContenidoListaRequest;
 import com.example.critflix.model.Lista;
 import com.example.critflix.model.ListaRequest;
 import com.example.critflix.model.LoginRequest;
@@ -47,4 +49,14 @@ public interface ApiService {
 
     @DELETE("listas/{id}")
     Call<Void> deleteList(@Path("id") String id);
+
+    // Endpoints Contenido Listas
+    @POST("contenido_listas")
+    Call<ContenidoLista> addContentToList(@Body ContenidoListaRequest request);
+
+    @GET("contenido_listas/lista/{listaId}")
+    Call<Map<String, Object>> getListContent(@Path("listaId") String listaId);
+
+    @DELETE("contenido_listas/{id}")
+    Call<Void> removeContentFromList(@Path("id") String id);
 }

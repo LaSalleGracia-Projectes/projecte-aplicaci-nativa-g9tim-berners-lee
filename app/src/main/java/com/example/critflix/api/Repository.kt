@@ -58,4 +58,12 @@ class Repository {
     suspend fun getTvCredits(tvId: Int): Response<TvCredits> {
         return apiInterface.getTvCredits(tvId = tvId)
     }
+
+    suspend fun getMovieDetails(movieId: Int): Response<PelisPopulares> {
+        return apiInterface.getMovieDetails(movieId = movieId)
+    }
+
+    suspend fun getTvDetails(tvId: Int): Response<SeriesPopulares> {
+        return apiInterface.getTvDetails(tvId = tvId)
+    }
 }

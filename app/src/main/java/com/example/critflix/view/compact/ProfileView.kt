@@ -1,5 +1,6 @@
 package com.example.critflix.view.compact
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -23,6 +24,8 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
+import coil.compose.AsyncImage
+import coil.request.ImageRequest
 import com.example.critflix.R
 import com.example.critflix.model.UserSessionManager
 import com.example.critflix.nav.Routes
@@ -70,6 +73,7 @@ fun ProfileView(navController: NavHostController, apiViewModel: APIViewModel, pr
                 .padding(horizontal = 16.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
+            // Imagen de perfil del usuario
             Box(
                 modifier = Modifier
                     .size(120.dp)

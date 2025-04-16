@@ -4,9 +4,9 @@ public class User {
     private int id;
     private String name;
     private String email;
-    private String foto_perfil; // Añadido según tu modelo
-    private String biografia;   // Añadido según tu modelo
-    private String rol;         // Añadido según tu modelo
+    private String foto_perfil;
+    private String biografia;
+    private String rol;
 
     // Constructor
     public User() {}

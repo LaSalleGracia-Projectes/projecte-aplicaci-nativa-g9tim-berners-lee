@@ -54,10 +54,19 @@ import com.example.critflix.viewmodel.GenresViewModel
 import com.example.critflix.viewmodel.ListViewModel
 import com.example.critflix.viewmodel.RepartoViewModel
 import com.example.critflix.viewmodel.SeriesViewModel
+import com.example.critflix.viewmodel.ContenidoListaViewModel
 
 @OptIn(ExperimentalGlideComposeApi::class, ExperimentalMaterial3Api::class)
 @Composable
-fun InfoSeries(navController: NavHostController, seriesViewModel: SeriesViewModel, id: Int, repartoViewModel: RepartoViewModel, genresViewModel: GenresViewModel, listViewModel: ListViewModel) {
+fun InfoSeries(
+    navController: NavHostController,
+    seriesViewModel: SeriesViewModel,
+    id: Int,
+    repartoViewModel: RepartoViewModel,
+    genresViewModel: GenresViewModel,
+    listViewModel: ListViewModel,
+    contenidoListaViewModel: ContenidoListaViewModel
+) {
     val series: List<SeriesPopulares> by seriesViewModel.series.observeAsState(emptyList())
     val serie = series.find { it.id == id }
     var isFavorite by remember { mutableStateOf(false) }
@@ -401,9 +410,15 @@ fun InfoSeries(navController: NavHostController, seriesViewModel: SeriesViewMode
                                         modifier = Modifier
                                             .fillMaxWidth()
                                             .clickable {
+                                                contenidoListaViewModel.addContentToList(
+                                                    listaId = lista.id,
+                                                    tmdbId = id,
+                                                    tipo = "serie",
+                                                    token = token
+                                                )
                                                 Toast.makeText(
                                                     context,
-                                                    "Película añadida a ${lista.name}",
+                                                    "Serie añadida a ${lista.name}",
                                                     Toast.LENGTH_SHORT
                                                 ).show()
                                                 showListsPopup = false
