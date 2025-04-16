@@ -49,10 +49,11 @@ import com.example.critflix.viewmodel.APIViewModel
 import com.example.critflix.viewmodel.GenresViewModel
 import com.example.critflix.viewmodel.ListViewModel
 import com.example.critflix.viewmodel.RepartoViewModel
+import com.example.critflix.viewmodel.ContenidoListaViewModel
 
 @OptIn(ExperimentalGlideComposeApi::class, ExperimentalMaterial3Api::class)
 @Composable
-fun InfoPelis(navController: NavHostController, apiViewModel: APIViewModel, id: Int, genresViewModel: GenresViewModel, repartoViewModel: RepartoViewModel, listViewModel: ListViewModel) {
+fun InfoPelis(navController: NavHostController, apiViewModel: APIViewModel, id: Int, genresViewModel: GenresViewModel, repartoViewModel: RepartoViewModel, listViewModel: ListViewModel, contenidoListaViewModel: ContenidoListaViewModel) {
     val peliculas: List<PelisPopulares> by apiViewModel.pelis.observeAsState(emptyList())
     val pelicula = peliculas.find { it.id == id }
     var isFavorite by remember { mutableStateOf(false) }
@@ -396,6 +397,12 @@ fun InfoPelis(navController: NavHostController, apiViewModel: APIViewModel, id: 
                                         modifier = Modifier
                                             .fillMaxWidth()
                                             .clickable {
+                                                contenidoListaViewModel.addContentToList(
+                                                    listaId = lista.id,
+                                                    tmdbId = id,
+                                                    tipo = "pelicula",
+                                                    token = token
+                                                )
                                                 Toast.makeText(
                                                     context,
                                                     "Película añadida a ${lista.name}",

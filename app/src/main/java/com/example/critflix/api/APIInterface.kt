@@ -50,6 +50,20 @@ interface APIInterface {
         @Query("language") language: String = "es-ES"
     ): Response<TvCredits>
 
+    @GET("movie/{movie_id}")
+    suspend fun getMovieDetails(
+        @Path("movie_id") movieId: Int,
+        @Query("api_key") apiKey: String = "42b10f869a4ae1b57a4acf356320b942",
+        @Query("language") language: String = "es-ES"
+    ): Response<PelisPopulares>
+
+    @GET("tv/{tv_id}")
+    suspend fun getTvDetails(
+        @Path("tv_id") tvId: Int,
+        @Query("api_key") apiKey: String = "42b10f869a4ae1b57a4acf356320b942",
+        @Query("language") language: String = "es-ES"
+    ): Response<SeriesPopulares>
+
     companion object {
         private const val BASE_URL = "https://api.themoviedb.org/3/"
 

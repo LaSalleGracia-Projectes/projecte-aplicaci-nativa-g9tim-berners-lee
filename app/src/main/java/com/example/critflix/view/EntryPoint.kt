@@ -119,6 +119,8 @@ fun AppNavigationCompact(
             ContenidoListas(
                 navController = navigationController,
                 listViewModel = listViewModel,
+                apiViewModel = apiViewModel,
+                seriesViewModel = seriesViewModel,
                 id = backStackEntry.arguments?.getString("id") ?: "",
                 contenidoListaViewModel = contenidoListaViewModel,
             )
@@ -188,7 +190,8 @@ fun AppNavigationCompact(
                 id = backStackEntry.arguments?.getInt("id") ?: 0,
                 genresViewModel = genresViewModel,
                 repartoViewModel = repartoViewModel,
-                listViewModel = listViewModel
+                listViewModel = listViewModel,
+                contenidoListaViewModel = contenidoListaViewModel
             )
         }
         // InfoSeries
@@ -206,7 +209,8 @@ fun AppNavigationCompact(
                 id = backStackEntry.arguments?.getInt("id") ?: 0,
                 repartoViewModel = repartoViewModel,
                 genresViewModel = genresViewModel,
-                listViewModel = listViewModel
+                listViewModel = listViewModel,
+                contenidoListaViewModel = contenidoListaViewModel
             )
         }
         // Anuncios

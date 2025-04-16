@@ -5,8 +5,10 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.material.icons.filled.TrendingUp
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
@@ -15,8 +17,10 @@ import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import androidx.navigation.navArgument
@@ -123,7 +127,7 @@ fun ContenidoPrincipal(peliculas: List<PelisPopulares>, paddingValues: PaddingVa
         LazyColumn(
             modifier = Modifier.fillMaxWidth(),
             contentPadding = PaddingValues(16.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
+            verticalArrangement = Arrangement.spacedBy(5.dp)
         ) {
             items(peliculas) { pelicula ->
                 TarjetaPelicula(pelicula = pelicula)
@@ -155,52 +159,174 @@ fun ContadorYBotonAnadir(cantidadPeliculas: Int) {
 
 @OptIn(ExperimentalGlideComposeApi::class)
 @Composable
-fun TarjetaPelicula(pelicula: PelisPopulares) {
+fun TarjetaPelicula(
+    pelicula: PelisPopulares,
+    onFavoriteClick: () -> Unit = {}
+) {
+    val baseImageUrl = "https://image.tmdb.org/t/p/w185"
 
-    Row(
+    Card(
         modifier = Modifier
             .fillMaxWidth()
-            .height(150.dp)
-    ) {
-        GlideImage(
-            model = "https://image.tmdb.org/t/p/w185${pelicula.poster_path}",
-            contentDescription = pelicula.title,
-            modifier = Modifier
-                .width(100.dp)
-                .height(150.dp)
+            .padding(horizontal = 16.dp, vertical = 8.dp)
+            .clickable {/*TODO: Info pelis*/},
+        shape = RoundedCornerShape(12.dp),
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surface
         )
-
-        Column(
+    ) {
+        Row(
             modifier = Modifier
-                .weight(1f)
-                .padding(start = 16.dp)
+                .fillMaxWidth()
+                .padding(12.dp),
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween
+            // Poster
+            Card(
+                shape = RoundedCornerShape(8.dp),
+                modifier = Modifier.size(100.dp, 150.dp)
             ) {
-                Text(
-                    text = pelicula.title,
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Bold,
-                    modifier = Modifier.weight(1f)
-                )
-
-                Row {
-                    IconButton(onClick = { /* Marcar favorito */ }) {
-                        Icon(Icons.Default.FavoriteBorder, "Favorito")
-                    }
-                    IconButton(onClick = { /* Mostrar opciones */ }) {
-                        Icon(Icons.Default.MoreVert, "Más opciones")
+                if (pelicula.poster_path != null) {
+                    GlideImage(
+                        model = "$baseImageUrl${pelicula.poster_path}",
+                        contentDescription = pelicula.title,
+                        contentScale = ContentScale.Crop,
+                        modifier = Modifier.fillMaxSize()
+                    )
+                } else {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .background(Color.DarkGray),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Movie,
+                            contentDescription = "Sin poster",
+                            modifier = Modifier.size(40.dp),
+                            tint = Color.White
+                        )
                     }
                 }
             }
 
-            Text(
-                text = "Fecha: ${pelicula.release_date} | ${pelicula.original_language.uppercase()}",
-                style = MaterialTheme.typography.bodyMedium,
-                color = Color.Gray
-            )
+            // Detalles
+            Column(
+                modifier = Modifier
+                    .weight(1f)
+                    .padding(start = 16.dp)
+            ) {
+                Text(
+                    text = pelicula.title,
+                    style = MaterialTheme.typography.titleMedium,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis
+                )
+
+                Spacer(modifier = Modifier.height(4.dp))
+
+                // Año de lanzamiento
+                if (!pelicula.release_date.isNullOrEmpty()) {
+                    val year = pelicula.release_date.take(4)
+                    Text(
+                        text = year,
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(4.dp))
+
+                // Popularidad
+               Row(verticalAlignment = Alignment.CenterVertically) {
+                    Icon(
+                        imageVector = Icons.Default.TrendingUp,
+                        contentDescription = null,
+                        modifier = Modifier.size(16.dp),
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                    Spacer(modifier = Modifier.width(4.dp))
+                    Text(
+                        text = "Popularidad: ${String.format("%.1f", pelicula.popularity)}",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                // Rating
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    val ratingColor = when {
+                        pelicula.vote_average >= 7 -> Color(0xFF4CAF50)
+                        pelicula.vote_average >= 5 -> Color(0xFFFFA000)
+                        else -> Color(0xFFF44336)
+                    }
+
+                    Text(
+                        text = "★ ${String.format("%.1f", pelicula.vote_average)}/10",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = ratingColor
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    // Tipo de contenido
+                    SuggestionChip(
+                        onClick = { },
+                        label = {
+                            Text(
+                                text = "Película",
+                                style = MaterialTheme.typography.bodySmall
+                            )
+                        },
+                        colors = SuggestionChipDefaults.suggestionChipColors(
+                            containerColor = MaterialTheme.colorScheme.secondary.copy(alpha = 0.1f),
+                            labelColor = MaterialTheme.colorScheme.secondary
+                        ),
+                        modifier = Modifier.height(24.dp),
+                        icon = {
+                            Icon(
+                                imageVector = Icons.Default.Movie,
+                                contentDescription = null,
+                                modifier = Modifier.size(16.dp)
+                            )
+                        }
+                    )
+
+                    // Botones
+                    Row {
+                        IconButton(
+                            onClick = onFavoriteClick,
+                            modifier = Modifier.size(36.dp)
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.FavoriteBorder,
+                                contentDescription = "Favorito",
+                                tint = MaterialTheme.colorScheme.primary
+                            )
+                        }
+                        IconButton(
+                            onClick = { /* TODO: Mostrar opciones */ },
+                            modifier = Modifier.size(36.dp)
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.MoreVert,
+                                contentDescription = "Más opciones",
+                                tint = MaterialTheme.colorScheme.onSurface
+                            )
+                        }
+                    }
+                }
+            }
         }
     }
 }
@@ -397,9 +523,10 @@ private fun ListContainer(
                         }
                     }
                 }
-
             }
 
+            // TODO: Arreglan funcionalidad de recuento
+            // TODO: Arreglar fecha de actualizacion
             Text(
                 text = "${lista.itemCount} ${if (lista.itemCount == 1) "Item" else "Elementos"} • Actualizado el ${lista.lastUpdated}",
                 style = MaterialTheme.typography.bodyMedium,
