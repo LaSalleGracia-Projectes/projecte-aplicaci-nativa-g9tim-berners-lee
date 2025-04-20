@@ -46,6 +46,7 @@ import com.example.critflix.model.UserSessionManager
 import com.example.critflix.nav.Routes
 import com.example.critflix.view.util.ActorCarousel
 import com.example.critflix.viewmodel.APIViewModel
+import com.example.critflix.viewmodel.ComentariosViewModel
 import com.example.critflix.viewmodel.GenresViewModel
 import com.example.critflix.viewmodel.ListViewModel
 import com.example.critflix.viewmodel.RepartoViewModel
@@ -53,7 +54,7 @@ import com.example.critflix.viewmodel.ContenidoListaViewModel
 
 @OptIn(ExperimentalGlideComposeApi::class, ExperimentalMaterial3Api::class)
 @Composable
-fun InfoPelis(navController: NavHostController, apiViewModel: APIViewModel, id: Int, genresViewModel: GenresViewModel, repartoViewModel: RepartoViewModel, listViewModel: ListViewModel, contenidoListaViewModel: ContenidoListaViewModel) {
+fun InfoPelis(navController: NavHostController, apiViewModel: APIViewModel, id: Int, genresViewModel: GenresViewModel, repartoViewModel: RepartoViewModel, listViewModel: ListViewModel, contenidoListaViewModel: ContenidoListaViewModel, comentariosViewModel: ComentariosViewModel) {
     val peliculas: List<PelisPopulares> by apiViewModel.pelis.observeAsState(emptyList())
     val pelicula = peliculas.find { it.id == id }
     var isFavorite by remember { mutableStateOf(false) }
@@ -322,6 +323,14 @@ fun InfoPelis(navController: NavHostController, apiViewModel: APIViewModel, id: 
                             Text("Añadir a lista")
                         }
                     }
+
+                    // Sección de comentarios
+                    Spacer(modifier = Modifier.height(24.dp))
+                    SeccionComentarios(
+                        tmdbId = id,
+                        tipo = "pelicula",
+                        comentariosViewModel = comentariosViewModel
+                    )
                 }
             }
         } else {

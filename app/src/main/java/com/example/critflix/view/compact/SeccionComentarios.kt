@@ -1,0 +1,387 @@
+package com.example.critflix.view.compact
+
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.Send
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
+import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontStyle
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
+import com.bumptech.glide.integration.compose.GlideImage
+import com.example.critflix.model.Comentario
+import com.example.critflix.model.UserSessionManager
+import com.example.critflix.viewmodel.ComentariosViewModel
+import java.text.SimpleDateFormat
+import java.util.*
+
+@OptIn(ExperimentalGlideComposeApi::class, ExperimentalMaterial3Api::class)
+@Composable
+fun SeccionComentarios(
+    tmdbId: Int,
+    tipo: String,
+    comentariosViewModel: ComentariosViewModel
+) {
+    val context = LocalContext.current
+    val userSessionManager = remember { UserSessionManager(context) }
+    val userId = userSessionManager.getUserId()
+
+    var comentarioText by remember { mutableStateOf("") }
+    var esSpoiler by remember { mutableStateOf(false) }
+
+    val comentarios by comentariosViewModel.comentarios.observeAsState(emptyList())
+    val isLoading by comentariosViewModel.isLoading.observeAsState(false)
+    val error by comentariosViewModel.error.observeAsState()
+    val comentarioCreado by comentariosViewModel.comentarioCreado.observeAsState()
+
+    val token = userSessionManager.getToken() ?: ""
+
+    // Load comments when the component is first displayed
+    LaunchedEffect(tmdbId, tipo) {
+        comentariosViewModel.getComentariosByTmdbId(tmdbId, tipo, token)
+    }
+
+    // Reset the comentarioCreado value after it's been processed
+    LaunchedEffect(comentarioCreado) {
+        if (comentarioCreado != null) {
+            comentariosViewModel._comentarioCreado.value = null
+        }
+    }
+
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(16.dp)
+    ) {
+        Text(
+            text = "Comentarios",
+            fontSize = 22.sp,
+            fontWeight = FontWeight.Bold,
+            modifier = Modifier.padding(bottom = 16.dp)
+        )
+
+        if (userId > 0) {
+            // Comment form
+            OutlinedTextField(
+                value = comentarioText,
+                onValueChange = { comentarioText = it },
+                placeholder = { Text("Escribe un comentario...") },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 8.dp),
+                colors = TextFieldDefaults.outlinedTextFieldColors(
+                    containerColor = Color.Transparent,
+                    cursorColor = Color.Green,
+                    focusedBorderColor = Color.Green,
+                    unfocusedBorderColor = Color.Gray
+                ),
+                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Send),
+                keyboardActions = KeyboardActions(
+                    onSend = {
+                        if (comentarioText.isNotBlank() && !isLoading) {
+                            comentariosViewModel.createComentario(
+                                userId = userId,
+                                tmdbId = tmdbId,
+                                tipo = tipo,
+                                comentario = comentarioText,
+                                esSpoiler = esSpoiler,
+                                token = token
+                            )
+                            comentarioText = ""
+                            esSpoiler = false
+                        }
+                    }
+                ),
+                trailingIcon = {
+                    if (isLoading) {
+                        CircularProgressIndicator(
+                            modifier = Modifier.size(24.dp),
+                            color = Color.Green,
+                            strokeWidth = 2.dp
+                        )
+                    } else {
+                        IconButton(
+                            onClick = {
+                                if (comentarioText.isNotBlank()) {
+                                    comentariosViewModel.createComentario(
+                                        userId = userId,
+                                        tmdbId = tmdbId,
+                                        tipo = tipo,
+                                        comentario = comentarioText,
+                                        esSpoiler = esSpoiler,
+                                        token = token
+                                    )
+                                    comentarioText = ""
+                                    esSpoiler = false
+                                }
+                            }
+                        ) {
+                            Icon(
+                                Icons.Filled.Send,
+                                contentDescription = "Enviar comentario",
+                                tint = Color.Green
+                            )
+                        }
+                    }
+                },
+                enabled = !isLoading
+            )
+
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 16.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Checkbox(
+                    checked = esSpoiler,
+                    onCheckedChange = { esSpoiler = it },
+                    colors = CheckboxDefaults.colors(
+                        checkedColor = Color.Green,
+                        uncheckedColor = Color.Gray
+                    ),
+                    enabled = !isLoading
+                )
+                Text(
+                    text = "Marcar como spoiler",
+                    fontSize = 14.sp,
+                    color = Color.Gray
+                )
+            }
+        } else {
+            // Message for users who are not logged in
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 8.dp),
+                shape = RoundedCornerShape(8.dp),
+                colors = CardDefaults.cardColors(
+                    containerColor = Color.DarkGray.copy(alpha = 0.5f)
+                )
+            ) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Text(
+                        text = "Inicia sesión para dejar comentarios",
+                        fontSize = 16.sp,
+                        color = Color.White,
+                        fontWeight = FontWeight.Medium,
+                        textAlign = TextAlign.Center
+                    )
+                }
+            }
+        }
+
+        Divider(
+            color = Color.DarkGray,
+            thickness = 1.dp,
+            modifier = Modifier.padding(vertical = 8.dp)
+        )
+
+        // Show error message if applicable
+        if (error != null) {
+            Text(
+                text = error ?: "Error desconocido",
+                color = Color.Red,
+                fontSize = 14.sp,
+                modifier = Modifier.padding(bottom = 8.dp)
+            )
+        }
+
+        // Comments list
+        if (isLoading && comentarios.isEmpty()) {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(200.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                CircularProgressIndicator(color = Color.Green)
+            }
+        } else if (error != null && comentarios.isEmpty()) {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(200.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = "Error al cargar comentarios",
+                    color = Color.Red,
+                    fontSize = 16.sp
+                )
+            }
+        } else if (comentarios.isEmpty()) {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(200.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = "No hay comentarios. ¡Sé el primero en opinar!",
+                    color = Color.Gray,
+                    fontSize = 16.sp,
+                    textAlign = TextAlign.Center
+                )
+            }
+        } else {
+            LazyColumn(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .heightIn(max = 500.dp)
+            ) {
+                items(comentarios) { comentario ->
+                    ComentarioItem(
+                        comentario = comentario,
+                        onDelete = {
+                            if (userId == comentario.userId) {
+                                comentariosViewModel.deleteComentario(comentario.id, token)
+                            }
+                        },
+                        currentUserId = userId
+                    )
+                }
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalGlideComposeApi::class)
+@Composable
+fun ComentarioItem(
+    comentario: Comentario,
+    onDelete: () -> Unit,
+    currentUserId: Int
+) {
+    val dateFormat = remember { SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.getDefault()) }
+    val outputFormat = remember { SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault()) }
+
+    val formattedDate = try {
+        val date = dateFormat.parse(comentario.createdAt)
+        date?.let { outputFormat.format(it) } ?: "Fecha desconocida"
+    } catch (e: Exception) {
+        "Fecha desconocida"
+    }
+
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 8.dp),
+        shape = RoundedCornerShape(8.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = if (comentario.esSpoiler) Color.Red.copy(alpha = 0.1f) else Color.DarkGray.copy(alpha = 0.3f)
+        )
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp)
+        ) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 8.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                // Avatar del usuario
+                Box(
+                    modifier = Modifier
+                        .size(40.dp)
+                        .clip(CircleShape)
+                        .background(Color.Gray)
+                ) {
+                    Icon(
+                        Icons.Default.Person,
+                        contentDescription = "Avatar",
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(8.dp),
+                        tint = Color.White
+                    )
+                }
+
+                Spacer(modifier = Modifier.width(12.dp))
+
+                Column(
+                    modifier = Modifier.weight(1f)
+                ) {
+                    Text(
+                        text = comentario.usuario?.name ?: "Usuario",
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 16.sp
+                    )
+                    Text(
+                        text = formattedDate,
+                        fontSize = 12.sp,
+                        color = Color.Gray
+                    )
+                }
+
+                if (currentUserId == comentario.userId) {
+                    IconButton(
+                        onClick = onDelete,
+                        modifier = Modifier.size(24.dp)
+                    ) {
+                        Icon(
+                            Icons.Default.Delete,
+                            contentDescription = "Eliminar comentario",
+                            tint = Color.Red
+                        )
+                    }
+                }
+            }
+
+            if (comentario.esSpoiler) {
+                Text(
+                    text = "SPOILER",
+                    color = Color.Red,
+                    fontSize = 12.sp,
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier.padding(bottom = 4.dp)
+                )
+            }
+
+            Text(
+                text = comentario.comentario,
+                fontSize = 16.sp,
+                lineHeight = 24.sp
+            )
+
+            if (comentario.destacado) {
+                Spacer(modifier = Modifier.height(8.dp))
+                Text(
+                    text = "Comentario destacado",
+                    fontSize = 12.sp,
+                    fontStyle = FontStyle.Italic,
+                    color = Color.Yellow
+                )
+            }
+        }
+    }
+}

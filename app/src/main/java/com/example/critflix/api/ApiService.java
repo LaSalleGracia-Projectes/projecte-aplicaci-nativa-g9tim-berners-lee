@@ -1,5 +1,7 @@
 package com.example.critflix.api;
 
+import com.example.critflix.model.Comentario;
+import com.example.critflix.model.ComentarioRequest;
 import com.example.critflix.model.ContenidoLista;
 import com.example.critflix.model.ContenidoListaRequest;
 import com.example.critflix.model.Lista;
@@ -59,4 +61,23 @@ public interface ApiService {
 
     @DELETE("contenido_listas/{id}")
     Call<Void> removeContentFromList(@Path("id") String id);
+
+    // Endpoints para Comentarios
+    @GET("comentarios")
+    Call<List<Comentario>> getAllComentarios();
+
+    @POST("comentarios")
+    Call<Comentario> createComentario(@Body ComentarioRequest request);
+
+    @GET("comentarios/{id}")
+    Call<Comentario> getComentario(@Path("id") int id);
+
+    @PUT("comentarios/{id}")
+    Call<Comentario> updateComentario(@Path("id") int id, @Body ComentarioRequest request);
+
+    @DELETE("comentarios/{id}")
+    Call<Void> deleteComentario(@Path("id") int id);
+
+    @GET("comentarios/tmdb/{tmdbId}/{tipo}")
+    Call<List<Comentario>> getComentariosByTmdbId(@Path("tmdbId") int tmdbId, @Path("tipo") String tipo);
 }
