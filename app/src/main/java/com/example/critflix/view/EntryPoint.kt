@@ -16,6 +16,7 @@ import com.example.critflix.model.UserSessionManager
 import com.example.critflix.view.compact.*
 import com.example.critflix.viewmodel.APIViewModel
 import com.example.critflix.viewmodel.BusquedaViewModel
+import com.example.critflix.viewmodel.ComentariosViewModel
 import com.example.critflix.viewmodel.ContenidoListaViewModel
 import com.example.critflix.viewmodel.EditarPerfilViewModel
 import com.example.critflix.viewmodel.GenresViewModel
@@ -38,6 +39,7 @@ fun EntryPoint(
     busquedaViewModel: BusquedaViewModel,
     editarPerfilViewModel: EditarPerfilViewModel,
     contenidoListaViewModel: ContenidoListaViewModel,
+    comentariosViewModel: ComentariosViewModel,
     deviceType: String
 ) {
     val navController = rememberNavController()
@@ -48,7 +50,7 @@ fun EntryPoint(
 
     when (deviceType){
         "compact" ->{
-            AppNavigationCompact(navigationController, apiViewModel, seriesViewModel, listViewModel, genresViewModel,profileViewModel, repartoViewModel, userViewModel, sessionManager, busquedaViewModel, editarPerfilViewModel, contenidoListaViewModel)
+            AppNavigationCompact(navigationController, apiViewModel, seriesViewModel, listViewModel, genresViewModel,profileViewModel, repartoViewModel, userViewModel, sessionManager, busquedaViewModel, editarPerfilViewModel, contenidoListaViewModel, comentariosViewModel)
         }
         "medium" ->{
             AppNavigationMedium(navigationController, apiViewModel, seriesViewModel, listViewModel, genresViewModel)
@@ -57,7 +59,7 @@ fun EntryPoint(
             AppNavigationExpanded(navigationController, apiViewModel, seriesViewModel, listViewModel, genresViewModel)
         }
         else -> {
-            AppNavigationCompact(navigationController, apiViewModel, seriesViewModel, listViewModel, genresViewModel, profileViewModel, repartoViewModel, userViewModel, sessionManager, busquedaViewModel, editarPerfilViewModel, contenidoListaViewModel)
+            AppNavigationCompact(navigationController, apiViewModel, seriesViewModel, listViewModel, genresViewModel, profileViewModel, repartoViewModel, userViewModel, sessionManager, busquedaViewModel, editarPerfilViewModel, contenidoListaViewModel, comentariosViewModel)
         }
     }
 }
@@ -75,7 +77,8 @@ fun AppNavigationCompact(
     sessionManager: UserSessionManager,
     busquedaViewModel: BusquedaViewModel,
     editarPerfilViewModel: EditarPerfilViewModel,
-    contenidoListaViewModel: ContenidoListaViewModel
+    contenidoListaViewModel: ContenidoListaViewModel,
+    comentariosViewModel: ComentariosViewModel
 ){
     NavHost(
         navController = navigationController,
@@ -191,7 +194,8 @@ fun AppNavigationCompact(
                 genresViewModel = genresViewModel,
                 repartoViewModel = repartoViewModel,
                 listViewModel = listViewModel,
-                contenidoListaViewModel = contenidoListaViewModel
+                contenidoListaViewModel = contenidoListaViewModel,
+                comentariosViewModel = comentariosViewModel
             )
         }
         // InfoSeries
@@ -210,7 +214,8 @@ fun AppNavigationCompact(
                 repartoViewModel = repartoViewModel,
                 genresViewModel = genresViewModel,
                 listViewModel = listViewModel,
-                contenidoListaViewModel = contenidoListaViewModel
+                contenidoListaViewModel = contenidoListaViewModel,
+                comentariosViewModel = comentariosViewModel
             )
         }
         // Anuncios

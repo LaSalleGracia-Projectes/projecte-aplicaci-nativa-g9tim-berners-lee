@@ -50,6 +50,7 @@ import com.example.critflix.model.SeriesPopulares
 import com.example.critflix.model.UserSessionManager
 import com.example.critflix.nav.Routes
 import com.example.critflix.view.util.ActorCarousel
+import com.example.critflix.viewmodel.ComentariosViewModel
 import com.example.critflix.viewmodel.GenresViewModel
 import com.example.critflix.viewmodel.ListViewModel
 import com.example.critflix.viewmodel.RepartoViewModel
@@ -65,7 +66,8 @@ fun InfoSeries(
     repartoViewModel: RepartoViewModel,
     genresViewModel: GenresViewModel,
     listViewModel: ListViewModel,
-    contenidoListaViewModel: ContenidoListaViewModel
+    contenidoListaViewModel: ContenidoListaViewModel,
+    comentariosViewModel: ComentariosViewModel
 ) {
     val series: List<SeriesPopulares> by seriesViewModel.series.observeAsState(emptyList())
     val serie = series.find { it.id == id }
@@ -335,6 +337,14 @@ fun InfoSeries(
                             Text("Añadir a lista")
                         }
                     }
+
+                    // Sección de comentarios
+                    Spacer(modifier = Modifier.height(24.dp))
+                    SeccionComentarios(
+                        tmdbId = id,
+                        tipo = "serie",
+                        comentariosViewModel = comentariosViewModel
+                    )
                 }
             }
         } else {
