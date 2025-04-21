@@ -23,7 +23,6 @@ class ComentariosViewModel : ViewModel() {
     private val _error = MutableLiveData<String?>()
     val error: LiveData<String?> = _error
 
-    // Make this available for resetting in UI
     val _comentarioCreado = MutableLiveData<Comentario?>()
     val comentarioCreado: LiveData<Comentario?> = _comentarioCreado
 
@@ -65,7 +64,6 @@ class ComentariosViewModel : ViewModel() {
                     val nuevoComentario = response.body()
                     _comentarioCreado.value = nuevoComentario
 
-                    // Update the comments list with the new comment
                     if (nuevoComentario != null) {
                         val currentList = _comentarios.value ?: emptyList()
                         _comentarios.value = listOf(nuevoComentario) + currentList
@@ -94,7 +92,6 @@ class ComentariosViewModel : ViewModel() {
             override fun onResponse(call: Call<Void>, response: Response<Void>) {
                 _isLoading.value = false
                 if (response.isSuccessful) {
-                    // Eliminar el comentario de la lista
                     val currentList = _comentarios.value ?: emptyList()
                     _comentarios.value = currentList.filter { it.id != comentarioId }
                 } else {

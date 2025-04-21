@@ -57,12 +57,10 @@ fun SeccionComentarios(
 
     val token = userSessionManager.getToken() ?: ""
 
-    // Load comments when the component is first displayed
     LaunchedEffect(tmdbId, tipo) {
         comentariosViewModel.getComentariosByTmdbId(tmdbId, tipo, token)
     }
 
-    // Reset the comentarioCreado value after it's been processed
     LaunchedEffect(comentarioCreado) {
         if (comentarioCreado != null) {
             comentariosViewModel._comentarioCreado.value = null
@@ -82,7 +80,6 @@ fun SeccionComentarios(
         )
 
         if (userId > 0) {
-            // Comment form
             OutlinedTextField(
                 value = comentarioText,
                 onValueChange = { comentarioText = it },

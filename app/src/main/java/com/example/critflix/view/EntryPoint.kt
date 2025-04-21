@@ -228,7 +228,7 @@ fun AppNavigationCompact(
         }
         //Perfil -> Ajustes
         composable(Routes.Ajustes.route){
-            Ajustes(navigationController)
+            Ajustes(navigationController, profileViewModel)
         }
         // Perfil -> Ayuda
         composable(Routes.Ayuda.route){

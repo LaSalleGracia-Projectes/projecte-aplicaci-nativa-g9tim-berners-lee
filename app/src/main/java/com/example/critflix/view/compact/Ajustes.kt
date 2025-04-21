@@ -8,6 +8,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -16,13 +17,15 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
+import com.example.critflix.viewmodel.ProfileViewModel
 
 @Composable
-fun Ajustes(navHostController: NavHostController) {
+fun Ajustes(navHostController: NavHostController, profileViewModel: ProfileViewModel) {
     val backgroundColor = Color.Black
     val greenColor = Color(0xFF00FF0B)
     val darkGrayColor = Color.White.copy(alpha = 0.1f)
     val textColor = Color.White
+    val currentUser by profileViewModel.currentUser.observeAsState()
 
     Column(
         modifier = Modifier
@@ -95,7 +98,7 @@ fun Ajustes(navHostController: NavHostController) {
 
         // Sección de Cuenta
         Text(
-            text = "Cuenta",
+            text = currentUser?.name ?: "Cargando...",
             modifier = Modifier.padding(start = 16.dp, top = 8.dp, bottom = 8.dp),
             style = MaterialTheme.typography.titleMedium,
             fontWeight = FontWeight.Bold,
@@ -104,8 +107,8 @@ fun Ajustes(navHostController: NavHostController) {
 
         AjusteItemWithInfo(
             icon = Icons.Default.AccountCircle,
-            title = "Usuario",
-            subtitle = "correo.electrónico",
+            title = currentUser?.name ?: "Cargando...",
+            subtitle = currentUser?.email ?: "Cargando...",
             backgroundColor = darkGrayColor,
             textColor = textColor,
             subtitleColor = Color.Gray
