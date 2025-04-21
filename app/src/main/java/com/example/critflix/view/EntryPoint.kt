@@ -234,7 +234,15 @@ fun AppNavigationCompact(
         composable(Routes.Ayuda.route){
             Ayuda(navigationController)
         }
-        
+        composable(Routes.PoliticaPrivacidad.route){
+            PoliticaPrivacidad(navigationController)
+        }
+        composable(Routes.PoliticaSeguridad.route){
+            PoliticaSeguridad(navigationController)
+        }
+        composable(Routes.PoliticaCookies.route){
+            PoliticaCookies(navigationController)
+        }
     }
 }
 

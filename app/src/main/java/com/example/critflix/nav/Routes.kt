@@ -29,6 +29,8 @@ sealed class Routes(val route: String) {
     object Anuncios : Routes("anuncios")
     object Ajustes : Routes("ajustes")
     object Ayuda : Routes("ayuda")
-
+    object PoliticaPrivacidad : Routes("politica_privacidad")
+    object PoliticaSeguridad : Routes("politica_seguridad")
+    object PoliticaCookies : Routes("politica_cookies")
 
 }
