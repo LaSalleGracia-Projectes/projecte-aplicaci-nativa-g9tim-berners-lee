@@ -9,13 +9,12 @@ data class Comentario(
     @SerializedName("tmdb_id") val tmdbId: Int,
     val tipo: String,
     val comentario: String,
-    @SerializedName("es_spoiler") val esSpoilerValue: Int, // Cambiar de Boolean a Int
-    @SerializedName("destacado") val destacadoValue: Int, // Cambiar de Boolean a Int
+    @SerializedName("es_spoiler") val esSpoilerValue: Int,
+    @SerializedName("destacado") val destacadoValue: Int,
     @SerializedName("created_at") val createdAt: String,
     @SerializedName("updated_at") val updatedAt: String,
     val usuario: User? = null
 ) {
-    // Propiedades calculadas para obtener los valores como booleanos
     val esSpoiler: Boolean
         get() = esSpoilerValue != 0
 
