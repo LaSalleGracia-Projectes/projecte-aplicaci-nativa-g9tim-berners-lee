@@ -17,6 +17,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
+import com.example.critflix.nav.Routes
 import com.example.critflix.viewmodel.ProfileViewModel
 
 @Composable
@@ -150,7 +151,7 @@ fun Ajustes(navHostController: NavHostController, profileViewModel: ProfileViewM
             title = "Privacidad",
             backgroundColor = darkGrayColor,
             textColor = textColor,
-            onItemClick = { navHostController.navigate("privacidad") }
+            onItemClick = { navHostController.navigate(Routes.PoliticaPrivacidad.route) }
         )
 
         AjusteItemWithIcon(
@@ -158,7 +159,7 @@ fun Ajustes(navHostController: NavHostController, profileViewModel: ProfileViewM
             title = "Seguridad",
             backgroundColor = darkGrayColor,
             textColor = textColor,
-            onItemClick = { navHostController.navigate("seguridad") }
+            onItemClick = { navHostController.navigate(Routes.PoliticaSeguridad.route) }
         )
 
         AjusteItemWithIcon(
@@ -166,7 +167,7 @@ fun Ajustes(navHostController: NavHostController, profileViewModel: ProfileViewM
             title = "Preferencias de cookies",
             backgroundColor = darkGrayColor,
             textColor = textColor,
-            onItemClick = { navHostController.navigate("cookies") }
+            onItemClick = { navHostController.navigate(Routes.PoliticaCookies.route) }
         )
 
         AjusteItemWithIcon(
