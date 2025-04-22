@@ -223,6 +223,7 @@ fun ProfileView(navController: NavHostController, apiViewModel: APIViewModel, pr
                         headlineContent = { Text("Ayuda") },
                         leadingContent = { Icon(Icons.Default.Help, contentDescription = null) },
                         modifier = Modifier.clickable {
+                            navController.navigate(Routes.Ayuda.route)
                             showOptionsBottomSheet = false
                             /* TODO: Help action */
                         }
