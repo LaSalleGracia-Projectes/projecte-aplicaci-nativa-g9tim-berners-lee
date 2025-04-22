@@ -32,5 +32,6 @@ sealed class Routes(val route: String) {
     object PoliticaPrivacidad : Routes("politica_privacidad")
     object PoliticaSeguridad : Routes("politica_seguridad")
     object PoliticaCookies : Routes("politica_cookies")
+    object SolicitudCritico : Routes("solicitud_critico")
 
 }

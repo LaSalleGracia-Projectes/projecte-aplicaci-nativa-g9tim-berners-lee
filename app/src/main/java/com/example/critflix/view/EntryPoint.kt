@@ -243,6 +243,9 @@ fun AppNavigationCompact(
         composable(Routes.PoliticaCookies.route){
             PoliticaCookies(navigationController)
         }
+        composable(Routes.SolicitudCritico.route){
+            SolicitudCritico(navigationController)
+        }
     }
 }
 

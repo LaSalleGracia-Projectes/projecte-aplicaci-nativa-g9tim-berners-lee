@@ -91,7 +91,7 @@ fun Ajustes(navHostController: NavHostController, profileViewModel: ProfileViewM
             backgroundColor = darkGrayColor,
             textColor = textColor,
             onItemClick = {
-                navHostController.navigate("solicitud_critico")
+                navHostController.navigate(Routes.SolicitudCritico.route)
             }
         )
 
