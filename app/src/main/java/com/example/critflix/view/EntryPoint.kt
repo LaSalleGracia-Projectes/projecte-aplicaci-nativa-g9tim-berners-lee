@@ -224,7 +224,23 @@ fun AppNavigationCompact(
         }
         // Busqueda
         composable(Routes.Busqueda.route) {
-            Busqueda(navigationController, apiViewModel, seriesViewModel, busquedaViewModel, genresViewModel)
+            Busqueda(navigationController, apiViewModel, seriesViewModel, busquedaViewModel, genresViewModel, contenidoListaViewModel)
+        }
+        // Búsqueda con ID de lista
+        composable(
+            route = "busqueda/{listaId}",
+            arguments = listOf(navArgument("listaId") { type = NavType.StringType })
+        ) { backStackEntry ->
+            val listaId = backStackEntry.arguments?.getString("listaId")
+            Busqueda(
+                navController = navigationController,
+                apiViewModel = apiViewModel,
+                seriesViewModel = seriesViewModel,
+                busquedaViewModel = busquedaViewModel,
+                genresViewModel = genresViewModel,
+                contenidoListaViewModel = contenidoListaViewModel,
+                listaId = listaId
+            )
         }
         //Perfil -> Ajustes
         composable(Routes.Ajustes.route){
