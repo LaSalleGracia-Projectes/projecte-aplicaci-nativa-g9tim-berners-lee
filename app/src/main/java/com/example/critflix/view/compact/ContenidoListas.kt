@@ -83,7 +83,9 @@ fun ContenidoListas(
                     }
                 },
                 actions = {
-                    IconButton(onClick = { /* Abrir búsqueda para añadir contenido */ }) {
+                    IconButton(onClick = {
+                        navController.navigate("${Routes.Busqueda.route}/$id")
+                    }) {
                         Icon(
                             imageVector = Icons.Default.Add,
                             contentDescription = "Añadir contenido",
