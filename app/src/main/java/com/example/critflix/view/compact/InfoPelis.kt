@@ -1,5 +1,6 @@
 package com.example.critflix.view.compact
 
+import android.content.Intent
 import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -39,6 +40,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.navigation.NavHostController
+import androidx.core.content.ContextCompat.startActivity
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
 import com.example.critflix.model.PelisPopulares
@@ -82,6 +84,22 @@ fun InfoPelis(navController: NavHostController, apiViewModel: APIViewModel, id: 
     val genreMap by genresViewModel.genreMap.observeAsState(emptyMap())
     val genresLoading by genresViewModel.loading.observeAsState(initial = true)
 
+    // Función para compartir la película
+    fun shareMovie(movie: PelisPopulares) {
+        val shareIntent = Intent(Intent.ACTION_SEND).apply {
+            type = "text/plain"
+            putExtra(Intent.EXTRA_SUBJECT, "¡Mira esta película: ${movie.title}!")
+            putExtra(Intent.EXTRA_TEXT,
+                "Te recomiendo ver ${movie.title}\n\n" +
+                        "Sinopsis: ${movie.overview}\n\n" +
+                        "Valoración: ${movie.vote_average}/10\n\n" +
+                        "Compartido desde CritFlix"
+            )
+        }
+        val chooser = Intent.createChooser(shareIntent, "Compartir película")
+        context.startActivity(chooser)
+    }
+
     Scaffold(
         topBar = {
             TopAppBar(
@@ -116,7 +134,11 @@ fun InfoPelis(navController: NavHostController, apiViewModel: APIViewModel, id: 
                             tint = if (isFavorite) Color.Red else Color.White
                         )
                     }
-                    IconButton(onClick = { /* Compartir */ }) {
+                    IconButton(
+                        onClick = {
+                            pelicula?.let { shareMovie(it) }
+                        }
+                    ) {
                         Icon(
                             Icons.Default.Share,
                             contentDescription = "Compartir",
@@ -317,10 +339,10 @@ fun InfoPelis(navController: NavHostController, apiViewModel: APIViewModel, id: 
                             Text("Ver trailer")
                         }
                         Button(
-                            onClick = { /* Añadir a lista */ },
+                            onClick = { shareMovie(pelicula) },
                             modifier = Modifier.weight(1f).padding(start = 8.dp)
                         ) {
-                            Text("Añadir a lista")
+                            Text("Compartir")
                         }
                     }
 
