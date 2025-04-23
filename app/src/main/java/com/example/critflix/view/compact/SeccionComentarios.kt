@@ -63,6 +63,8 @@ fun SeccionComentarios(
 
     LaunchedEffect(comentarioCreado) {
         if (comentarioCreado != null) {
+            comentarioText = ""
+            esSpoiler = false
             comentariosViewModel._comentarioCreado.value = null
         }
     }

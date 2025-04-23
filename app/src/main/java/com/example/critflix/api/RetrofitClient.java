@@ -1,6 +1,11 @@
 package com.example.critflix.api;
 
-import com.example.critflix.api.ApiService;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonDeserializationContext;
+import com.google.gson.JsonDeserializer;
+import com.google.gson.JsonElement;
+import java.lang.reflect.Type;
 import java.util.concurrent.TimeUnit;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -9,18 +14,33 @@ import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
 public class RetrofitClient {
-    private static Retrofit retrofit = null;
-    private static final String BASE_URL = "http://10.0.2.2:8000/api/";
-    //private static final String BASE_URL = "http://192.168.13.123:8000/api/";
+    private static final String BASE_URL = "http://10.0.2.2:8001/api/";
+
+    private static final Gson gson = new GsonBuilder()
+            .registerTypeAdapter(Boolean.class, new JsonDeserializer<Boolean>() {
+                @Override
+                public Boolean deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) {
+                    if (json.isJsonPrimitive()) {
+                        if (json.getAsJsonPrimitive().isBoolean()) {
+                            return json.getAsBoolean();
+                        } else if (json.getAsJsonPrimitive().isNumber()) {
+                            return json.getAsInt() != 0;
+                        } else if (json.getAsJsonPrimitive().isString()) {
+                            String stringValue = json.getAsString().toLowerCase();
+                            return stringValue.equals("true") || stringValue.equals("1");
+                        }
+                    }
+                    return false;
+                }
+            })
+            .create();
+
     public static Retrofit getClient(String token) {
-        // Configura un cliente OkHttp más robusto
         OkHttpClient.Builder httpClient = new OkHttpClient.Builder()
-                // Aumenta los timeouts
                 .connectTimeout(30, TimeUnit.SECONDS)
                 .readTimeout(30, TimeUnit.SECONDS)
                 .writeTimeout(30, TimeUnit.SECONDS)
 
-                // Interceptor para añadir el token
                 .addInterceptor(chain -> {
                     Request original = chain.request();
                     Request.Builder requestBuilder = original.newBuilder()
@@ -33,14 +53,12 @@ public class RetrofitClient {
                     return chain.proceed(request);
                 })
 
-                // Logging interceptor para depuración
                 .addInterceptor(new HttpLoggingInterceptor()
                         .setLevel(HttpLoggingInterceptor.Level.BODY));
 
-        // Crea el cliente Retrofit
         return new Retrofit.Builder()
                 .baseUrl(BASE_URL)
-                .addConverterFactory(GsonConverterFactory.create())
+                .addConverterFactory(GsonConverterFactory.create(gson))
                 .client(httpClient.build())
                 .build();
     }
