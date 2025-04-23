@@ -62,21 +62,29 @@ class ComentariosViewModel : ViewModel() {
                 _isLoading.value = false
                 if (response.isSuccessful) {
                     val nuevoComentario = response.body()
-                    _comentarioCreado.value = nuevoComentario
 
                     if (nuevoComentario != null) {
                         val currentList = _comentarios.value ?: emptyList()
                         _comentarios.value = listOf(nuevoComentario) + currentList
+                        _comentarioCreado.value = nuevoComentario
+                    } else {
+                        _error.value = "Error: No se recibió datos del comentario"
                     }
                 } else {
-                    _error.value = "Error: ${response.code()}"
-                    Log.e("ComentariosVM", "Error al crear comentario: ${response.code()}")
+                    try {
+                        val errorBody = response.errorBody()?.string()
+                        _error.value = "Error: ${response.code()} - $errorBody"
+                        Log.e("ComentariosVM", "Error al crear comentario: ${response.code()} - $errorBody")
+                    } catch (e: Exception) {
+                        _error.value = "Error: ${response.code()}"
+                        Log.e("ComentariosVM", "Error al crear comentario: ${response.code()}")
+                    }
                 }
             }
 
             override fun onFailure(call: Call<Comentario>, t: Throwable) {
                 _isLoading.value = false
-                _error.value = t.message
+                _error.value = "Error de conexión: ${t.message}"
                 Log.e("ComentariosVM", "Error al crear comentario: ${t.message}")
             }
         })
