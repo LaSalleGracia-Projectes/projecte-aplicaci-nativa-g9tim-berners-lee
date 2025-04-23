@@ -17,6 +17,7 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.ArrowDownward
 import androidx.compose.material.icons.filled.ArrowUpward
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.FilterList
 import androidx.compose.material.icons.filled.Movie
@@ -72,7 +73,6 @@ fun Busqueda(
     val series: List<SeriesPopulares> by seriesViewModel.series.observeAsState(emptyList())
     val genresLoading: Boolean by genresViewModel.loading.observeAsState(true)
 
-    // Determinar si estamos en modo de añadir a lista
     val isAddToListMode = listaId != null
 
     val context = LocalContext.current
@@ -83,6 +83,10 @@ fun Busqueda(
         apiViewModel.getPelis(totalMoviesNeeded = 500)
         seriesViewModel.getSeries(totalSeriesNeeded = 500)
         genresViewModel.loadGenres()
+
+        if (isAddToListMode && listaId != null) {
+            contenidoListaViewModel.loadListContent(listaId, token)
+        }
     }
 
     Scaffold(
@@ -130,7 +134,6 @@ fun LoadingIndicator() {
 }
 
 // Parte superior de la view
-// Barra superior modificada para indicar el modo de añadir a lista
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TopBarBusqueda(
@@ -163,7 +166,6 @@ fun TopBarBusqueda(
 }
 
 // Contenido principal de la view que ordena la view
-// Contenido principal modificado para incluir el botón de añadir
 @Composable
 fun ContenidoPrincipal(
     paddingValues: PaddingValues,
@@ -259,7 +261,7 @@ fun ContenidoPrincipal(
     }
 }
 
-// Lo que se muestra dependiendo de la busqueda
+// Resultados de la busqueda
 @Composable
 fun SearchResults(
     query: String,
@@ -273,6 +275,14 @@ fun SearchResults(
     token: String = "",
     context: Context
 ) {
+    val existingContent = if (contenidoListaViewModel != null) {
+        contenidoListaViewModel.contentItems.observeAsState(emptyList()).value
+    } else {
+        emptyList()
+    }
+    val existingMovieIds = existingContent.filter { it.tipo == "pelicula" }.map { it.tmdb_id }.toSet()
+    val existingSeriesIds = existingContent.filter { it.tipo == "serie" }.map { it.tmdb_id }.toSet()
+
     Column(
         modifier = Modifier.fillMaxWidth().background(color = Color.Black)
     ) {
@@ -320,6 +330,7 @@ fun SearchResults(
                             pelicula = pelicula,
                             navController = navController,
                             isAddToListMode = isAddToListMode,
+                            existingContentIds = existingMovieIds,
                             onAddToList = {
                                 if (listaId != null && contenidoListaViewModel != null) {
                                     contenidoListaViewModel.addContentToList(
@@ -351,6 +362,7 @@ fun SearchResults(
                             serie = serie,
                             navController = navController,
                             isAddToListMode = isAddToListMode,
+                            existingContentIds = existingSeriesIds,
                             onAddToList = {
                                 if (listaId != null && contenidoListaViewModel != null) {
                                     contenidoListaViewModel.addContentToList(
@@ -381,6 +393,15 @@ fun DefaultContent(
     token: String = "",
     context: Context
 ) {
+    val existingContent = if (contenidoListaViewModel != null) {
+        contenidoListaViewModel.contentItems.observeAsState(emptyList()).value
+    } else {
+        emptyList()
+    }
+
+    val existingMovieIds = existingContent.filter { it.tipo == "pelicula" }.map { it.tmdb_id }.toSet()
+    val existingSeriesIds = existingContent.filter { it.tipo == "serie" }.map { it.tmdb_id }.toSet()
+
     LazyColumn(
         modifier = Modifier.fillMaxWidth().background(color = Color.Black),
         contentPadding = PaddingValues(bottom = 16.dp)
@@ -393,6 +414,7 @@ fun DefaultContent(
                 pelicula = pelicula,
                 navController = navController,
                 isAddToListMode = isAddToListMode,
+                existingContentIds = existingMovieIds,
                 onAddToList = {
                     if (listaId != null && contenidoListaViewModel != null) {
                         contenidoListaViewModel.addContentToList(
@@ -415,6 +437,7 @@ fun DefaultContent(
                 serie = serie,
                 navController = navController,
                 isAddToListMode = isAddToListMode,
+                existingContentIds = existingSeriesIds,
                 onAddToList = {
                     if (listaId != null && contenidoListaViewModel != null) {
                         contenidoListaViewModel.addContentToList(
@@ -437,6 +460,7 @@ fun DefaultContent(
                 pelicula = pelicula,
                 navController = navController,
                 isAddToListMode = isAddToListMode,
+                existingContentIds = existingMovieIds,
                 onAddToList = {
                     if (listaId != null && contenidoListaViewModel != null) {
                         contenidoListaViewModel.addContentToList(
@@ -455,6 +479,7 @@ fun DefaultContent(
                 serie = serie,
                 navController = navController,
                 isAddToListMode = isAddToListMode,
+                existingContentIds = existingSeriesIds,
                 onAddToList = {
                     if (listaId != null && contenidoListaViewModel != null) {
                         contenidoListaViewModel.addContentToList(
@@ -471,7 +496,7 @@ fun DefaultContent(
     }
 }
 
-// Actualización de la barra de búsqueda con el botón de filtros
+// Barra de busqueda
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SearchBar(
@@ -911,7 +936,6 @@ fun RadioButtonWithText(
 }
 
 // Divisor de secciones
-// Sección de encabezado
 @Composable
 fun SectionHeader(title: String) {
     Text(
@@ -924,17 +948,20 @@ fun SectionHeader(title: String) {
     )
 }
 
-// Elemento pelicula con botón de añadir opcional
+
+// Tarjeta de pelicula
 @OptIn(ExperimentalGlideComposeApi::class)
 @Composable
 fun MovieCard(
     pelicula: PelisPopulares,
     navController: NavHostController,
     isAddToListMode: Boolean = false,
-    onAddToList: () -> Unit = {}
+    onAddToList: () -> Unit = {},
+    existingContentIds: Set<Int> = emptySet()
 ) {
     val baseImageUrl = "https://image.tmdb.org/t/p/w185"
     val posterUrl = baseImageUrl + pelicula.poster_path
+    val isInList = existingContentIds.contains(pelicula.id)
 
     Card(
         modifier = Modifier
@@ -1031,15 +1058,19 @@ fun MovieCard(
             // Botón de añadir si estamos en modo de añadir a lista
             if (isAddToListMode) {
                 IconButton(
-                    onClick = onAddToList,
+                    onClick = {
+                        if (!isInList) {
+                            onAddToList()
+                        }
+                    },
                     modifier = Modifier
                         .padding(start = 8.dp)
                         .size(40.dp)
                 ) {
                     Icon(
-                        imageVector = Icons.Default.Add,
-                        contentDescription = "Añadir a lista",
-                        tint = MaterialTheme.colorScheme.primary
+                        imageVector = if (isInList) Icons.Default.Check else Icons.Default.Add,
+                        contentDescription = if (isInList) "Ya en lista" else "Añadir a lista",
+                        tint = if (isInList) MaterialTheme.colorScheme.tertiary else MaterialTheme.colorScheme.primary
                     )
                 }
             }
@@ -1047,17 +1078,19 @@ fun MovieCard(
     }
 }
 
-// Elemento serie con botón de añadir opcional
+// Tarjeta de serie
 @OptIn(ExperimentalGlideComposeApi::class)
 @Composable
 fun SerieCard(
     serie: SeriesPopulares,
     navController: NavHostController,
     isAddToListMode: Boolean = false,
-    onAddToList: () -> Unit = {}
+    onAddToList: () -> Unit = {},
+    existingContentIds: Set<Int> = emptySet()
 ) {
     val baseImageUrl = "https://image.tmdb.org/t/p/w185"
     val posterUrl = baseImageUrl + serie.poster_path
+    val isInList = existingContentIds.contains(serie.id)
 
     Card(
         modifier = Modifier
@@ -1154,15 +1187,19 @@ fun SerieCard(
             // Botón de añadir si estamos en modo de añadir a lista
             if (isAddToListMode) {
                 IconButton(
-                    onClick = onAddToList,
+                    onClick = {
+                        if (!isInList) {
+                            onAddToList()
+                        }
+                    },
                     modifier = Modifier
                         .padding(start = 8.dp)
                         .size(40.dp)
                 ) {
                     Icon(
-                        imageVector = Icons.Default.Add,
-                        contentDescription = "Añadir a lista",
-                        tint = MaterialTheme.colorScheme.primary
+                        imageVector = if (isInList) Icons.Default.Check else Icons.Default.Add,
+                        contentDescription = if (isInList) "Ya en lista" else "Añadir a lista",
+                        tint = if (isInList) MaterialTheme.colorScheme.tertiary else MaterialTheme.colorScheme.primary
                     )
                 }
             }
