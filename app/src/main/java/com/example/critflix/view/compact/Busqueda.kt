@@ -1,5 +1,7 @@
 package com.example.critflix.view.compact
 
+import android.content.Context
+import android.widget.Toast
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -11,12 +13,15 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.ArrowDownward
 import androidx.compose.material.icons.filled.ArrowUpward
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.FilterList
+import androidx.compose.material.icons.filled.Movie
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.Tv
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
@@ -26,6 +31,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.layout.Placeable
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -39,8 +45,10 @@ import com.example.critflix.model.Genre
 import com.example.critflix.nav.Routes
 import com.example.critflix.model.PelisPopulares
 import com.example.critflix.model.SeriesPopulares
+import com.example.critflix.model.UserSessionManager
 import com.example.critflix.viewmodel.APIViewModel
 import com.example.critflix.viewmodel.BusquedaViewModel
+import com.example.critflix.viewmodel.ContenidoListaViewModel
 import com.example.critflix.viewmodel.ContentType
 import com.example.critflix.viewmodel.GenresViewModel
 import com.example.critflix.viewmodel.SeriesViewModel
@@ -55,12 +63,21 @@ fun Busqueda(
     apiViewModel: APIViewModel,
     seriesViewModel: SeriesViewModel,
     busquedaViewModel: BusquedaViewModel,
-    genresViewModel: GenresViewModel
+    genresViewModel: GenresViewModel,
+    contenidoListaViewModel: ContenidoListaViewModel,
+    listaId: String? = null
 ) {
     val showLoading: Boolean by apiViewModel.loading.observeAsState(true)
     val peliculas: List<PelisPopulares> by apiViewModel.pelis.observeAsState(emptyList())
     val series: List<SeriesPopulares> by seriesViewModel.series.observeAsState(emptyList())
     val genresLoading: Boolean by genresViewModel.loading.observeAsState(true)
+
+    // Determinar si estamos en modo de añadir a lista
+    val isAddToListMode = listaId != null
+
+    val context = LocalContext.current
+    val userSessionManager = remember { UserSessionManager(context) }
+    val token = userSessionManager.getToken() ?: ""
 
     LaunchedEffect(Unit) {
         apiViewModel.getPelis(totalMoviesNeeded = 500)
@@ -69,7 +86,13 @@ fun Busqueda(
     }
 
     Scaffold(
-        topBar = { TopBarBusqueda(navController) }
+        topBar = {
+            TopBarBusqueda(
+                navController = navController,
+                isAddToListMode = isAddToListMode,
+                listaName = if (isAddToListMode) "Añadir a lista" else "Búsqueda"
+            )
+        }
     ) { innerPadding ->
         if (showLoading || genresLoading) {
             LoadingIndicator()
@@ -81,6 +104,10 @@ fun Busqueda(
                 peliculasLiveData = apiViewModel.pelis,
                 seriesLiveData = seriesViewModel.series,
                 genresLiveData = genresViewModel.genres,
+                isAddToListMode = isAddToListMode,
+                listaId = listaId,
+                contenidoListaViewModel = contenidoListaViewModel,
+                token = token
             )
         }
     }
@@ -103,49 +130,40 @@ fun LoadingIndicator() {
 }
 
 // Parte superior de la view
+// Barra superior modificada para indicar el modo de añadir a lista
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun TopBarBusqueda(navController: NavHostController) {
-    Surface(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(64.dp),
-        color = Color.Black,
-        shadowElevation = 4.dp
-    ) {
-        Row(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(horizontal = 16.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            IconButton(
-                onClick = { navController.popBackStack() },
-                modifier = Modifier.size(48.dp),
-            ) {
+fun TopBarBusqueda(
+    navController: NavHostController,
+    isAddToListMode: Boolean = false,
+    listaName: String = "Búsqueda"
+) {
+    TopAppBar(
+        title = {
+            Text(
+                text = listaName,
+                color = Color.White
+            )
+        },
+        navigationIcon = {
+            IconButton(onClick = { navController.navigateUp() }) {
                 Icon(
                     imageVector = Icons.Default.ArrowBack,
-                    contentDescription = "Volver",
-                    tint = Color.White,
-                    modifier = Modifier.size(24.dp)
+                    contentDescription = "Volver atrás",
+                    tint = Color.White
                 )
             }
-
-            Text(
-                text = "Búsqueda",
-                style = MaterialTheme.typography.titleMedium.copy(
-                    fontWeight = FontWeight.SemiBold,
-                    color = Color.White
-                ),
-                modifier = Modifier.padding(horizontal = 8.dp)
-            )
-
-            Spacer(modifier = Modifier.size(48.dp))
-        }
-    }
+        },
+        colors = TopAppBarDefaults.topAppBarColors(
+            containerColor = Color.Black,
+            titleContentColor = Color.White,
+            navigationIconContentColor = Color.White
+        )
+    )
 }
 
 // Contenido principal de la view que ordena la view
+// Contenido principal modificado para incluir el botón de añadir
 @Composable
 fun ContenidoPrincipal(
     paddingValues: PaddingValues,
@@ -154,6 +172,10 @@ fun ContenidoPrincipal(
     peliculasLiveData: LiveData<List<PelisPopulares>>,
     seriesLiveData: LiveData<List<SeriesPopulares>>,
     genresLiveData: LiveData<List<Genre>>,
+    isAddToListMode: Boolean = false,
+    listaId: String? = null,
+    contenidoListaViewModel: ContenidoListaViewModel? = null,
+    token: String = ""
 ) {
     val peliculas by peliculasLiveData.observeAsState(initial = emptyList())
     val series by seriesLiveData.observeAsState(initial = emptyList())
@@ -169,6 +191,8 @@ fun ContenidoPrincipal(
     val sortDirection by viewModel.sortDirection.observeAsState(SortDirection.DESCENDING)
     val selectedGenreIds by viewModel.selectedGenreIds.observeAsState(emptySet())
     val showFilterDialog by viewModel.showFilterDialog.observeAsState(false)
+
+    val context = LocalContext.current
 
     Column(
         modifier = Modifier
@@ -214,12 +238,22 @@ fun ContenidoPrincipal(
                 filteredSeries = filteredSeries,
                 navController = navController,
                 contentType = contentType,
+                isAddToListMode = isAddToListMode,
+                listaId = listaId,
+                contenidoListaViewModel = contenidoListaViewModel,
+                token = token,
+                context = context
             )
         } else {
             DefaultContent(
                 peliculas = peliculas,
                 series = series,
                 navController = navController,
+                isAddToListMode = isAddToListMode,
+                listaId = listaId,
+                contenidoListaViewModel = contenidoListaViewModel,
+                token = token,
+                context = context
             )
         }
     }
@@ -232,7 +266,12 @@ fun SearchResults(
     filteredPeliculas: List<PelisPopulares>,
     filteredSeries: List<SeriesPopulares>,
     navController: NavHostController,
-    contentType: ContentType
+    contentType: ContentType,
+    isAddToListMode: Boolean = false,
+    listaId: String? = null,
+    contenidoListaViewModel: ContenidoListaViewModel? = null,
+    token: String = "",
+    context: Context
 ) {
     Column(
         modifier = Modifier.fillMaxWidth().background(color = Color.Black)
@@ -277,7 +316,22 @@ fun SearchResults(
                         )
                     }
                     items(filteredPeliculas) { pelicula ->
-                        MovieCard(pelicula = pelicula, navController = navController)
+                        MovieCard(
+                            pelicula = pelicula,
+                            navController = navController,
+                            isAddToListMode = isAddToListMode,
+                            onAddToList = {
+                                if (listaId != null && contenidoListaViewModel != null) {
+                                    contenidoListaViewModel.addContentToList(
+                                        listaId = listaId,
+                                        tmdbId = pelicula.id,
+                                        tipo = "pelicula",
+                                        token = token
+                                    )
+                                    Toast.makeText(context, "Película añadida a la lista", Toast.LENGTH_SHORT).show()
+                                }
+                            }
+                        )
                     }
                 }
 
@@ -293,7 +347,22 @@ fun SearchResults(
                         )
                     }
                     items(filteredSeries) { serie ->
-                        SerieCard(serie = serie, navController = navController)
+                        SerieCard(
+                            serie = serie,
+                            navController = navController,
+                            isAddToListMode = isAddToListMode,
+                            onAddToList = {
+                                if (listaId != null && contenidoListaViewModel != null) {
+                                    contenidoListaViewModel.addContentToList(
+                                        listaId = listaId,
+                                        tmdbId = serie.id,
+                                        tipo = "serie",
+                                        token = token
+                                    )
+                                    Toast.makeText(context, "Serie añadida a la lista", Toast.LENGTH_SHORT).show()
+                                }
+                            }
+                        )
                     }
                 }
             }
@@ -301,40 +370,103 @@ fun SearchResults(
     }
 }
 
-// Contenido default de la vista
 @Composable
 fun DefaultContent(
     peliculas: List<PelisPopulares>,
     series: List<SeriesPopulares>,
-    navController: NavHostController
+    navController: NavHostController,
+    isAddToListMode: Boolean = false,
+    listaId: String? = null,
+    contenidoListaViewModel: ContenidoListaViewModel? = null,
+    token: String = "",
+    context: Context
 ) {
     LazyColumn(
         modifier = Modifier.fillMaxWidth().background(color = Color.Black),
         contentPadding = PaddingValues(bottom = 16.dp)
     ) {
-
         item {
             SectionHeader("PELÍCULAS TENDENCIA")
         }
         items(peliculas.take(3)) { pelicula ->
-            MovieCard(pelicula = pelicula, navController = navController)
+            MovieCard(
+                pelicula = pelicula,
+                navController = navController,
+                isAddToListMode = isAddToListMode,
+                onAddToList = {
+                    if (listaId != null && contenidoListaViewModel != null) {
+                        contenidoListaViewModel.addContentToList(
+                            listaId = listaId,
+                            tmdbId = pelicula.id,
+                            tipo = "pelicula",
+                            token = token
+                        )
+                        Toast.makeText(context, "Película añadida a la lista", Toast.LENGTH_SHORT).show()
+                    }
+                }
+            )
         }
 
         item {
             SectionHeader("SERIES TENDENCIA")
         }
         items(series.take(3)) { serie ->
-            SerieCard(serie = serie, navController = navController)
+            SerieCard(
+                serie = serie,
+                navController = navController,
+                isAddToListMode = isAddToListMode,
+                onAddToList = {
+                    if (listaId != null && contenidoListaViewModel != null) {
+                        contenidoListaViewModel.addContentToList(
+                            listaId = listaId,
+                            tmdbId = serie.id,
+                            tipo = "serie",
+                            token = token
+                        )
+                        Toast.makeText(context, "Serie añadida a la lista", Toast.LENGTH_SHORT).show()
+                    }
+                }
+            )
         }
 
         item {
             SectionHeader("PARA TI")
         }
         items(peliculas.drop(3).take(2)) { pelicula ->
-            MovieCard(pelicula = pelicula, navController = navController)
+            MovieCard(
+                pelicula = pelicula,
+                navController = navController,
+                isAddToListMode = isAddToListMode,
+                onAddToList = {
+                    if (listaId != null && contenidoListaViewModel != null) {
+                        contenidoListaViewModel.addContentToList(
+                            listaId = listaId,
+                            tmdbId = pelicula.id,
+                            tipo = "pelicula",
+                            token = token
+                        )
+                        Toast.makeText(context, "Película añadida a la lista", Toast.LENGTH_SHORT).show()
+                    }
+                }
+            )
         }
         items(series.drop(3).take(2)) { serie ->
-            SerieCard(serie = serie, navController = navController)
+            SerieCard(
+                serie = serie,
+                navController = navController,
+                isAddToListMode = isAddToListMode,
+                onAddToList = {
+                    if (listaId != null && contenidoListaViewModel != null) {
+                        contenidoListaViewModel.addContentToList(
+                            listaId = listaId,
+                            tmdbId = serie.id,
+                            tipo = "serie",
+                            token = token
+                        )
+                        Toast.makeText(context, "Serie añadida a la lista", Toast.LENGTH_SHORT).show()
+                    }
+                }
+            )
         }
     }
 }
@@ -779,22 +911,28 @@ fun RadioButtonWithText(
 }
 
 // Divisor de secciones
+// Sección de encabezado
 @Composable
 fun SectionHeader(title: String) {
     Text(
         text = title,
-        style = MaterialTheme.typography.titleMedium,
-        color = MaterialTheme.colorScheme.primary,
+        style = MaterialTheme.typography.titleSmall,
+        color = MaterialTheme.colorScheme.secondary,
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 16.dp, vertical = 8.dp)
     )
 }
 
-// Elemento pelicula
+// Elemento pelicula con botón de añadir opcional
 @OptIn(ExperimentalGlideComposeApi::class)
 @Composable
-fun MovieCard(pelicula: PelisPopulares, navController: NavHostController) {
+fun MovieCard(
+    pelicula: PelisPopulares,
+    navController: NavHostController,
+    isAddToListMode: Boolean = false,
+    onAddToList: () -> Unit = {}
+) {
     val baseImageUrl = "https://image.tmdb.org/t/p/w185"
     val posterUrl = baseImageUrl + pelicula.poster_path
 
@@ -802,7 +940,11 @@ fun MovieCard(pelicula: PelisPopulares, navController: NavHostController) {
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 16.dp, vertical = 4.dp)
-            .clickable{ navController.navigate(Routes.InfoPelis.createRoute(pelicula.id)) },
+            .clickable {
+                if (!isAddToListMode) {
+                    navController.navigate(Routes.InfoPelis.createRoute(pelicula.id))
+                }
+            },
         shape = RoundedCornerShape(12.dp),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
         colors = CardDefaults.cardColors(
@@ -843,7 +985,7 @@ fun MovieCard(pelicula: PelisPopulares, navController: NavHostController) {
                 Spacer(modifier = Modifier.height(4.dp))
 
                 Text(
-                    text = "Popularidad: ${pelicula.popularity}",
+                    text = "Año: ${pelicula.release_date?.take(4) ?: "N/A"}",
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -852,11 +994,16 @@ fun MovieCard(pelicula: PelisPopulares, navController: NavHostController) {
 
                 // Rating pelis
                 Row(verticalAlignment = Alignment.CenterVertically) {
+                    val ratingColor = when {
+                        pelicula.vote_average >= 7 -> Color(0xFF4CAF50)
+                        pelicula.vote_average >= 5 -> Color(0xFFFFA000)
+                        else -> Color(0xFFF44336)
+                    }
+
                     Text(
-                        text = "★ ${pelicula.vote_average}/10",
+                        text = "★ ${String.format("%.1f", pelicula.vote_average)}/10",
                         style = MaterialTheme.typography.bodyMedium,
-                        color = if (pelicula.vote_average >= 7)
-                            Color(0xFF4CAF50) else Color(0xFFFFA000)
+                        color = ratingColor
                     )
                 }
 
@@ -870,17 +1017,45 @@ fun MovieCard(pelicula: PelisPopulares, navController: NavHostController) {
                         containerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.1f),
                         labelColor = MaterialTheme.colorScheme.primary
                     ),
-                    modifier = Modifier.height(24.dp)
+                    modifier = Modifier.height(24.dp),
+                    icon = {
+                        Icon(
+                            imageVector = Icons.Default.Movie,
+                            contentDescription = null,
+                            modifier = Modifier.size(16.dp)
+                        )
+                    }
                 )
+            }
+
+            // Botón de añadir si estamos en modo de añadir a lista
+            if (isAddToListMode) {
+                IconButton(
+                    onClick = onAddToList,
+                    modifier = Modifier
+                        .padding(start = 8.dp)
+                        .size(40.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Add,
+                        contentDescription = "Añadir a lista",
+                        tint = MaterialTheme.colorScheme.primary
+                    )
+                }
             }
         }
     }
 }
 
-// Elemento serie
+// Elemento serie con botón de añadir opcional
 @OptIn(ExperimentalGlideComposeApi::class)
 @Composable
-fun SerieCard(serie: SeriesPopulares, navController: NavHostController) {
+fun SerieCard(
+    serie: SeriesPopulares,
+    navController: NavHostController,
+    isAddToListMode: Boolean = false,
+    onAddToList: () -> Unit = {}
+) {
     val baseImageUrl = "https://image.tmdb.org/t/p/w185"
     val posterUrl = baseImageUrl + serie.poster_path
 
@@ -888,8 +1063,11 @@ fun SerieCard(serie: SeriesPopulares, navController: NavHostController) {
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 16.dp, vertical = 4.dp)
-            .clickable{ navController.navigate(Routes.InfoSeries.createRoute(serie.id)) }
-        ,
+            .clickable {
+                if (!isAddToListMode) {
+                    navController.navigate(Routes.InfoSeries.createRoute(serie.id))
+                }
+            },
         shape = RoundedCornerShape(12.dp),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
         colors = CardDefaults.cardColors(
@@ -930,7 +1108,7 @@ fun SerieCard(serie: SeriesPopulares, navController: NavHostController) {
                 Spacer(modifier = Modifier.height(4.dp))
 
                 Text(
-                    text = "Popularidad: ${serie.popularity}",
+                    text = "Año: ${serie.first_air_date?.take(4) ?: "N/A"}",
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -939,11 +1117,16 @@ fun SerieCard(serie: SeriesPopulares, navController: NavHostController) {
 
                 // Rating Series
                 Row(verticalAlignment = Alignment.CenterVertically) {
+                    val ratingColor = when {
+                        serie.vote_average >= 7 -> Color(0xFF4CAF50)
+                        serie.vote_average >= 5 -> Color(0xFFFFA000)
+                        else -> Color(0xFFF44336)
+                    }
+
                     Text(
-                        text = "★ ${serie.vote_average}/10",
+                        text = "★ ${String.format("%.1f", serie.vote_average)}/10",
                         style = MaterialTheme.typography.bodyMedium,
-                        color = if (serie.vote_average >= 7)
-                            Color(0xFF4CAF50) else Color(0xFFFFA000)
+                        color = ratingColor
                     )
                 }
 
@@ -957,8 +1140,31 @@ fun SerieCard(serie: SeriesPopulares, navController: NavHostController) {
                         containerColor = MaterialTheme.colorScheme.secondary.copy(alpha = 0.1f),
                         labelColor = MaterialTheme.colorScheme.secondary
                     ),
-                    modifier = Modifier.height(24.dp)
+                    modifier = Modifier.height(24.dp),
+                    icon = {
+                        Icon(
+                            imageVector = Icons.Default.Tv,
+                            contentDescription = null,
+                            modifier = Modifier.size(16.dp)
+                        )
+                    }
                 )
+            }
+
+            // Botón de añadir si estamos en modo de añadir a lista
+            if (isAddToListMode) {
+                IconButton(
+                    onClick = onAddToList,
+                    modifier = Modifier
+                        .padding(start = 8.dp)
+                        .size(40.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Add,
+                        contentDescription = "Añadir a lista",
+                        tint = MaterialTheme.colorScheme.primary
+                    )
+                }
             }
         }
     }
