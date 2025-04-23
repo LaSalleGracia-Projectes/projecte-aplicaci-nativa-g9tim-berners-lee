@@ -341,7 +341,7 @@ fun InfoSeries(
                     Spacer(modifier = Modifier.height(16.dp))
 
                     // Botones de acción
-                    Row(
+                    /*Row(
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(vertical = 16.dp),
@@ -359,7 +359,7 @@ fun InfoSeries(
                         ) {
                             Text("Compartir")
                         }
-                    }
+                    }*/
 
                     // Sección de comentarios
                     Spacer(modifier = Modifier.height(24.dp))
