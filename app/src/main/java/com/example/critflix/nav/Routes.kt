@@ -26,6 +26,9 @@ sealed class Routes(val route: String) {
         fun createRoute(listId: String? = null) = if (listId != null) "crear_lista?listId=$listId" else "crear_lista"
     }
     object Busqueda : Routes("busqueda")
+    object BusquedaConLista : Routes("busqueda/{listaId}") {
+        fun createRoute(listaId: String) = "busqueda/$listaId"
+    }
     object Anuncios : Routes("anuncios")
     object Ajustes : Routes("ajustes")
     object Ayuda : Routes("ayuda")
