@@ -6,6 +6,9 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.Divider
@@ -53,6 +56,11 @@ import com.example.critflix.viewmodel.GenresViewModel
 import com.example.critflix.viewmodel.ListViewModel
 import com.example.critflix.viewmodel.RepartoViewModel
 import com.example.critflix.viewmodel.ContenidoListaViewModel
+import kotlinx.coroutines.launch
+
+enum class TabSeleccionada {
+    COMENTARIOS, RECOMENDACIONES
+}
 
 @OptIn(ExperimentalGlideComposeApi::class, ExperimentalMaterial3Api::class)
 @Composable
@@ -61,8 +69,9 @@ fun InfoPelis(navController: NavHostController, apiViewModel: APIViewModel, id: 
     val pelicula = peliculas.find { it.id == id }
     var isFavorite by remember { mutableStateOf(false) }
     val context = LocalContext.current
-
     var showListsPopup by remember { mutableStateOf(false) }
+    var tabSeleccionada by remember { mutableStateOf(TabSeleccionada.COMENTARIOS) }
+    val coroutineScope = rememberCoroutineScope()
 
     val listas by listViewModel.listas.observeAsState(emptyList())
     val userSessionManager = remember { UserSessionManager(context) }
@@ -78,6 +87,7 @@ fun InfoPelis(navController: NavHostController, apiViewModel: APIViewModel, id: 
     LaunchedEffect(id) {
         repartoViewModel.getMovieCredits(id)
     }
+
     val movieCredits by repartoViewModel.movieCredits.observeAsState()
     val isLoading by repartoViewModel.isLoading.observeAsState(initial = false)
     val error by repartoViewModel.error.observeAsState()
@@ -323,36 +333,59 @@ fun InfoPelis(navController: NavHostController, apiViewModel: APIViewModel, id: 
                         }
                     }
 
+                    Spacer(modifier = Modifier.height(24.dp))
+
+                    // Tab de selección entre Comentarios y Recomendaciones
+                    TabRow(
+                        selectedTabIndex = if (tabSeleccionada == TabSeleccionada.COMENTARIOS) 0 else 1,
+                        modifier = Modifier.fillMaxWidth(),
+                        containerColor = Color.Black,
+                        contentColor = Color.Green,
+                        divider = { Divider(color = Color.DarkGray) }
+                    ) {
+                        Tab(
+                            selected = tabSeleccionada == TabSeleccionada.COMENTARIOS,
+                            onClick = { tabSeleccionada = TabSeleccionada.COMENTARIOS },
+                            text = {
+                                Text(
+                                    text = "COMENTARIOS",
+                                    fontWeight = FontWeight.Bold,
+                                    color = if (tabSeleccionada == TabSeleccionada.COMENTARIOS) Color.Green else Color.Gray
+                                )
+                            }
+                        )
+                        Tab(
+                            selected = tabSeleccionada == TabSeleccionada.RECOMENDACIONES,
+                            onClick = { tabSeleccionada = TabSeleccionada.RECOMENDACIONES },
+                            text = {
+                                Text(
+                                    text = "RECOMENDACIONES",
+                                    fontWeight = FontWeight.Bold,
+                                    color = if (tabSeleccionada == TabSeleccionada.RECOMENDACIONES) Color.Green else Color.Gray
+                                )
+                            }
+                        )
+                    }
+
                     Spacer(modifier = Modifier.height(16.dp))
 
-                    // Botones de acción
-                    /*Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(vertical = 16.dp),
-                        horizontalArrangement = Arrangement.SpaceEvenly
-                    ) {
-                        Button(
-                            onClick = { /* Ver trailer */ },
-                            modifier = Modifier.weight(1f).padding(end = 8.dp)
-                        ) {
-                            Text("Ver trailer")
+                    // Contenido según la pestaña seleccionada
+                    when (tabSeleccionada) {
+                        TabSeleccionada.COMENTARIOS -> {
+                            SeccionComentarios(
+                                tmdbId = id,
+                                tipo = "pelicula",
+                                comentariosViewModel = comentariosViewModel
+                            )
                         }
-                        Button(
-                            onClick = { shareMovie(pelicula) },
-                            modifier = Modifier.weight(1f).padding(start = 8.dp)
-                        ) {
-                            Text("Compartir")
+                        TabSeleccionada.RECOMENDACIONES -> {
+                            SeccionRecomendaciones(
+                                pelicula = pelicula,
+                                peliculas = peliculas,
+                                navController = navController
+                            )
                         }
-                    }*/
-
-                    // Sección de comentarios
-                    Spacer(modifier = Modifier.height(24.dp))
-                    SeccionComentarios(
-                        tmdbId = id,
-                        tipo = "pelicula",
-                        comentariosViewModel = comentariosViewModel
-                    )
+                    }
                 }
             }
         } else {
@@ -486,5 +519,77 @@ fun InfoPelis(navController: NavHostController, apiViewModel: APIViewModel, id: 
                 }
             }
         }
+    }
+}
+
+@OptIn(ExperimentalGlideComposeApi::class)
+@Composable
+fun SeccionRecomendaciones(
+    pelicula: PelisPopulares,
+    peliculas: List<PelisPopulares>,
+    navController: NavHostController
+) {
+    val peliculasRecomendadas = remember(pelicula, peliculas) {
+        peliculas.filter { p ->
+            p.id != pelicula.id &&
+                    p.genre_ids.any { genreId -> pelicula.genre_ids.contains(genreId) }
+        }.take(18)
+    }
+
+    Column(modifier = Modifier.fillMaxWidth()) {
+        Text(
+            text = "Películas similares",
+            fontSize = 18.sp,
+            fontWeight = FontWeight.Bold,
+            modifier = Modifier.padding(bottom = 16.dp)
+        )
+
+        if (peliculasRecomendadas.isEmpty()) {
+            Text(
+                text = "No hay recomendaciones disponibles",
+                color = Color.Gray,
+                modifier = Modifier.padding(bottom = 16.dp)
+            )
+        } else {
+            LazyVerticalGrid(
+                columns = GridCells.Fixed(3),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                verticalArrangement = Arrangement.spacedBy(16.dp),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height((peliculasRecomendadas.size / 3 * 200).dp.coerceAtMost(600.dp))
+            ) {
+                items(peliculasRecomendadas) { peliculaRecomendada ->
+                    PeliculaRecomendada(
+                        pelicula = peliculaRecomendada,
+                        onClick = {
+                            navController.navigate(Routes.InfoPelis.createRoute(peliculaRecomendada.id))
+                        }
+                    )
+                }
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalGlideComposeApi::class)
+@Composable
+fun PeliculaRecomendada(
+    pelicula: PelisPopulares,
+    onClick: () -> Unit
+) {
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .aspectRatio(2/3f)
+            .clip(RoundedCornerShape(8.dp))
+            .clickable(onClick = onClick)
+    ) {
+        GlideImage(
+            model = "https://image.tmdb.org/t/p/w500${pelicula.poster_path}",
+            contentDescription = pelicula.title,
+            modifier = Modifier.fillMaxSize(),
+            contentScale = ContentScale.FillBounds
+        )
     }
 }
