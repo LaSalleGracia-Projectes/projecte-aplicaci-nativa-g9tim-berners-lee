@@ -21,6 +21,7 @@ import com.example.critflix.viewmodel.ContenidoListaViewModel
 import com.example.critflix.viewmodel.EditarPerfilViewModel
 import com.example.critflix.viewmodel.GenresViewModel
 import com.example.critflix.viewmodel.ListViewModel
+import com.example.critflix.viewmodel.NotificacionesViewModel
 import com.example.critflix.viewmodel.ProfileViewModel
 import com.example.critflix.viewmodel.RepartoViewModel
 import com.example.critflix.viewmodel.SeriesViewModel
@@ -40,6 +41,7 @@ fun EntryPoint(
     editarPerfilViewModel: EditarPerfilViewModel,
     contenidoListaViewModel: ContenidoListaViewModel,
     comentariosViewModel: ComentariosViewModel,
+    notificacionesViewModel: NotificacionesViewModel,
     deviceType: String
 ) {
     val navController = rememberNavController()
@@ -50,7 +52,7 @@ fun EntryPoint(
 
     when (deviceType){
         "compact" ->{
-            AppNavigationCompact(navigationController, apiViewModel, seriesViewModel, listViewModel, genresViewModel,profileViewModel, repartoViewModel, userViewModel, sessionManager, busquedaViewModel, editarPerfilViewModel, contenidoListaViewModel, comentariosViewModel)
+            AppNavigationCompact(navigationController, apiViewModel, seriesViewModel, listViewModel, genresViewModel,profileViewModel, repartoViewModel, userViewModel, sessionManager, busquedaViewModel, editarPerfilViewModel, contenidoListaViewModel, comentariosViewModel, notificacionesViewModel)
         }
         "medium" ->{
             AppNavigationMedium(navigationController, apiViewModel, seriesViewModel, listViewModel, genresViewModel)
@@ -59,7 +61,7 @@ fun EntryPoint(
             AppNavigationExpanded(navigationController, apiViewModel, seriesViewModel, listViewModel, genresViewModel)
         }
         else -> {
-            AppNavigationCompact(navigationController, apiViewModel, seriesViewModel, listViewModel, genresViewModel, profileViewModel, repartoViewModel, userViewModel, sessionManager, busquedaViewModel, editarPerfilViewModel, contenidoListaViewModel, comentariosViewModel)
+            AppNavigationCompact(navigationController, apiViewModel, seriesViewModel, listViewModel, genresViewModel, profileViewModel, repartoViewModel, userViewModel, sessionManager, busquedaViewModel, editarPerfilViewModel, contenidoListaViewModel, comentariosViewModel, notificacionesViewModel)
         }
     }
 }
@@ -78,7 +80,8 @@ fun AppNavigationCompact(
     busquedaViewModel: BusquedaViewModel,
     editarPerfilViewModel: EditarPerfilViewModel,
     contenidoListaViewModel: ContenidoListaViewModel,
-    comentariosViewModel: ComentariosViewModel
+    comentariosViewModel: ComentariosViewModel,
+    notificacionesViewModel: NotificacionesViewModel
 ){
     NavHost(
         navController = navigationController,
@@ -149,7 +152,7 @@ fun AppNavigationCompact(
 
         // Notificaciones
         composable(Routes.Notificaciones.route) {
-            NotificationView(navigationController, apiViewModel)
+            NotificationView(navigationController, apiViewModel, notificacionesViewModel)
         }
         // Perfil
         composable(Routes.Perfil.route) {

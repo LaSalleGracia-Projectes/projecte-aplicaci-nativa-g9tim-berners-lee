@@ -1,4 +1,7 @@
 package com.example.critflix.viewmodel
 
-class NotificacionesViewModel {
+import androidx.lifecycle.ViewModel
+
+class NotificacionesViewModel : ViewModel(){
+
 }
