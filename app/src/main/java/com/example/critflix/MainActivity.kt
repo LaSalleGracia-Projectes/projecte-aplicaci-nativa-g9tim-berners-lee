@@ -27,6 +27,7 @@ class MainActivity : ComponentActivity() {
     val editarPerfilViewModel: EditarPerfilViewModel by viewModels()
     val contenidoListaViewModel: ContenidoListaViewModel by viewModels()
     val comentariosViewModel: ComentariosViewModel by viewModels()
+    val notificacionesViewModel: NotificacionesViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -61,6 +62,7 @@ class MainActivity : ComponentActivity() {
                         editarPerfilViewModel,
                         contenidoListaViewModel,
                         comentariosViewModel,
+                        notificacionesViewModel,
                         deviceType
                     )
                 }

@@ -55,7 +55,11 @@ class ComentariosViewModel : ViewModel() {
                 _isLoading.value = false
                 if (response.isSuccessful) {
                     if (tmdbId == lastLoadedTmdbId && tipo == lastLoadedTipo) {
-                        _comentarios.value = response.body() ?: emptyList()
+                        val comentariosOrdenados = (response.body() ?: emptyList()).sortedWith(
+                            compareByDescending<Comentario> { it.usuario?.rol == "critico" }
+                            .thenByDescending { it.createdAt }
+                        )
+                        _comentarios.value = comentariosOrdenados
                         Log.d("ComentariosVM", "Comentarios cargados para tmdbId=$tmdbId, tipo=$tipo: ${_comentarios.value?.size}")
                     } else {
                         Log.d("ComentariosVM", "Se descartó la respuesta porque ya no corresponde a la película/serie actual")

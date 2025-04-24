@@ -29,10 +29,11 @@ import coil.request.ImageRequest
 import com.example.critflix.viewmodel.APIViewModel
 import com.example.critflix.model.Notification
 import com.example.critflix.nav.Routes
+import com.example.critflix.viewmodel.NotificacionesViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun NotificationView(navController: NavHostController, apiViewModel: APIViewModel) {
+fun NotificationView(navController: NavHostController, apiViewModel: APIViewModel, notificacionesViewModel: NotificacionesViewModel) {
     // Lista de ejemplo con imágenes
     val notifications = listOf(
         Notification(
