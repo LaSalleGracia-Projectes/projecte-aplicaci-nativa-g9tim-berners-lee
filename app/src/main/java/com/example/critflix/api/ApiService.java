@@ -4,6 +4,10 @@ import com.example.critflix.model.Comentario;
 import com.example.critflix.model.ComentarioRequest;
 import com.example.critflix.model.ContenidoLista;
 import com.example.critflix.model.ContenidoListaRequest;
+import com.example.critflix.model.LikeComentarioRequest;
+import com.example.critflix.model.LikeResponse;
+import com.example.critflix.model.LikeStatusResponse;
+import com.example.critflix.model.LikesCountResponse;
 import com.example.critflix.model.Lista;
 import com.example.critflix.model.ListaRequest;
 import com.example.critflix.model.LoginRequest;
@@ -80,4 +84,14 @@ public interface ApiService {
 
     @GET("comentarios/tmdb/{tmdbId}/{tipo}")
     Call<List<Comentario>> getComentariosByTmdbId(@Path("tmdbId") int tmdbId, @Path("tipo") String tipo);
+
+    // Endpoints para Likes/Dislikes de comentarios
+    @POST("likes_comentarios")
+    Call<LikeResponse> likeComentario(@Body LikeComentarioRequest request);
+
+    @GET("likes_comentarios/status/{comentarioId}/{userId}")
+    Call<LikeStatusResponse> getLikeStatus(@Path("comentarioId") int comentarioId, @Path("userId") int userId);
+
+    @GET("likes_comentarios/count/{comentarioId}")
+    Call<LikesCountResponse> getLikesCount(@Path("comentarioId") int comentarioId);
 }

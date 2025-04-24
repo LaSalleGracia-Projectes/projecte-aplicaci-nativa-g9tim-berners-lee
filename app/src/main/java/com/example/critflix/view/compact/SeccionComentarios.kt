@@ -10,9 +10,9 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material.icons.filled.Person
-import androidx.compose.material.icons.filled.Send
+import androidx.compose.material.icons.filled.*
+import androidx.compose.material.icons.outlined.ThumbDown
+import androidx.compose.material.icons.outlined.ThumbUp
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
@@ -33,6 +33,8 @@ import com.bumptech.glide.integration.compose.GlideImage
 import com.example.critflix.model.Comentario
 import com.example.critflix.model.UserSessionManager
 import com.example.critflix.viewmodel.ComentariosViewModel
+import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.take
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -56,9 +58,34 @@ fun SeccionComentarios(
     val comentarioCreado by comentariosViewModel.comentarioCreado.observeAsState()
 
     val token = userSessionManager.getToken() ?: ""
+    val commentsCacheKey = remember(tmdbId, tipo) { "$tmdbId-$tipo" }
 
-    LaunchedEffect(tmdbId, tipo) {
+    LaunchedEffect(commentsCacheKey) {
+        comentariosViewModel.clearComentarios()
         comentariosViewModel.getComentariosByTmdbId(tmdbId, tipo, token)
+    }
+
+    LaunchedEffect(commentsCacheKey) {
+        if (userId > 0) {
+            snapshotFlow { comentarios }
+                .filter { it.isNotEmpty() }
+                .take(1)
+                .collect { listaComentarios ->
+                    if (listaComentarios.isNotEmpty() &&
+                        listaComentarios.first().tmdbId == tmdbId &&
+                        listaComentarios.first().tipo == tipo) {
+
+                        val comentariosConDefaultStatus = listaComentarios.map {
+                            if (it.userLikeStatus == null) {
+                                it.copy(userLikeStatus = "none")
+                            } else {
+                                it
+                            }
+                        }
+                        comentariosViewModel.loadLikeStatuses(comentariosConDefaultStatus, userId, token)
+                    }
+                }
+        }
     }
 
     LaunchedEffect(comentarioCreado) {
@@ -107,8 +134,6 @@ fun SeccionComentarios(
                                 esSpoiler = esSpoiler,
                                 token = token
                             )
-                            comentarioText = ""
-                            esSpoiler = false
                         }
                     }
                 ),
@@ -131,8 +156,6 @@ fun SeccionComentarios(
                                         esSpoiler = esSpoiler,
                                         token = token
                                     )
-                                    comentarioText = ""
-                                    esSpoiler = false
                                 }
                             }
                         ) {
@@ -169,7 +192,6 @@ fun SeccionComentarios(
                 )
             }
         } else {
-            // Message for users who are not logged in
             Card(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -202,7 +224,6 @@ fun SeccionComentarios(
             modifier = Modifier.padding(vertical = 8.dp)
         )
 
-        // Show error message if applicable
         if (error != null) {
             Text(
                 text = error ?: "Error desconocido",
@@ -212,7 +233,6 @@ fun SeccionComentarios(
             )
         }
 
-        // Comments list
         if (isLoading && comentarios.isEmpty()) {
             Box(
                 modifier = Modifier
@@ -255,16 +275,31 @@ fun SeccionComentarios(
                     .fillMaxWidth()
                     .heightIn(max = 500.dp)
             ) {
-                items(comentarios) { comentario ->
-                    ComentarioItem(
-                        comentario = comentario,
-                        onDelete = {
-                            if (userId == comentario.userId) {
-                                comentariosViewModel.deleteComentario(comentario.id, token)
-                            }
-                        },
-                        currentUserId = userId
-                    )
+                items(
+                    items = comentarios,
+                    key = { it.id }
+                ) { comentario ->
+                    if (comentario.tmdbId == tmdbId && comentario.tipo == tipo) {
+                        ComentarioItem(
+                            comentario = comentario,
+                            onDelete = {
+                                if (userId == comentario.userId) {
+                                    comentariosViewModel.deleteComentario(comentario.id, token)
+                                }
+                            },
+                            onLike = {
+                                if (userId > 0) {
+                                    comentariosViewModel.likeComentario(userId, comentario.id, "like", token)
+                                }
+                            },
+                            onDislike = {
+                                if (userId > 0) {
+                                    comentariosViewModel.likeComentario(userId, comentario.id, "dislike", token)
+                                }
+                            },
+                            currentUserId = userId
+                        )
+                    }
                 }
             }
         }
@@ -276,6 +311,8 @@ fun SeccionComentarios(
 fun ComentarioItem(
     comentario: Comentario,
     onDelete: () -> Unit,
+    onLike: () -> Unit,
+    onDislike: () -> Unit,
     currentUserId: Int
 ) {
     val dateFormat = remember { SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.getDefault()) }
@@ -381,6 +418,94 @@ fun ComentarioItem(
                     color = Color.Yellow
                 )
             }
+
+            Spacer(modifier = Modifier.height(12.dp))
+
+            // Sección de likes y dislikes
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                // Botón de like
+                BotonLike(
+                    count = comentario.likesCount ?: 0,
+                    isSelected = comentario.userLikeStatus == "like",
+                    enabled = currentUserId > 0,
+                    onClick = onLike
+                )
+
+                Spacer(modifier = Modifier.width(16.dp))
+
+                // Botón de dislike
+                BotonDislike(
+                    count = comentario.dislikesCount ?: 0,
+                    isSelected = comentario.userLikeStatus == "dislike",
+                    enabled = currentUserId > 0,
+                    onClick = onDislike
+                )
+            }
         }
+    }
+}
+
+@Composable
+fun BotonLike(
+    count: Int,
+    isSelected: Boolean,
+    enabled: Boolean,
+    onClick: () -> Unit
+) {
+    Row(
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        IconButton(
+            onClick = onClick,
+            enabled = enabled,
+            modifier = Modifier.size(40.dp)
+        ) {
+            Icon(
+                imageVector = if (isSelected) Icons.Filled.ThumbUp else Icons.Outlined.ThumbUp,
+                contentDescription = "Me gusta",
+                tint = if (isSelected) Color.Green else if (enabled) Color.Gray else Color.Gray.copy(alpha = 0.5f)
+            )
+        }
+
+        Text(
+            text = count.toString(),
+            fontSize = 14.sp,
+            color = if (isSelected) Color.Green else Color.Gray,
+            modifier = Modifier.padding(start = 4.dp)
+        )
+    }
+}
+
+@Composable
+fun BotonDislike(
+    count: Int,
+    isSelected: Boolean,
+    enabled: Boolean,
+    onClick: () -> Unit
+) {
+    Row(
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        IconButton(
+            onClick = onClick,
+            enabled = enabled,
+            modifier = Modifier.size(40.dp)
+        ) {
+            Icon(
+                imageVector = if (isSelected) Icons.Filled.ThumbDown else Icons.Outlined.ThumbDown,
+                contentDescription = "No me gusta",
+                tint = if (isSelected) Color.Red else if (enabled) Color.Gray else Color.Gray.copy(alpha = 0.5f)
+            )
+        }
+
+        Text(
+            text = count.toString(),
+            fontSize = 14.sp,
+            color = if (isSelected) Color.Red else Color.Gray,
+            modifier = Modifier.padding(start = 4.dp)
+        )
     }
 }
