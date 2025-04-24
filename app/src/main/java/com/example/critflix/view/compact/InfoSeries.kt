@@ -2,24 +2,21 @@ package com.example.critflix.view.compact
 
 import android.content.Intent
 import android.widget.Toast
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.heightIn
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material3.Divider
+import androidx.compose.material3.ListItem
+import androidx.compose.material3.Surface
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.ButtonDefaults
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -35,6 +32,7 @@ import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
@@ -45,19 +43,21 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.navigation.NavHostController
+import androidx.core.content.ContextCompat.startActivity
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
-import com.example.critflix.model.PelisPopulares
 import com.example.critflix.model.SeriesPopulares
 import com.example.critflix.model.UserSessionManager
 import com.example.critflix.nav.Routes
 import com.example.critflix.view.util.ActorCarousel
+import com.example.critflix.viewmodel.SeriesViewModel
 import com.example.critflix.viewmodel.ComentariosViewModel
 import com.example.critflix.viewmodel.GenresViewModel
 import com.example.critflix.viewmodel.ListViewModel
 import com.example.critflix.viewmodel.RepartoViewModel
-import com.example.critflix.viewmodel.SeriesViewModel
 import com.example.critflix.viewmodel.ContenidoListaViewModel
+import kotlinx.coroutines.launch
+
 
 @OptIn(ExperimentalGlideComposeApi::class, ExperimentalMaterial3Api::class)
 @Composable
@@ -74,10 +74,10 @@ fun InfoSeries(
     val series: List<SeriesPopulares> by seriesViewModel.series.observeAsState(emptyList())
     val serie = series.find { it.id == id }
     var isFavorite by remember { mutableStateOf(false) }
-
     val context = LocalContext.current
-
     var showListsPopup by remember { mutableStateOf(false) }
+    var tabSeleccionada by remember { mutableStateOf(TabSeleccionada.COMENTARIOS) }
+    val coroutineScope = rememberCoroutineScope()
 
     val listas by listViewModel.listas.observeAsState(emptyList())
     val userSessionManager = remember { UserSessionManager(context) }
@@ -93,26 +93,26 @@ fun InfoSeries(
     LaunchedEffect(id) {
         repartoViewModel.getTvCredits(id)
     }
+
     val tvCredits by repartoViewModel.tvCredits.observeAsState()
     val isLoading by repartoViewModel.isLoading.observeAsState(initial = false)
     val error by repartoViewModel.error.observeAsState()
     val genreMap by genresViewModel.genreMap.observeAsState(emptyMap())
     val genresLoading by genresViewModel.loading.observeAsState(initial = true)
 
-    // Función para compartir la película
-    fun shareMovie(serie: SeriesPopulares) {
+    // Función para compartir la serie
+    fun shareSeries(series: SeriesPopulares) {
         val shareIntent = Intent(Intent.ACTION_SEND).apply {
             type = "text/plain"
-            putExtra(Intent.EXTRA_SUBJECT, "¡Mira esta película: ${serie.name}!")
-            putExtra(
-                Intent.EXTRA_TEXT,
-                "Te recomiendo ver ${serie.name}\n\n" +
-                        "Sinopsis: ${serie.overview}\n\n" +
-                        "Valoración: ${serie.vote_average}/10\n\n" +
+            putExtra(Intent.EXTRA_SUBJECT, "¡Mira esta serie: ${series.name}!")
+            putExtra(Intent.EXTRA_TEXT,
+                "Te recomiendo ver ${series.name}\n\n" +
+                        "Sinopsis: ${series.overview}\n\n" +
+                        "Valoración: ${series.vote_average}/10\n\n" +
                         "Compartido desde CritFlix"
             )
         }
-        val chooser = Intent.createChooser(shareIntent, "Compartir película")
+        val chooser = Intent.createChooser(shareIntent, "Compartir serie")
         context.startActivity(chooser)
     }
 
@@ -131,7 +131,7 @@ fun InfoSeries(
                         Icon(
                             Icons.Default.ArrowBack,
                             contentDescription = "Volver",
-                            tint = Color.White // Icono blanco
+                            tint = Color.White
                         )
                     }
                 },
@@ -152,7 +152,7 @@ fun InfoSeries(
                     }
                     IconButton(
                         onClick = {
-                            serie?.let { shareMovie(it) }
+                            serie?.let { shareSeries(it) }
                         }
                     ) {
                         Icon(
@@ -187,7 +187,8 @@ fun InfoSeries(
                     GlideImage(
                         model = "https://image.tmdb.org/t/p/w500${serie.backdrop_path}",
                         contentDescription = serie.name,
-                        modifier = Modifier.fillMaxSize(),
+                        modifier = Modifier
+                            .fillMaxSize(),
                         contentScale = ContentScale.Crop
                     )
                     Box(
@@ -338,36 +339,59 @@ fun InfoSeries(
                         }
                     }
 
+                    Spacer(modifier = Modifier.height(24.dp))
+
+                    // Tab de selección entre Comentarios y Recomendaciones
+                    TabRow(
+                        selectedTabIndex = if (tabSeleccionada == TabSeleccionada.COMENTARIOS) 0 else 1,
+                        modifier = Modifier.fillMaxWidth(),
+                        containerColor = Color.Black,
+                        contentColor = Color.Green,
+                        divider = { Divider(color = Color.DarkGray) }
+                    ) {
+                        Tab(
+                            selected = tabSeleccionada == TabSeleccionada.COMENTARIOS,
+                            onClick = { tabSeleccionada = TabSeleccionada.COMENTARIOS },
+                            text = {
+                                Text(
+                                    text = "COMENTARIOS",
+                                    fontWeight = FontWeight.Bold,
+                                    color = if (tabSeleccionada == TabSeleccionada.COMENTARIOS) Color.Green else Color.Gray
+                                )
+                            }
+                        )
+                        Tab(
+                            selected = tabSeleccionada == TabSeleccionada.RECOMENDACIONES,
+                            onClick = { tabSeleccionada = TabSeleccionada.RECOMENDACIONES },
+                            text = {
+                                Text(
+                                    text = "RECOMENDACIONES",
+                                    fontWeight = FontWeight.Bold,
+                                    color = if (tabSeleccionada == TabSeleccionada.RECOMENDACIONES) Color.Green else Color.Gray
+                                )
+                            }
+                        )
+                    }
+
                     Spacer(modifier = Modifier.height(16.dp))
 
-                    // Botones de acción
-                    /*Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(vertical = 16.dp),
-                        horizontalArrangement = Arrangement.SpaceEvenly
-                    ) {
-                        Button(
-                            onClick = { /* Ver trailer */ },
-                            modifier = Modifier.weight(1f).padding(end = 8.dp)
-                        ) {
-                            Text("Ver trailer")
+                    // Contenido según la pestaña seleccionada
+                    when (tabSeleccionada) {
+                        TabSeleccionada.COMENTARIOS -> {
+                            SeccionComentarios(
+                                tmdbId = id,
+                                tipo = "serie",
+                                comentariosViewModel = comentariosViewModel
+                            )
                         }
-                        Button(
-                            onClick = { shareMovie(serie) },
-                            modifier = Modifier.weight(1f).padding(start = 8.dp)
-                        ) {
-                            Text("Compartir")
+                        TabSeleccionada.RECOMENDACIONES -> {
+                            SeccionRecomendacionesSeries(
+                                serie = serie,
+                                series = series,
+                                navController = navController
+                            )
                         }
-                    }*/
-
-                    // Sección de comentarios
-                    Spacer(modifier = Modifier.height(24.dp))
-                    SeccionComentarios(
-                        tmdbId = id,
-                        tipo = "serie",
-                        comentariosViewModel = comentariosViewModel
-                    )
+                    }
                 }
             }
         } else {
@@ -381,7 +405,7 @@ fun InfoSeries(
             }
         }
 
-        // Popup para agregar a lista
+        // Popup para agregar a listas
         if (showListsPopup) {
             Dialog(onDismissRequest = { showListsPopup = false }) {
                 Surface(
@@ -501,5 +525,78 @@ fun InfoSeries(
                 }
             }
         }
+    }
+}
+
+@OptIn(ExperimentalGlideComposeApi::class)
+@Composable
+fun SeccionRecomendacionesSeries(
+    serie: SeriesPopulares,
+    series: List<SeriesPopulares>,
+    navController: NavHostController
+) {
+
+    val seriesRecomendadas = remember(serie, series) {
+        series.filter { s ->
+            s.id != serie.id &&
+                    s.genre_ids.any { genreId -> serie.genre_ids.contains(genreId) }
+        }.take(18)
+    }
+
+    Column(modifier = Modifier.fillMaxWidth()) {
+        Text(
+            text = "Series similares",
+            fontSize = 18.sp,
+            fontWeight = FontWeight.Bold,
+            modifier = Modifier.padding(bottom = 16.dp)
+        )
+
+        if (seriesRecomendadas.isEmpty()) {
+            Text(
+                text = "No hay recomendaciones disponibles",
+                color = Color.Gray,
+                modifier = Modifier.padding(bottom = 16.dp)
+            )
+        } else {
+            LazyVerticalGrid(
+                columns = GridCells.Fixed(3),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                verticalArrangement = Arrangement.spacedBy(16.dp),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height((seriesRecomendadas.size / 3 * 200).dp.coerceAtMost(600.dp))
+            ) {
+                items(seriesRecomendadas) { serieRecomendada ->
+                    SerieRecomendada(
+                        serie = serieRecomendada,
+                        onClick = {
+                            navController.navigate(Routes.InfoSeries.createRoute(serieRecomendada.id))
+                        }
+                    )
+                }
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalGlideComposeApi::class)
+@Composable
+fun SerieRecomendada(
+    serie: SeriesPopulares,
+    onClick: () -> Unit
+) {
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .aspectRatio(2/3f)
+            .clip(RoundedCornerShape(8.dp))
+            .clickable(onClick = onClick)
+    ) {
+        GlideImage(
+            model = "https://image.tmdb.org/t/p/w500${serie.poster_path}",
+            contentDescription = serie.name,
+            modifier = Modifier.fillMaxSize(),
+            contentScale = ContentScale.Crop
+        )
     }
 }
