@@ -12,7 +12,10 @@ data class Comentario(
     @SerializedName("destacado") private val _destacado: Any,
     @SerializedName("created_at") val createdAt: String,
     @SerializedName("updated_at") val updatedAt: String,
-    val usuario: User? = null
+    val usuario: User? = null,
+    @SerializedName("likes_count") val likesCount: Int = 0,
+    @SerializedName("dislikes_count") val dislikesCount: Int = 0,
+    var userLikeStatus: String = "none"
 ) {
     val esSpoiler: Boolean
         get() = when(_esSpoiler) {
