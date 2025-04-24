@@ -331,7 +331,12 @@ fun ComentarioItem(
             .padding(vertical = 8.dp),
         shape = RoundedCornerShape(8.dp),
         colors = CardDefaults.cardColors(
-            containerColor = if (comentario.esSpoiler) Color.Red.copy(alpha = 0.1f) else Color.DarkGray.copy(alpha = 0.3f)
+            containerColor = if (comentario.esSpoiler) 
+                Color.Red.copy(alpha = 0.1f) 
+            else if (comentario.usuario?.rol == "critico")
+                Color(0xFF1A237E).copy(alpha = 0.2f)
+            else 
+                Color.DarkGray.copy(alpha = 0.3f)
         )
     ) {
         Column(
@@ -367,11 +372,24 @@ fun ComentarioItem(
                 Column(
                     modifier = Modifier.weight(1f)
                 ) {
-                    Text(
-                        text = comentario.usuario?.name ?: "Usuario",
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 16.sp
-                    )
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = comentario.usuario?.name ?: "Usuario",
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 16.sp
+                        )
+                        if (comentario.usuario?.rol == "critico") {
+                            Spacer(modifier = Modifier.width(4.dp))
+                            Icon(
+                                imageVector = Icons.Default.CheckCircle,
+                                contentDescription = "Crítico verificado",
+                                tint = Color(0xFF4CAF50),
+                                modifier = Modifier.size(20.dp)
+                            )
+                        }
+                    }
                     Text(
                         text = formattedDate,
                         fontSize = 12.sp,
