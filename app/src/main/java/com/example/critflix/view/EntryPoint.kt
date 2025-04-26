@@ -152,7 +152,7 @@ fun AppNavigationCompact(
 
         // Notificaciones
         composable(Routes.Notificaciones.route) {
-            NotificationView(navigationController, apiViewModel, notificacionesViewModel)
+            NotificationView(navigationController, notificacionesViewModel)
         }
         // Perfil
         composable(Routes.Perfil.route) {
