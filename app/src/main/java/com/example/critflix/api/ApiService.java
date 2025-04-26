@@ -12,6 +12,7 @@ import com.example.critflix.model.Lista;
 import com.example.critflix.model.ListaRequest;
 import com.example.critflix.model.LoginRequest;
 import com.example.critflix.model.LoginResponse;
+import com.example.critflix.model.Notification;
 import com.example.critflix.model.RegisterRequest;
 import com.example.critflix.model.RegisterResponse;
 import com.example.critflix.model.UpdateUserRequest;
@@ -94,4 +95,17 @@ public interface ApiService {
 
     @GET("likes_comentarios/count/{comentarioId}")
     Call<LikesCountResponse> getLikesCount(@Path("comentarioId") int comentarioId);
+
+    // Endpoints para Notificaciones
+    @GET("notificaciones")
+    Call<List<Notification>> getAllNotificaciones();
+
+    @GET("notificaciones/user/{userId}")
+    Call<List<Notification>> getUserNotificaciones(@Path("userId") int userId);
+
+    @PUT("notificaciones/read/{id}")
+    Call<Notification> markNotificationAsRead(@Path("id") int id);
+
+    @PUT("notificaciones/read_all/{userId}")
+    Call<Map<String, String>> markAllNotificationsAsRead(@Path("userId") int userId);
 }
