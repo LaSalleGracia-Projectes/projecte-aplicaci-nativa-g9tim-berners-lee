@@ -30,12 +30,13 @@ import com.example.critflix.R
 import com.example.critflix.model.UserSessionManager
 import com.example.critflix.nav.Routes
 import com.example.critflix.viewmodel.APIViewModel
+import com.example.critflix.viewmodel.NotificacionesViewModel
 import com.example.critflix.viewmodel.ProfileViewModel
 import com.example.critflix.viewmodel.UserViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ProfileView(navController: NavHostController, apiViewModel: APIViewModel, profileViewModel: ProfileViewModel, userViewModel: UserViewModel) {
+fun ProfileView(navController: NavHostController, apiViewModel: APIViewModel, profileViewModel: ProfileViewModel, userViewModel: UserViewModel, notificacionesViewModel: NotificacionesViewModel) {
     var showOptionsBottomSheet by remember { mutableStateOf(false) }
     var showUserBottomSheet by remember { mutableStateOf(false) }
     val profileState by profileViewModel.profileState.observeAsState()
@@ -62,7 +63,7 @@ fun ProfileView(navController: NavHostController, apiViewModel: APIViewModel, pr
             )
         },
         bottomBar = {
-            BottomNavigationBar(navController)
+            BottomNavigationBar(navController, notificacionesViewModel)
         }
     ) { innerPadding ->
         Column(

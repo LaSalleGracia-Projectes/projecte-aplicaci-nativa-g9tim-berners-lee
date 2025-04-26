@@ -32,9 +32,10 @@ import com.example.critflix.model.UserSessionManager
 import com.example.critflix.nav.Routes
 import com.example.critflix.viewmodel.APIViewModel
 import com.example.critflix.viewmodel.ListViewModel
+import com.example.critflix.viewmodel.NotificacionesViewModel
 
 @Composable
-fun ListView(navController: NavHostController, apiViewModel: APIViewModel, listViewModel: ListViewModel) {
+fun ListView(navController: NavHostController, apiViewModel: APIViewModel, listViewModel: ListViewModel, notificacionesViewModel: NotificacionesViewModel) {
     var tabSeleccionado by remember { mutableStateOf(0) }
     val context = LocalContext.current
     val userSessionManager = remember { UserSessionManager(context) }
@@ -53,7 +54,7 @@ fun ListView(navController: NavHostController, apiViewModel: APIViewModel, listV
 
     Scaffold(
         topBar = { TopBarPeliculas(tabSeleccionado) { tabSeleccionado = it } },
-        bottomBar = { BottomNavigationBar(navController) }
+        bottomBar = { BottomNavigationBar(navController, notificacionesViewModel) }
     ) { padding ->
         if (tabSeleccionado == 0) {
             ContenidoPrincipal(

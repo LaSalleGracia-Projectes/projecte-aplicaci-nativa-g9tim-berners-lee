@@ -105,11 +105,11 @@ fun AppNavigationCompact(
         }
         // Home
         composable(Routes.Home.route) {
-            HomeScreen(navigationController, apiViewModel, seriesViewModel, genresViewModel, listViewModel)
+            HomeScreen(navigationController, apiViewModel, seriesViewModel, genresViewModel, listViewModel, notificacionesViewModel)
         }
         // Listas
         composable(Routes.Listas.route) {
-            ListView(navigationController, apiViewModel, listViewModel)
+            ListView(navigationController, apiViewModel, listViewModel, notificacionesViewModel)
         }
 
         // Contenido Listas
@@ -170,7 +170,7 @@ fun AppNavigationCompact(
                 }
             }
 
-            ProfileView(navigationController, apiViewModel, profileViewModel, userViewModel)
+            ProfileView(navigationController, apiViewModel, profileViewModel, userViewModel, notificacionesViewModel)
         }
         // Editar Perfil
         composable(Routes.EditarPerfil.route) {
