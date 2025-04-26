@@ -75,7 +75,7 @@ fun NotificationView(
         refreshing = true
         scope.launch {
             notificacionesViewModel.getUserNotificaciones(userId, token)
-            delay(800) // Pequeña demora para la animación
+            delay(800)
             refreshing = false
         }
     }
@@ -124,7 +124,7 @@ fun NotificationView(
             )
         },
         bottomBar = {
-            BottomNavigationBar(navController)
+            BottomNavigationBar(navController, notificacionesViewModel)
         }
     ) { innerPadding ->
         Box(

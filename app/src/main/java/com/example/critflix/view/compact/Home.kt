@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountCircle
@@ -43,6 +44,7 @@ import com.example.critflix.model.UserSessionManager
 import com.example.critflix.viewmodel.APIViewModel
 import com.example.critflix.viewmodel.GenresViewModel
 import com.example.critflix.viewmodel.ListViewModel
+import com.example.critflix.viewmodel.NotificacionesViewModel
 import com.example.critflix.viewmodel.SeriesViewModel
 
 @Composable
@@ -51,7 +53,8 @@ fun HomeScreen(
     apiViewModel: APIViewModel,
     seriesViewModel: SeriesViewModel,
     genresViewModel: GenresViewModel,
-    listViewModel: ListViewModel
+    listViewModel: ListViewModel,
+    notificacionesViewModel: NotificacionesViewModel
 ) {
     val showLoading: Boolean by apiViewModel.loading.observeAsState(true)
     val peliculas: List<PelisPopulares> by apiViewModel.pelis.observeAsState(emptyList())
@@ -70,6 +73,12 @@ fun HomeScreen(
         genresViewModel.loadGenres()
     }
 
+    LaunchedEffect(userId, token) {
+        if (userId > 0 && token.isNotEmpty()) {
+            notificacionesViewModel.getUserNotificaciones(userId, token)
+        }
+    }
+
     LaunchedEffect(userId) {
         if (userId > 0) {
             listViewModel.loadUserLists(userId, token)
@@ -78,7 +87,7 @@ fun HomeScreen(
 
     Scaffold(
         topBar = { TopBar(navController) },
-        bottomBar = { BottomNavigationBar(navController) }
+        bottomBar = { BottomNavigationBar(navController, notificacionesViewModel) }
     ) { innerPadding ->
         if (showLoading || generos.isEmpty()) {
             Box(
@@ -470,9 +479,16 @@ fun SerieCarrusel(serie: SeriesPopulares, navController: NavHostController) {
 }
 
 @Composable
-fun BottomNavigationBar(navController: NavHostController) {
+fun BottomNavigationBar(
+    navController: NavHostController,
+    notificacionesViewModel: NotificacionesViewModel
+) {
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentDestination = navBackStackEntry?.destination
+
+    // Observamos el estado de las notificaciones no leídas
+    val notificaciones by notificacionesViewModel.notificaciones.observeAsState(initial = emptyList())
+    val hasUnreadNotifications = notificaciones.any { !it.leido }
 
     NavigationBar {
         NavigationBarItem(
@@ -481,7 +497,7 @@ fun BottomNavigationBar(navController: NavHostController) {
                     imageVector = Icons.Default.Home,
                     contentDescription = "Home",
                     tint = if (currentDestination?.hierarchy?.any { it.route == Routes.Home.route } == true) {
-                        Color.Green
+                        Color(0xFF1DB954)
                     } else {
                         Color.White
                     }
@@ -498,7 +514,7 @@ fun BottomNavigationBar(navController: NavHostController) {
                     imageVector = Icons.Default.List,
                     contentDescription = "Lists",
                     tint = if (currentDestination?.hierarchy?.any { it.route == Routes.Listas.route } == true) {
-                        Color.Green
+                        Color(0xFF1DB954)
                     } else {
                         Color.White
                     }
@@ -511,15 +527,27 @@ fun BottomNavigationBar(navController: NavHostController) {
 
         NavigationBarItem(
             icon = {
-                Icon(
-                    imageVector = Icons.Default.Notifications,
-                    contentDescription = "Notifications",
-                    tint = if (currentDestination?.hierarchy?.any { it.route == Routes.Notificaciones.route } == true) {
-                        Color.Green
-                    } else {
-                        Color.White
+                Box {
+                    Icon(
+                        imageVector = Icons.Default.Notifications,
+                        contentDescription = "Notifications",
+                        tint = if (currentDestination?.hierarchy?.any { it.route == Routes.Notificaciones.route } == true) {
+                            Color(0xFF1DB954)
+                        } else {
+                            Color.White
+                        }
+                    )
+                    if (hasUnreadNotifications && currentDestination?.hierarchy?.any { it.route == Routes.Notificaciones.route } != true) {
+                        Box(
+                            modifier = Modifier
+                                .size(8.dp)
+                                .align(Alignment.TopEnd)
+                                .offset(x = 2.dp, y = (-2).dp)
+                                .clip(CircleShape)
+                                .background(Color.Red)
+                        )
                     }
-                )
+                }
             },
             label = { Text("Notificaciones", color = Color.White) },
             selected = currentDestination?.hierarchy?.any { it.route == Routes.Notificaciones.route } == true,
@@ -532,7 +560,7 @@ fun BottomNavigationBar(navController: NavHostController) {
                     imageVector = Icons.Default.AccountCircle,
                     contentDescription = "Profile",
                     tint = if (currentDestination?.hierarchy?.any { it.route == Routes.Perfil.route } == true) {
-                        Color.Green
+                        Color(0xFF1DB954)
                     } else {
                         Color.White
                     }
