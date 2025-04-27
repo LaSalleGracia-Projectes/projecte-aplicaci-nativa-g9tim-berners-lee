@@ -33,17 +33,35 @@ import com.example.critflix.nav.Routes
 import com.example.critflix.viewmodel.APIViewModel
 import com.example.critflix.viewmodel.ListViewModel
 import com.example.critflix.viewmodel.NotificacionesViewModel
+import com.example.critflix.viewmodel.ValoracionesViewModel
 
 @Composable
-fun ListView(navController: NavHostController, apiViewModel: APIViewModel, listViewModel: ListViewModel, notificacionesViewModel: NotificacionesViewModel) {
+fun ListView(
+    navController: NavHostController,
+    apiViewModel: APIViewModel,
+    listViewModel: ListViewModel,
+    notificacionesViewModel: NotificacionesViewModel,
+    valoracionesViewModel: ValoracionesViewModel
+) {
     var tabSeleccionado by remember { mutableStateOf(0) }
     val context = LocalContext.current
     val userSessionManager = remember { UserSessionManager(context) }
     val token = userSessionManager.getToken() ?: ""
     val userId = userSessionManager.getUserId()
 
+    val peliculasPopulares by apiViewModel.pelis.observeAsState(emptyList())
+    val idsFavoritos by valoracionesViewModel.favoritos.observeAsState(emptyList())
+    val favoritoStatusMap by valoracionesViewModel.favoritoStatusMap.observeAsState(mutableMapOf())
+
+    val peliculasFavoritas = peliculasPopulares.filter { pelicula ->
+        idsFavoritos.contains(pelicula.id)
+    }
+
     LaunchedEffect(Unit) {
         apiViewModel.getPelis(totalMoviesNeeded = 30)
+        if (userId > 0) {
+            valoracionesViewModel.loadUserFavorites(userId, token)
+        }
     }
 
     LaunchedEffect(userId) {
@@ -58,8 +76,12 @@ fun ListView(navController: NavHostController, apiViewModel: APIViewModel, listV
     ) { padding ->
         if (tabSeleccionado == 0) {
             ContenidoPrincipal(
-                peliculas = apiViewModel.pelis.observeAsState(emptyList()).value,
-                paddingValues = padding
+                peliculas = if (userId > 0) peliculasFavoritas else emptyList(),
+                paddingValues = padding,
+                userId = userId,
+                token = token,
+                valoracionesViewModel = valoracionesViewModel,
+                favoritoStatusMap = favoritoStatusMap
             )
         } else {
             Listas(
@@ -115,7 +137,15 @@ fun TopBarPeliculas(tabSeleccionado: Int, onTabSelected: (Int) -> Unit) {
 }
 
 @Composable
-fun ContenidoPrincipal(peliculas: List<PelisPopulares>, paddingValues: PaddingValues) {
+fun ContenidoPrincipal(
+    peliculas: List<PelisPopulares>,
+    paddingValues: PaddingValues,
+    userId: Int,
+    token: String,
+    valoracionesViewModel: ValoracionesViewModel,
+    favoritoStatusMap: Map<Int, Boolean>
+) {
+    val context = LocalContext.current
 
     Column(
         modifier = Modifier
@@ -125,13 +155,51 @@ fun ContenidoPrincipal(peliculas: List<PelisPopulares>, paddingValues: PaddingVa
     ) {
         ContadorYBotonAnadir(cantidadPeliculas = peliculas.size)
 
-        LazyColumn(
-            modifier = Modifier.fillMaxWidth(),
-            contentPadding = PaddingValues(16.dp),
-            verticalArrangement = Arrangement.spacedBy(5.dp)
-        ) {
-            items(peliculas) { pelicula ->
-                TarjetaPelicula(pelicula = pelicula)
+        if (peliculas.isEmpty()) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(16.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = "No tienes películas favoritas.\nMarca tus películas con el corazón para añadirlas a favoritos.",
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = Color.White
+                )
+            }
+        } else {
+            LazyColumn(
+                modifier = Modifier.fillMaxWidth(),
+                contentPadding = PaddingValues(16.dp),
+                verticalArrangement = Arrangement.spacedBy(5.dp)
+            ) {
+                items(peliculas) { pelicula ->
+                    TarjetaPelicula(
+                        pelicula = pelicula,
+                        isFavorite = favoritoStatusMap[pelicula.id] ?: false,
+                        onFavoriteClick = {
+                            if (userId > 0) {
+                                valoracionesViewModel.toggleFavorite(userId, pelicula.id, token) { success ->
+                                    if (success) {
+                                    } else {
+                                        Toast.makeText(
+                                            context,
+                                            "Error al actualizar favoritos",
+                                            Toast.LENGTH_SHORT
+                                        ).show()
+                                    }
+                                }
+                            } else {
+                                Toast.makeText(
+                                    context,
+                                    "Debes iniciar sesión para marcar favoritos",
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                            }
+                        }
+                    )
+                }
             }
         }
     }
@@ -162,6 +230,7 @@ fun ContadorYBotonAnadir(cantidadPeliculas: Int) {
 @Composable
 fun TarjetaPelicula(
     pelicula: PelisPopulares,
+    isFavorite: Boolean = false,
     onFavoriteClick: () -> Unit = {}
 ) {
     val baseImageUrl = "https://image.tmdb.org/t/p/w185"
@@ -241,7 +310,7 @@ fun TarjetaPelicula(
                 Spacer(modifier = Modifier.height(4.dp))
 
                 // Popularidad
-               Row(verticalAlignment = Alignment.CenterVertically) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
                     Icon(
                         imageVector = Icons.Default.TrendingUp,
                         contentDescription = null,
@@ -310,9 +379,9 @@ fun TarjetaPelicula(
                             modifier = Modifier.size(36.dp)
                         ) {
                             Icon(
-                                imageVector = Icons.Default.FavoriteBorder,
+                                imageVector = if (isFavorite) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
                                 contentDescription = "Favorito",
-                                tint = MaterialTheme.colorScheme.primary
+                                tint = if (isFavorite) Color.Red else MaterialTheme.colorScheme.primary
                             )
                         }
                         IconButton(
@@ -537,4 +606,3 @@ private fun ListContainer(
         }
     }
 }
-

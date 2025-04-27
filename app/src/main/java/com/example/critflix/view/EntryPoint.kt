@@ -26,6 +26,7 @@ import com.example.critflix.viewmodel.ProfileViewModel
 import com.example.critflix.viewmodel.RepartoViewModel
 import com.example.critflix.viewmodel.SeriesViewModel
 import com.example.critflix.viewmodel.UserViewModel
+import com.example.critflix.viewmodel.ValoracionesViewModel
 
 @Composable
 fun EntryPoint(
@@ -42,6 +43,7 @@ fun EntryPoint(
     contenidoListaViewModel: ContenidoListaViewModel,
     comentariosViewModel: ComentariosViewModel,
     notificacionesViewModel: NotificacionesViewModel,
+    valoracionesViewModel: ValoracionesViewModel,
     deviceType: String
 ) {
     val navController = rememberNavController()
@@ -52,7 +54,7 @@ fun EntryPoint(
 
     when (deviceType){
         "compact" ->{
-            AppNavigationCompact(navigationController, apiViewModel, seriesViewModel, listViewModel, genresViewModel,profileViewModel, repartoViewModel, userViewModel, sessionManager, busquedaViewModel, editarPerfilViewModel, contenidoListaViewModel, comentariosViewModel, notificacionesViewModel)
+            AppNavigationCompact(navigationController, apiViewModel, seriesViewModel, listViewModel, genresViewModel,profileViewModel, repartoViewModel, userViewModel, sessionManager, busquedaViewModel, editarPerfilViewModel, contenidoListaViewModel, comentariosViewModel, notificacionesViewModel, valoracionesViewModel)
         }
         "medium" ->{
             AppNavigationMedium(navigationController, apiViewModel, seriesViewModel, listViewModel, genresViewModel)
@@ -61,7 +63,7 @@ fun EntryPoint(
             AppNavigationExpanded(navigationController, apiViewModel, seriesViewModel, listViewModel, genresViewModel)
         }
         else -> {
-            AppNavigationCompact(navigationController, apiViewModel, seriesViewModel, listViewModel, genresViewModel, profileViewModel, repartoViewModel, userViewModel, sessionManager, busquedaViewModel, editarPerfilViewModel, contenidoListaViewModel, comentariosViewModel, notificacionesViewModel)
+            AppNavigationCompact(navigationController, apiViewModel, seriesViewModel, listViewModel, genresViewModel, profileViewModel, repartoViewModel, userViewModel, sessionManager, busquedaViewModel, editarPerfilViewModel, contenidoListaViewModel, comentariosViewModel, notificacionesViewModel, valoracionesViewModel)
         }
     }
 }
@@ -81,7 +83,8 @@ fun AppNavigationCompact(
     editarPerfilViewModel: EditarPerfilViewModel,
     contenidoListaViewModel: ContenidoListaViewModel,
     comentariosViewModel: ComentariosViewModel,
-    notificacionesViewModel: NotificacionesViewModel
+    notificacionesViewModel: NotificacionesViewModel,
+    valoracionesViewModel: ValoracionesViewModel
 ){
     NavHost(
         navController = navigationController,
@@ -105,11 +108,11 @@ fun AppNavigationCompact(
         }
         // Home
         composable(Routes.Home.route) {
-            HomeScreen(navigationController, apiViewModel, seriesViewModel, genresViewModel, listViewModel, notificacionesViewModel)
+            HomeScreen(navigationController, apiViewModel, seriesViewModel, genresViewModel, listViewModel, notificacionesViewModel, valoracionesViewModel)
         }
         // Listas
         composable(Routes.Listas.route) {
-            ListView(navigationController, apiViewModel, listViewModel, notificacionesViewModel)
+            ListView(navigationController, apiViewModel, listViewModel, notificacionesViewModel, valoracionesViewModel)
         }
 
         // Contenido Listas
@@ -198,7 +201,8 @@ fun AppNavigationCompact(
                 repartoViewModel = repartoViewModel,
                 listViewModel = listViewModel,
                 contenidoListaViewModel = contenidoListaViewModel,
-                comentariosViewModel = comentariosViewModel
+                comentariosViewModel = comentariosViewModel,
+                valoracionesViewModel = valoracionesViewModel
             )
         }
         // InfoSeries
@@ -218,7 +222,8 @@ fun AppNavigationCompact(
                 genresViewModel = genresViewModel,
                 listViewModel = listViewModel,
                 contenidoListaViewModel = contenidoListaViewModel,
-                comentariosViewModel = comentariosViewModel
+                comentariosViewModel = comentariosViewModel,
+                valoracionesViewModel = valoracionesViewModel,
             )
         }
         // Anuncios

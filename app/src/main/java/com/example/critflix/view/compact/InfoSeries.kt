@@ -56,6 +56,7 @@ import com.example.critflix.viewmodel.GenresViewModel
 import com.example.critflix.viewmodel.ListViewModel
 import com.example.critflix.viewmodel.RepartoViewModel
 import com.example.critflix.viewmodel.ContenidoListaViewModel
+import com.example.critflix.viewmodel.ValoracionesViewModel
 import kotlinx.coroutines.launch
 
 
@@ -69,7 +70,8 @@ fun InfoSeries(
     genresViewModel: GenresViewModel,
     listViewModel: ListViewModel,
     contenidoListaViewModel: ContenidoListaViewModel,
-    comentariosViewModel: ComentariosViewModel
+    comentariosViewModel: ComentariosViewModel,
+    valoracionesViewModel: ValoracionesViewModel
 ) {
     val series: List<SeriesPopulares> by seriesViewModel.series.observeAsState(emptyList())
     val serie = series.find { it.id == id }
@@ -143,7 +145,7 @@ fun InfoSeries(
                             tint = Color.White
                         )
                     }
-                    IconButton(onClick = { isFavorite = !isFavorite }) {
+                    IconButton(onClick = { /* TODO: Añadir series a favoritos */}) {
                         Icon(
                             if (isFavorite) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
                             contentDescription = "Favorito",

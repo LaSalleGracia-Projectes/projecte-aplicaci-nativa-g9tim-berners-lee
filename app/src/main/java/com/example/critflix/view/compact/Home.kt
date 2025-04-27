@@ -46,6 +46,7 @@ import com.example.critflix.viewmodel.GenresViewModel
 import com.example.critflix.viewmodel.ListViewModel
 import com.example.critflix.viewmodel.NotificacionesViewModel
 import com.example.critflix.viewmodel.SeriesViewModel
+import com.example.critflix.viewmodel.ValoracionesViewModel
 
 @Composable
 fun HomeScreen(
@@ -54,7 +55,8 @@ fun HomeScreen(
     seriesViewModel: SeriesViewModel,
     genresViewModel: GenresViewModel,
     listViewModel: ListViewModel,
-    notificacionesViewModel: NotificacionesViewModel
+    notificacionesViewModel: NotificacionesViewModel,
+    valoracionesViewModel: ValoracionesViewModel
 ) {
     val showLoading: Boolean by apiViewModel.loading.observeAsState(true)
     val peliculas: List<PelisPopulares> by apiViewModel.pelis.observeAsState(emptyList())
@@ -82,6 +84,13 @@ fun HomeScreen(
     LaunchedEffect(userId) {
         if (userId > 0) {
             listViewModel.loadUserLists(userId, token)
+        }
+    }
+
+    LaunchedEffect(Unit) {
+        apiViewModel.getPelis(totalMoviesNeeded = 30)
+        if (userId > 0) {
+            valoracionesViewModel.loadUserFavorites(userId, token)
         }
     }
 

@@ -56,6 +56,7 @@ import com.example.critflix.viewmodel.GenresViewModel
 import com.example.critflix.viewmodel.ListViewModel
 import com.example.critflix.viewmodel.RepartoViewModel
 import com.example.critflix.viewmodel.ContenidoListaViewModel
+import com.example.critflix.viewmodel.ValoracionesViewModel
 import kotlinx.coroutines.launch
 
 enum class TabSeleccionada {
@@ -64,10 +65,11 @@ enum class TabSeleccionada {
 
 @OptIn(ExperimentalGlideComposeApi::class, ExperimentalMaterial3Api::class)
 @Composable
-fun InfoPelis(navController: NavHostController, apiViewModel: APIViewModel, id: Int, genresViewModel: GenresViewModel, repartoViewModel: RepartoViewModel, listViewModel: ListViewModel, contenidoListaViewModel: ContenidoListaViewModel, comentariosViewModel: ComentariosViewModel) {
+fun InfoPelis(navController: NavHostController, apiViewModel: APIViewModel, id: Int, genresViewModel: GenresViewModel, repartoViewModel: RepartoViewModel, listViewModel: ListViewModel, contenidoListaViewModel: ContenidoListaViewModel, comentariosViewModel: ComentariosViewModel, valoracionesViewModel: ValoracionesViewModel) {
     val peliculas: List<PelisPopulares> by apiViewModel.pelis.observeAsState(emptyList())
     val pelicula = peliculas.find { it.id == id }
-    var isFavorite by remember { mutableStateOf(false) }
+    val favoritoStatusMap by valoracionesViewModel.favoritoStatusMap.observeAsState(mutableMapOf())
+    val isFavorite = favoritoStatusMap[id] ?: false
     val context = LocalContext.current
     var showListsPopup by remember { mutableStateOf(false) }
     var tabSeleccionada by remember { mutableStateOf(TabSeleccionada.COMENTARIOS) }
@@ -81,6 +83,7 @@ fun InfoPelis(navController: NavHostController, apiViewModel: APIViewModel, id: 
     LaunchedEffect(userId) {
         if (userId > 0) {
             listViewModel.loadUserLists(userId, token)
+            valoracionesViewModel.checkFavoriteStatus(userId, id, token)
         }
     }
 
@@ -137,7 +140,28 @@ fun InfoPelis(navController: NavHostController, apiViewModel: APIViewModel, id: 
                             tint = Color.White
                         )
                     }
-                    IconButton(onClick = { isFavorite = !isFavorite }) {
+                    IconButton(
+                        onClick = { 
+                            if (userId > 0) {
+                                valoracionesViewModel.toggleFavorite(userId, id, token) { success ->
+                                    if (success) {
+                                    } else {
+                                        Toast.makeText(
+                                            context,
+                                            "Error al actualizar favoritos",
+                                            Toast.LENGTH_SHORT
+                                        ).show()
+                                    }
+                                }
+                            } else {
+                                Toast.makeText(
+                                    context,
+                                    "Debes iniciar sesión para marcar favoritos",
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                            }
+                        }
+                    ) {
                         Icon(
                             if (isFavorite) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
                             contentDescription = "Favorito",
