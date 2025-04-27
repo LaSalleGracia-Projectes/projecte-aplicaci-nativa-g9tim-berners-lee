@@ -28,6 +28,7 @@ class MainActivity : ComponentActivity() {
     val contenidoListaViewModel: ContenidoListaViewModel by viewModels()
     val comentariosViewModel: ComentariosViewModel by viewModels()
     val notificacionesViewModel: NotificacionesViewModel by viewModels()
+    val valoracionesViewModel: ValoracionesViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -63,6 +64,7 @@ class MainActivity : ComponentActivity() {
                         contenidoListaViewModel,
                         comentariosViewModel,
                         notificacionesViewModel,
+                        valoracionesViewModel,
                         deviceType
                     )
                 }
