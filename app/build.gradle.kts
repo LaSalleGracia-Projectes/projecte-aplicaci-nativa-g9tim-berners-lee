@@ -63,6 +63,7 @@ dependencies {
     // Glide
     implementation("com.github.bumptech.glide:compose:1.0.0-beta01")
     implementation("com.github.bumptech.glide:compose:1.0.0-alpha.1")
+    implementation(libs.androidx.media3.common.ktx)
     testImplementation("junit:junit:4.13.2")
 
     // Navigation

@@ -43,6 +43,7 @@ import java.util.*
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
+//TODO: Si la notificacion ya ha sido vista, que no se pueda marcar como vista otra vez
 fun NotificationView(
     navController: NavHostController,
     notificacionesViewModel: NotificacionesViewModel
