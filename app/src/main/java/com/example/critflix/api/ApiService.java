@@ -17,6 +17,9 @@ import com.example.critflix.model.RegisterRequest;
 import com.example.critflix.model.RegisterResponse;
 import com.example.critflix.model.UpdateUserRequest;
 import com.example.critflix.model.User;
+import com.example.critflix.model.ValoracionRequest;
+import com.example.critflix.model.ValoracionResponse;
+
 import java.util.List;
 import java.util.Map;
 import retrofit2.Call;
@@ -108,4 +111,17 @@ public interface ApiService {
 
     @PUT("notificaciones/read_all/{userId}")
     Call<Map<String, String>> markAllNotificationsAsRead(@Path("userId") int userId);
+
+    // Endpoints para Valoraciones (Favoritos)
+    @GET("valoraciones/usuario/{userId}")
+    Call<List<ValoracionResponse>> getUserFavorites(@Path("userId") int userId);
+
+    @POST("valoraciones")
+    Call<ValoracionResponse> addFavorite(@Body ValoracionRequest request);
+
+    @DELETE("valoraciones/{id}")
+    Call<Void> removeFavorite(@Path("id") int id);
+
+    @GET("valoraciones/check/{userId}/{peliculaId}")
+    Call<Boolean> checkFavoriteStatus(@Path("userId") int userId, @Path("peliculaId") int peliculaId);
 }
