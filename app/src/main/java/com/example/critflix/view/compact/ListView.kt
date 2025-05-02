@@ -20,6 +20,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
@@ -28,17 +29,20 @@ import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
 import com.example.critflix.model.Lista
 import com.example.critflix.model.PelisPopulares
+import com.example.critflix.model.SeriesPopulares
 import com.example.critflix.model.UserSessionManager
 import com.example.critflix.nav.Routes
 import com.example.critflix.viewmodel.APIViewModel
 import com.example.critflix.viewmodel.ListViewModel
 import com.example.critflix.viewmodel.NotificacionesViewModel
+import com.example.critflix.viewmodel.SeriesViewModel
 import com.example.critflix.viewmodel.ValoracionesViewModel
 
 @Composable
 fun ListView(
     navController: NavHostController,
     apiViewModel: APIViewModel,
+    seriesViewModel: SeriesViewModel,
     listViewModel: ListViewModel,
     notificacionesViewModel: NotificacionesViewModel,
     valoracionesViewModel: ValoracionesViewModel
@@ -50,6 +54,7 @@ fun ListView(
     val userId = userSessionManager.getUserId()
 
     val peliculasPopulares by apiViewModel.pelis.observeAsState(emptyList())
+    val seriesPopulares by seriesViewModel.series.observeAsState(emptyList())
     val idsFavoritos by valoracionesViewModel.favoritos.observeAsState(emptyList())
     val favoritoStatusMap by valoracionesViewModel.favoritoStatusMap.observeAsState(mutableMapOf())
 
@@ -57,8 +62,13 @@ fun ListView(
         idsFavoritos.contains(pelicula.id)
     }
 
+    val seriesFavoritas = seriesPopulares.filter { serie ->
+        idsFavoritos.contains(serie.id)
+    }
+
     LaunchedEffect(Unit) {
         apiViewModel.getPelis(totalMoviesNeeded = 30)
+        seriesViewModel.getSeries()
         if (userId > 0) {
             valoracionesViewModel.loadUserFavorites(userId, token)
         }
@@ -77,11 +87,13 @@ fun ListView(
         if (tabSeleccionado == 0) {
             ContenidoPrincipal(
                 peliculas = if (userId > 0) peliculasFavoritas else emptyList(),
+                series = if (userId > 0) seriesFavoritas else emptyList(),
                 paddingValues = padding,
                 userId = userId,
                 token = token,
                 valoracionesViewModel = valoracionesViewModel,
-                favoritoStatusMap = favoritoStatusMap
+                favoritoStatusMap = favoritoStatusMap,
+                navController = navController
             )
         } else {
             Listas(
@@ -139,13 +151,16 @@ fun TopBarPeliculas(tabSeleccionado: Int, onTabSelected: (Int) -> Unit) {
 @Composable
 fun ContenidoPrincipal(
     peliculas: List<PelisPopulares>,
+    series: List<SeriesPopulares>,
     paddingValues: PaddingValues,
     userId: Int,
     token: String,
     valoracionesViewModel: ValoracionesViewModel,
-    favoritoStatusMap: Map<Int, Boolean>
+    favoritoStatusMap: Map<Int, Boolean>,
+    navController: NavHostController
 ) {
     val context = LocalContext.current
+    val totalItems = peliculas.size + series.size
 
     Column(
         modifier = Modifier
@@ -153,9 +168,9 @@ fun ContenidoPrincipal(
             .padding(paddingValues)
             .background(color = Color.Black)
     ) {
-        ContadorYBotonAnadir(cantidadPeliculas = peliculas.size)
+        ContadorYBotonAnadir(cantidadTotal = totalItems)
 
-        if (peliculas.isEmpty()) {
+        if (totalItems == 0) {
             Box(
                 modifier = Modifier
                     .fillMaxSize()
@@ -163,9 +178,10 @@ fun ContenidoPrincipal(
                 contentAlignment = Alignment.Center
             ) {
                 Text(
-                    text = "No tienes películas favoritas.\nMarca tus películas con el corazón para añadirlas a favoritos.",
+                    text = "No tienes contenido favorito.\nMarca películas y series con el corazón para añadirlas a favoritos.",
                     style = MaterialTheme.typography.bodyLarge,
-                    color = Color.White
+                    color = Color.White,
+                    textAlign = TextAlign.Center
                 )
             }
         } else {
@@ -181,8 +197,7 @@ fun ContenidoPrincipal(
                         onFavoriteClick = {
                             if (userId > 0) {
                                 valoracionesViewModel.toggleFavorite(userId, pelicula.id, token) { success ->
-                                    if (success) {
-                                    } else {
+                                    if (!success) {
                                         Toast.makeText(
                                             context,
                                             "Error al actualizar favoritos",
@@ -197,6 +212,38 @@ fun ContenidoPrincipal(
                                     Toast.LENGTH_SHORT
                                 ).show()
                             }
+                        },
+                        onClick = {
+                            navController.navigate(Routes.InfoPelis.createRoute(pelicula.id))
+                        }
+                    )
+                }
+
+                items(series) { serie ->
+                    TarjetaSerie(
+                        serie = serie,
+                        isFavorite = favoritoStatusMap[serie.id] ?: false,
+                        onFavoriteClick = {
+                            if (userId > 0) {
+                                valoracionesViewModel.toggleFavorite(userId, serie.id, token) { success ->
+                                    if (!success) {
+                                        Toast.makeText(
+                                            context,
+                                            "Error al actualizar favoritos",
+                                            Toast.LENGTH_SHORT
+                                        ).show()
+                                    }
+                                }
+                            } else {
+                                Toast.makeText(
+                                    context,
+                                    "Debes iniciar sesión para marcar favoritos",
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                            }
+                        },
+                        onClick = {
+                            navController.navigate(Routes.InfoSeries.createRoute(serie.id))
                         }
                     )
                 }
@@ -206,8 +253,7 @@ fun ContenidoPrincipal(
 }
 
 @Composable
-fun ContadorYBotonAnadir(cantidadPeliculas: Int) {
-
+fun ContadorYBotonAnadir(cantidadTotal: Int) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -215,7 +261,7 @@ fun ContadorYBotonAnadir(cantidadPeliculas: Int) {
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Text("$cantidadPeliculas/100 Títulos")
+        Text("$cantidadTotal/100 Títulos")
         Row(verticalAlignment = Alignment.CenterVertically) {
             Icon(
                 imageVector = Icons.Default.Add,
@@ -228,10 +274,11 @@ fun ContadorYBotonAnadir(cantidadPeliculas: Int) {
 
 @OptIn(ExperimentalGlideComposeApi::class)
 @Composable
-fun TarjetaPelicula(
-    pelicula: PelisPopulares,
+fun TarjetaSerie(
+    serie: SeriesPopulares,
     isFavorite: Boolean = false,
-    onFavoriteClick: () -> Unit = {}
+    onFavoriteClick: () -> Unit = {},
+    onClick: () -> Unit = {}
 ) {
     val baseImageUrl = "https://image.tmdb.org/t/p/w185"
 
@@ -239,7 +286,173 @@ fun TarjetaPelicula(
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 16.dp, vertical = 8.dp)
-            .clickable {/*TODO: Info pelis*/},
+            .clickable(onClick = onClick),
+        shape = RoundedCornerShape(12.dp),
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surface
+        )
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(12.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            // Poster
+            Card(
+                shape = RoundedCornerShape(8.dp),
+                modifier = Modifier.size(100.dp, 150.dp)
+            ) {
+                if (serie.poster_path != null) {
+                    GlideImage(
+                        model = "$baseImageUrl${serie.poster_path}",
+                        contentDescription = serie.name,
+                        contentScale = ContentScale.Crop,
+                        modifier = Modifier.fillMaxSize()
+                    )
+                } else {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .background(Color.DarkGray),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Tv,
+                            contentDescription = "Sin poster",
+                            modifier = Modifier.size(40.dp),
+                            tint = Color.White
+                        )
+                    }
+                }
+            }
+
+            // Detalles
+            Column(
+                modifier = Modifier
+                    .weight(1f)
+                    .padding(start = 16.dp)
+            ) {
+                Text(
+                    text = serie.name,
+                    style = MaterialTheme.typography.titleMedium,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis
+                )
+
+                Spacer(modifier = Modifier.height(4.dp))
+
+                // Año de lanzamiento
+                if (!serie.first_air_date.isNullOrEmpty()) {
+                    val year = serie.first_air_date.take(4)
+                    Text(
+                        text = year,
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(4.dp))
+
+                // Popularidad
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Icon(
+                        imageVector = Icons.Default.TrendingUp,
+                        contentDescription = null,
+                        modifier = Modifier.size(16.dp),
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                    Spacer(modifier = Modifier.width(4.dp))
+                    Text(
+                        text = "Popularidad: ${String.format("%.1f", serie.popularity)}",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                // Rating
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    val ratingColor = when {
+                        serie.vote_average >= 7 -> Color(0xFF4CAF50)
+                        serie.vote_average >= 5 -> Color(0xFFFFA000)
+                        else -> Color(0xFFF44336)
+                    }
+
+                    Text(
+                        text = "★ ${String.format("%.1f", serie.vote_average)}/10",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = ratingColor
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    // Tipo de contenido
+                    SuggestionChip(
+                        onClick = { },
+                        label = {
+                            Text(
+                                text = "Serie",
+                                style = MaterialTheme.typography.bodySmall
+                            )
+                        },
+                        colors = SuggestionChipDefaults.suggestionChipColors(
+                            containerColor = MaterialTheme.colorScheme.secondary.copy(alpha = 0.1f),
+                            labelColor = MaterialTheme.colorScheme.secondary
+                        ),
+                        modifier = Modifier.height(24.dp),
+                        icon = {
+                            Icon(
+                                imageVector = Icons.Default.Tv,
+                                contentDescription = null,
+                                modifier = Modifier.size(16.dp)
+                            )
+                        }
+                    )
+
+                    // Botones
+                    Row {
+                        IconButton(
+                            onClick = onFavoriteClick,
+                            modifier = Modifier.size(36.dp)
+                        ) {
+                            Icon(
+                                imageVector = if (isFavorite) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
+                                contentDescription = "Favorito",
+                                tint = if (isFavorite) Color.Red else MaterialTheme.colorScheme.primary
+                            )
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalGlideComposeApi::class)
+@Composable
+fun TarjetaPelicula(
+    pelicula: PelisPopulares,
+    isFavorite: Boolean = false,
+    onFavoriteClick: () -> Unit = {},
+    onClick: () -> Unit = {}
+) {
+    val baseImageUrl = "https://image.tmdb.org/t/p/w185"
+
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp, vertical = 8.dp)
+            .clickable(onClick = onClick),
         shape = RoundedCornerShape(12.dp),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
         colors = CardDefaults.cardColors(
@@ -382,16 +595,6 @@ fun TarjetaPelicula(
                                 imageVector = if (isFavorite) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
                                 contentDescription = "Favorito",
                                 tint = if (isFavorite) Color.Red else MaterialTheme.colorScheme.primary
-                            )
-                        }
-                        IconButton(
-                            onClick = { /* TODO: Mostrar opciones */ },
-                            modifier = Modifier.size(36.dp)
-                        ) {
-                            Icon(
-                                imageVector = Icons.Default.MoreVert,
-                                contentDescription = "Más opciones",
-                                tint = MaterialTheme.colorScheme.onSurface
                             )
                         }
                     }

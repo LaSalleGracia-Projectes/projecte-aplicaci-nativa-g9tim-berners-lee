@@ -125,8 +125,8 @@ public interface ApiService {
     @DELETE("valoraciones/{id}")
     Call<Void> removeFavorite(@Path("id") int id);
 
-    @GET("valoraciones/check/{userId}/{peliculaId}")
-    Call<Boolean> checkFavoriteStatus(@Path("userId") int userId, @Path("peliculaId") int peliculaId);
+    @GET("valoraciones/check/{userId}/{tmdb_id}")
+    Call<Boolean> checkFavoriteStatus(@Path("userId") int userId, @Path("tmdb_id") int tmdbId);
 
     // Endpoints para Solicitudes de Crítico
     @GET("solicitudes_critico/user/{userId}")
