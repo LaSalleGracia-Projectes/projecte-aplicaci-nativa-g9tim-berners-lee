@@ -29,6 +29,7 @@ class MainActivity : ComponentActivity() {
     val comentariosViewModel: ComentariosViewModel by viewModels()
     val notificacionesViewModel: NotificacionesViewModel by viewModels()
     val valoracionesViewModel: ValoracionesViewModel by viewModels()
+    val solicitudCriticoViewModel: SolicitudCriticoViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -65,6 +66,7 @@ class MainActivity : ComponentActivity() {
                         comentariosViewModel,
                         notificacionesViewModel,
                         valoracionesViewModel,
+                        solicitudCriticoViewModel,
                         deviceType
                     )
                 }

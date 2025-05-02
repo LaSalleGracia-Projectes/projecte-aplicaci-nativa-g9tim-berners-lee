@@ -25,7 +25,7 @@ class ListViewModel : ViewModel() {
     val createListState: LiveData<CreateListState> = _createListState
     val maxListas = 10
 
-    // Lista de listas por defecto
+    /*// Lista de listas por defecto
     private val defaultLists = listOf(
         Lista(
             id = "default_1",
@@ -52,7 +52,7 @@ class ListViewModel : ViewModel() {
 
     init {
         _listas.value = defaultLists
-    }
+    }*/
 
     fun loadUserLists(userId: Int, token: String) {
         val apiService = RetrofitClient.getApiService(token)
@@ -71,7 +71,7 @@ class ListViewModel : ViewModel() {
                                     Lista.fromApiResponse(listItem)
                                 } else null
                             }
-                            _listas.value = defaultLists + userLists
+                            _listas.value = userLists
                         }
                     } catch (e: Exception) {
                         Log.e("ListViewModel", "Error parsing response", e)
@@ -89,7 +89,7 @@ class ListViewModel : ViewModel() {
 
     fun createNewList(name: String, userId: Int, token: String) {
         Log.d("ListViewModel", "Creando lista: $name para usuario: $userId")
-        if ((_listas.value?.size ?: 0) - defaultLists.size < maxListas) {
+        if ((_listas.value?.size ?: 0) < maxListas) {
             _createListState.value = CreateListState.Loading
             
             val listaRequest = ListaRequest(

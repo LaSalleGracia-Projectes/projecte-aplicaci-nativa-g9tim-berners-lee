@@ -15,6 +15,9 @@ import com.example.critflix.model.LoginResponse;
 import com.example.critflix.model.Notification;
 import com.example.critflix.model.RegisterRequest;
 import com.example.critflix.model.RegisterResponse;
+import com.example.critflix.model.SolicitudCritico;
+import com.example.critflix.model.SolicitudCriticoRequest;
+import com.example.critflix.model.SolicitudCriticoResponse;
 import com.example.critflix.model.UpdateUserRequest;
 import com.example.critflix.model.User;
 import com.example.critflix.model.ValoracionRequest;
@@ -124,4 +127,17 @@ public interface ApiService {
 
     @GET("valoraciones/check/{userId}/{peliculaId}")
     Call<Boolean> checkFavoriteStatus(@Path("userId") int userId, @Path("peliculaId") int peliculaId);
+
+    // Endpoints para Solicitudes de Crítico
+    @GET("solicitudes_critico/user/{userId}")
+    Call<List<SolicitudCritico>> getUserSolicitudes(@Path("userId") int userId);
+
+    @GET("solicitudes_critico/{id}")
+    Call<SolicitudCritico> getSolicitud(@Path("id") int id);
+
+    @POST("solicitudes_critico")
+    Call<SolicitudCritico> createSolicitud(@Body SolicitudCriticoRequest request);
+
+    @DELETE("solicitudes_critico/{id}")
+    Call<SolicitudCriticoResponse> deleteSolicitud(@Path("id") int id);
 }

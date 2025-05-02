@@ -598,7 +598,7 @@ private fun ListContainer(
             // TODO: Arreglan funcionalidad de recuento
             // TODO: Arreglar fecha de actualizacion
             Text(
-                text = "${lista.itemCount} ${if (lista.itemCount == 1) "Item" else "Elementos"} • Actualizado el ${lista.lastUpdated}",
+                text = /*"${lista.itemCount} ${if (lista.itemCount == 1) "Item" else "Elementos"}"*/  "Actualizado el ${lista.lastUpdated}",
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier.padding(top = 4.dp)
