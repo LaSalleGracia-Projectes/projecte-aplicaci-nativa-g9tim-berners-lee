@@ -75,7 +75,8 @@ fun InfoSeries(
 ) {
     val series: List<SeriesPopulares> by seriesViewModel.series.observeAsState(emptyList())
     val serie = series.find { it.id == id }
-    var isFavorite by remember { mutableStateOf(false) }
+    val favoritoStatusMap by valoracionesViewModel.favoritoStatusMap.observeAsState(mutableMapOf())
+    val isFavorite = favoritoStatusMap[id] ?: false
     val context = LocalContext.current
     var showListsPopup by remember { mutableStateOf(false) }
     var tabSeleccionada by remember { mutableStateOf(TabSeleccionada.COMENTARIOS) }
@@ -89,6 +90,7 @@ fun InfoSeries(
     LaunchedEffect(userId) {
         if (userId > 0) {
             listViewModel.loadUserLists(userId, token)
+            valoracionesViewModel.checkFavoriteStatus(userId, id, token)
         }
     }
 
@@ -145,7 +147,28 @@ fun InfoSeries(
                             tint = Color.White
                         )
                     }
-                    IconButton(onClick = { /* TODO: Añadir series a favoritos */}) {
+                    IconButton(
+                        onClick = {
+                            if (userId > 0) {
+                                valoracionesViewModel.toggleFavorite(userId, id, token) { success ->
+                                    if (success) {
+                                    } else {
+                                        Toast.makeText(
+                                            context,
+                                            "Error al actualizar favoritos",
+                                            Toast.LENGTH_SHORT
+                                        ).show()
+                                    }
+                                }
+                            } else {
+                                Toast.makeText(
+                                    context,
+                                    "Debes iniciar sesión para marcar favoritos",
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                            }
+                        }
+                    ) {
                         Icon(
                             if (isFavorite) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
                             contentDescription = "Favorito",

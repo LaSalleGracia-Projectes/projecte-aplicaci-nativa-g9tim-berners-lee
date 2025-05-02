@@ -37,11 +37,11 @@ class ValoracionesViewModel : ViewModel() {
                 _loading.value = false
 
                 if (response.isSuccessful) {
-                    val favoritosIds = response.body()?.map { it.id_pelicula } ?: emptyList()
+                    val favoritosIds = response.body()?.map { it.tmdb_id } ?: emptyList()
                     _favoritos.value = favoritosIds
 
                     response.body()?.forEach { valoracion ->
-                        valoracionesIdMap[valoracion.id_pelicula] = valoracion.id
+                        valoracionesIdMap[valoracion.tmdb_id] = valoracion.id
                     }
 
                     val newMap = _favoritoStatusMap.value?.toMutableMap() ?: mutableMapOf()
@@ -66,21 +66,21 @@ class ValoracionesViewModel : ViewModel() {
     }
 
     // Verificar si una película es favorita
-    fun checkFavoriteStatus(userId: Int, peliculaId: Int, token: String) {
+    fun checkFavoriteStatus(userId: Int, tmdbId: Int, token: String) {
         val apiService = RetrofitClient.getApiService(token)
 
-        apiService.checkFavoriteStatus(userId, peliculaId).enqueue(object : Callback<Boolean> {
+        apiService.checkFavoriteStatus(userId, tmdbId).enqueue(object : Callback<Boolean> {
             override fun onResponse(call: Call<Boolean>, response: Response<Boolean>) {
                 if (response.isSuccessful) {
                     val isFavorite = response.body() ?: false
                     val newMap = _favoritoStatusMap.value?.toMutableMap() ?: mutableMapOf()
-                    newMap[peliculaId] = isFavorite
+                    newMap[tmdbId] = isFavorite
                     _favoritoStatusMap.value = newMap
 
                     if (isFavorite) {
                         val currentFavorites = _favoritos.value?.toMutableList() ?: mutableListOf()
-                        if (!currentFavorites.contains(peliculaId)) {
-                            currentFavorites.add(peliculaId)
+                        if (!currentFavorites.contains(tmdbId)) {
+                            currentFavorites.add(tmdbId)
                             _favoritos.value = currentFavorites
                         }
 
@@ -88,8 +88,8 @@ class ValoracionesViewModel : ViewModel() {
                             override fun onResponse(call: Call<List<ValoracionResponse>>, response: Response<List<ValoracionResponse>>) {
                                 if (response.isSuccessful) {
                                     response.body()?.forEach { valoracion ->
-                                        if (valoracion.id_pelicula == peliculaId) {
-                                            valoracionesIdMap[peliculaId] = valoracion.id
+                                        if (valoracion.tmdb_id == tmdbId) {
+                                            valoracionesIdMap[tmdbId] = valoracion.id
                                         }
                                     }
                                 }
@@ -110,13 +110,13 @@ class ValoracionesViewModel : ViewModel() {
     }
 
     // Marcar como favorito
-    fun addFavorite(userId: Int, peliculaId: Int, token: String, onComplete: (Boolean) -> Unit) {
+    fun addFavorite(userId: Int, tmdbId: Int, token: String, onComplete: (Boolean) -> Unit) {
         _loading.value = true
         _error.value = null
 
         val request = ValoracionRequest(
             user_id = userId,
-            id_pelicula = peliculaId
+            tmdb_id = tmdbId
         )
 
         val apiService = RetrofitClient.getApiService(token)
@@ -127,20 +127,20 @@ class ValoracionesViewModel : ViewModel() {
 
                 if (response.isSuccessful) {
                     val currentFavorites = _favoritos.value?.toMutableList() ?: mutableListOf()
-                    if (!currentFavorites.contains(peliculaId)) {
-                        currentFavorites.add(peliculaId)
+                    if (!currentFavorites.contains(tmdbId)) {
+                        currentFavorites.add(tmdbId)
                         _favoritos.value = currentFavorites
                     }
 
                     response.body()?.let { valoracion ->
-                        valoracionesIdMap[peliculaId] = valoracion.id
+                        valoracionesIdMap[tmdbId] = valoracion.id
                     }
 
                     val newMap = _favoritoStatusMap.value?.toMutableMap() ?: mutableMapOf()
-                    newMap[peliculaId] = true
+                    newMap[tmdbId] = true
                     _favoritoStatusMap.value = newMap
 
-                    Log.d("ValoracionesViewModel", "Añadido a favoritos: $peliculaId")
+                    Log.d("ValoracionesViewModel", "Añadido a favoritos: $tmdbId")
                     onComplete(true)
                 } else {
                     val errorMsg = "Error al añadir favorito: ${response.code()}"
@@ -168,7 +168,7 @@ class ValoracionesViewModel : ViewModel() {
     }
 
     // Quitar de favoritos
-    fun removeFavorite(valoracionId: Int, peliculaId: Int, token: String, onComplete: (Boolean) -> Unit) {
+    fun removeFavorite(valoracionId: Int, tmdbId: Int, token: String, onComplete: (Boolean) -> Unit) {
         _loading.value = true
 
         val apiService = RetrofitClient.getApiService(token)
@@ -179,16 +179,16 @@ class ValoracionesViewModel : ViewModel() {
 
                 if (response.isSuccessful) {
                     val currentFavorites = _favoritos.value?.toMutableList() ?: mutableListOf()
-                    currentFavorites.remove(peliculaId)
+                    currentFavorites.remove(tmdbId)
                     _favoritos.value = currentFavorites
 
                     val newMap = _favoritoStatusMap.value?.toMutableMap() ?: mutableMapOf()
-                    newMap[peliculaId] = false
+                    newMap[tmdbId] = false
                     _favoritoStatusMap.value = newMap
 
-                    valoracionesIdMap.remove(peliculaId)
+                    valoracionesIdMap.remove(tmdbId)
 
-                    Log.d("ValoracionesViewModel", "Eliminado de favoritos: $peliculaId")
+                    Log.d("ValoracionesViewModel", "Eliminado de favoritos: $tmdbId")
                     onComplete(true)
                 } else {
                     _error.value = "Error al eliminar favorito: ${response.code()}"
@@ -207,22 +207,22 @@ class ValoracionesViewModel : ViewModel() {
     }
 
     // Alternar estado de favorito
-    fun toggleFavorite(userId: Int, peliculaId: Int, token: String, onComplete: (Boolean) -> Unit) {
-        val isFavorite = _favoritoStatusMap.value?.get(peliculaId) ?: false
+    fun toggleFavorite(userId: Int, tmdbId: Int, token: String, onComplete: (Boolean) -> Unit) {
+        val isFavorite = _favoritoStatusMap.value?.get(tmdbId) ?: false
 
         if (isFavorite) {
-            val valoracionId = valoracionesIdMap[peliculaId]
+            val valoracionId = valoracionesIdMap[tmdbId]
             if (valoracionId != null) {
-                removeFavorite(valoracionId, peliculaId, token, onComplete)
+                removeFavorite(valoracionId, tmdbId, token, onComplete)
             } else {
                 val apiService = RetrofitClient.getApiService(token)
                 apiService.getUserFavorites(userId).enqueue(object : Callback<List<ValoracionResponse>> {
                     override fun onResponse(call: Call<List<ValoracionResponse>>, response: Response<List<ValoracionResponse>>) {
                         if (response.isSuccessful) {
-                            val valoracion = response.body()?.find { it.id_pelicula == peliculaId }
+                            val valoracion = response.body()?.find { it.tmdb_id == tmdbId }
                             if (valoracion != null) {
-                                valoracionesIdMap[peliculaId] = valoracion.id
-                                removeFavorite(valoracion.id, peliculaId, token, onComplete)
+                                valoracionesIdMap[tmdbId] = valoracion.id
+                                removeFavorite(valoracion.id, tmdbId, token, onComplete)
                             } else {
                                 _error.value = "Error: No se encontró el ID de la valoración"
                                 onComplete(false)
@@ -240,7 +240,7 @@ class ValoracionesViewModel : ViewModel() {
                 })
             }
         } else {
-            addFavorite(userId, peliculaId, token, onComplete)
+            addFavorite(userId, tmdbId, token, onComplete)
         }
     }
 

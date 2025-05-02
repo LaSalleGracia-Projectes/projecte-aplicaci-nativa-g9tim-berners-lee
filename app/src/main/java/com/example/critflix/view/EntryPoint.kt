@@ -115,11 +115,10 @@ fun AppNavigationCompact(
         }
         // Listas
         composable(Routes.Listas.route) {
-            ListView(navigationController, apiViewModel, listViewModel, notificacionesViewModel, valoracionesViewModel)
+            ListView(navigationController, apiViewModel, seriesViewModel, listViewModel, notificacionesViewModel, valoracionesViewModel)
         }
 
         // Contenido Listas
-        // En AppNavigationCompact, modifica la parte de ContenidoListas:
         composable(
             route = Routes.ContenidoListas.route,
             arguments = listOf(
