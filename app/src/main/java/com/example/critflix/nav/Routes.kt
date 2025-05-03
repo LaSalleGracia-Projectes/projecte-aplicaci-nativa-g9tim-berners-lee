@@ -26,9 +26,6 @@ sealed class Routes(val route: String) {
         fun createRoute(listId: String? = null) = if (listId != null) "crear_lista?listId=$listId" else "crear_lista"
     }
     object Busqueda : Routes("busqueda")
-    object BusquedaConLista : Routes("busqueda/{listaId}") {
-        fun createRoute(listaId: String) = "busqueda/$listaId"
-    }
     object Anuncios : Routes("anuncios")
     object Ajustes : Routes("ajustes")
     object Ayuda : Routes("ayuda")
@@ -36,4 +33,36 @@ sealed class Routes(val route: String) {
     object PoliticaSeguridad : Routes("politica_seguridad")
     object PoliticaCookies : Routes("politica_cookies")
     object SolicitudCritico : Routes("solicitud_critico")
+
+    // MEDIUM
+    object PreferenciasInicioMedium : Routes("preferencias_inicio_medium")
+    object AutentificacionCorreoMedium : Routes("autentificacion_correo_medium")
+    object InicioSesionMedium : Routes("inicio_sesion_medium")
+    object RegistroMedium : Routes("registro_medium")
+    object HomeMedium : Routes("home_medium")
+    object ListasMedium : Routes("listas_medium")
+    object ContenidoListasMedium : Routes("contenido_listas_medium/{id}") {
+        fun createRoute(id: String) = "contenido_listas_medium/$id"
+    }
+    object NotificacionesMedium : Routes("notificaciones_medium")
+    object PerfilMedium : Routes("perfil_medium")
+    object EditarPerfilMedium : Routes("editar_perfil_medium")
+    //TODO: Crear Info
+    object InfoPelisMedium : Routes("info_pelis_medium/{id}") {
+        fun createRoute(id: Int) = "info_pelis_medium/$id"
+    }
+    object InfoSeriesMedium : Routes("info_series_medium/{id}") {
+        fun createRoute(id: Int) = "info_series_medium/$id"
+    }
+    object CrearListaMedium: Routes("crear_lista_medium?listId={listId}") {
+        fun createRoute(listId: String? = null) = if (listId != null) "crear_lista_medium?listId=$listId" else "crear_lista_medium"
+    }
+    object BusquedaMedium : Routes("busqueda_medium")
+    object AnunciosMedium : Routes("anuncios_medium")
+    object AjustesMedium : Routes("ajustes_medium")
+    object AyudaMedium : Routes("ayuda_medium")
+    object PoliticaPrivacidadMedium : Routes("politica_privacidad_medium")
+    object PoliticaSeguridadMedium : Routes("politica_seguridad_medium")
+    object PoliticaCookiesMedium : Routes("politica_cookies_medium")
+    object SolicitudCriticoMedium : Routes("solicitud_critico_medium")
 }

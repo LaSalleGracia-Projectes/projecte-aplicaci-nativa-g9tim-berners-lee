@@ -1,7 +1,5 @@
 package com.example.critflix.model
 
-import com.google.gson.annotations.SerializedName
-
 data class LikeResponse(
     val message: String,
     val comentario: Comentario

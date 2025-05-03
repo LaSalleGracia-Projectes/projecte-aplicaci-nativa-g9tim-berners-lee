@@ -91,7 +91,7 @@ fun AppNavigationCompact(
 ){
     NavHost(
         navController = navigationController,
-        startDestination = if (sessionManager.isLoggedIn()) Routes.PreferenciasInicio.route else Routes.InicioSesion.route
+        startDestination = if (sessionManager.isLoggedIn()) Routes.Home.route else Routes.InicioSesion.route
     ) {
         // Registro
         composable(Routes.Registro.route) {
