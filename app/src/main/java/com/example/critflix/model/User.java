@@ -11,7 +11,7 @@ public class User {
     // Constructor
     public User() {}
 
-    // Getters y setters para todos los campos
+    // Getters y setters
     public int getId() {
         return id;
     }

@@ -4,7 +4,7 @@ public class RegisterRequest {
     private String name;
     private String email;
     private String password;
-    private String password_confirmation;  // Añadido para cumplir con la validación backend
+    private String password_confirmation;
     private String foto_perfil;
     private String biografia;
     private String rol;

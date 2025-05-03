@@ -6,7 +6,7 @@ public class RegisterResponse {
     private String message;
 
 
-    // Constructor vacío para Gson
+    // Constructor vacío
     public RegisterResponse() {}
 
     // Getters y setters
