@@ -34,6 +34,8 @@ sealed class Routes(val route: String) {
     object PoliticaCookies : Routes("politica_cookies")
     object SolicitudCritico : Routes("solicitud_critico")
 
+
+
     // MEDIUM
     object PreferenciasInicioMedium : Routes("preferencias_inicio_medium")
     object AutentificacionCorreoMedium : Routes("autentificacion_correo_medium")
@@ -65,4 +67,38 @@ sealed class Routes(val route: String) {
     object PoliticaSeguridadMedium : Routes("politica_seguridad_medium")
     object PoliticaCookiesMedium : Routes("politica_cookies_medium")
     object SolicitudCriticoMedium : Routes("solicitud_critico_medium")
+
+
+
+    // EXPANDED
+    object PreferenciasInicioExpanded : Routes("preferencias_inicio_expanded")
+    object AutentificacionCorreoExpanded : Routes("autentificacion_correo_expanded")
+    object InicioSesionExpanded : Routes("inicio_sesion_expanded")
+    object RegistroExpanded : Routes("registro_expanded")
+    object HomeExpanded : Routes("home_expanded")
+    object ListasExpanded : Routes("listas_expanded")
+    object ContenidoListasExpanded : Routes("contenido_listas_expanded/{id}") {
+        fun createRoute(id: String) = "contenido_listas_expanded/$id"
+    }
+    object NotificacionesExpanded : Routes("notificaciones_expanded")
+    object PerfilExpanded : Routes("perfil_expanded")
+    object EditarPerfilExpanded : Routes("editar_perfil_expanded")
+    //TODO: Crear Info
+    object InfoPelisExpanded : Routes("info_pelis_expanded/{id}") {
+        fun createRoute(id: Int) = "info_pelis_expanded/$id"
+    }
+    object InfoSeriesExpanded : Routes("info_series_expanded/{id}") {
+        fun createRoute(id: Int) = "info_series_expanded/$id"
+    }
+    object CrearListaExpanded: Routes("crear_lista_expanded?listId={listId}") {
+        fun createRoute(listId: String? = null) = if (listId != null) "crear_lista_expanded?listId=$listId" else "crear_lista_expanded"
+    }
+    object BusquedaExpanded : Routes("busqueda_expanded")
+    object AnunciosExpanded : Routes("anuncios_expanded")
+    object AjustesExpanded : Routes("ajustes_expanded")
+    object AyudaExpanded : Routes("ayuda_expanded")
+    object PoliticaPrivacidadExpanded : Routes("politica_privacidad_expanded")
+    object PoliticaSeguridadExpanded : Routes("politica_seguridad_expanded")
+    object PoliticaCookiesExpanded : Routes("politica_cookies_expanded")
+    object SolicitudCriticoExpanded : Routes("solicitud_critico_expanded")
 }
