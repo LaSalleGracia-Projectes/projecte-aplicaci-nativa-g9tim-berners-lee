@@ -99,7 +99,7 @@ fun Ajustes(navHostController: NavHostController, profileViewModel: ProfileViewM
 
         // Sección de Cuenta
         Text(
-            text = currentUser?.name ?: "Cargando...",
+            text = "Usuario",
             modifier = Modifier.padding(start = 16.dp, top = 8.dp, bottom = 8.dp),
             style = MaterialTheme.typography.titleMedium,
             fontWeight = FontWeight.Bold,
@@ -118,7 +118,7 @@ fun Ajustes(navHostController: NavHostController, profileViewModel: ProfileViewM
         Spacer(modifier = Modifier.height(16.dp))
 
         // Sección de Modo oscuro
-        Text(
+        /*Text(
             text = "Modo oscuro",
             modifier = Modifier.padding(start = 16.dp, top = 8.dp, bottom = 8.dp),
             style = MaterialTheme.typography.titleMedium,
@@ -135,7 +135,7 @@ fun Ajustes(navHostController: NavHostController, profileViewModel: ProfileViewM
             initialChecked = true
         )
 
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(16.dp))*/
 
         // Sección de Términos legales
         Text(
