@@ -2,6 +2,7 @@ package com.example.critflix.view.compact
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -28,11 +29,14 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
 import com.example.critflix.model.Comentario
 import com.example.critflix.model.UserSessionManager
 import com.example.critflix.viewmodel.ComentariosViewModel
+import com.example.critflix.viewmodel.RespuestasViewModel
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.take
 import java.text.SimpleDateFormat
@@ -43,7 +47,8 @@ import java.util.*
 fun SeccionComentarios(
     tmdbId: Int,
     tipo: String,
-    comentariosViewModel: ComentariosViewModel
+    comentariosViewModel: ComentariosViewModel,
+    respuestasViewModel: RespuestasViewModel
 ) {
     val context = LocalContext.current
     val userSessionManager = remember { UserSessionManager(context) }
@@ -51,6 +56,10 @@ fun SeccionComentarios(
 
     var comentarioText by remember { mutableStateOf("") }
     var esSpoiler by remember { mutableStateOf(false) }
+
+    // Estado para manejar el diálogo de respuestas
+    var showRespuestasDialog by remember { mutableStateOf(false) }
+    var selectedComentario by remember { mutableStateOf<Comentario?>(null) }
 
     val comentarios by comentariosViewModel.comentarios.observeAsState(emptyList())
     val isLoading by comentariosViewModel.isLoading.observeAsState(false)
@@ -297,12 +306,29 @@ fun SeccionComentarios(
                                     comentariosViewModel.likeComentario(userId, comentario.id, "dislike", token)
                                 }
                             },
+                            onShowRespuestas = {
+                                selectedComentario = comentario
+                                showRespuestasDialog = true
+                            },
                             currentUserId = userId
                         )
                     }
                 }
             }
         }
+    }
+
+    // Diálogo para mostrar respuestas
+    if (showRespuestasDialog && selectedComentario != null) {
+        SeccionRespuestas(
+            comentario = selectedComentario!!,
+            currentUserId = userId,
+            respuestasViewModel = respuestasViewModel,
+            onDismiss = {
+                showRespuestasDialog = false
+                selectedComentario = null
+            }
+        )
     }
 }
 
@@ -313,6 +339,7 @@ fun ComentarioItem(
     onDelete: () -> Unit,
     onLike: () -> Unit,
     onDislike: () -> Unit,
+    onShowRespuestas: () -> Unit,
     currentUserId: Int
 ) {
     val dateFormat = remember { SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.getDefault()) }
@@ -331,11 +358,11 @@ fun ComentarioItem(
             .padding(vertical = 8.dp),
         shape = RoundedCornerShape(8.dp),
         colors = CardDefaults.cardColors(
-            containerColor = if (comentario.esSpoiler) 
-                Color.Red.copy(alpha = 0.1f) 
+            containerColor = if (comentario.esSpoiler)
+                Color.Red.copy(alpha = 0.1f)
             else if (comentario.usuario?.rol == "critico")
                 Color(0xFF1A237E).copy(alpha = 0.2f)
-            else 
+            else
                 Color.DarkGray.copy(alpha = 0.3f)
         )
     ) {
@@ -439,7 +466,7 @@ fun ComentarioItem(
 
             Spacer(modifier = Modifier.height(12.dp))
 
-            // Sección de likes y dislikes
+            // Sección de likes, dislikes y respuestas
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically
@@ -460,6 +487,14 @@ fun ComentarioItem(
                     isSelected = comentario.userLikeStatus == "dislike",
                     enabled = currentUserId > 0,
                     onClick = onDislike
+                )
+
+                Spacer(modifier = Modifier.weight(1f))
+
+                // Botón para mostrar respuestas
+                BotonRespuestas(
+                    count = comentario.respuestasCount,
+                    onClick = onShowRespuestas
                 )
             }
         }
@@ -524,6 +559,36 @@ fun BotonDislike(
             fontSize = 14.sp,
             color = if (isSelected) Color.Red else Color.Gray,
             modifier = Modifier.padding(start = 4.dp)
+        )
+    }
+}
+
+@Composable
+fun BotonRespuestas(
+    count: Int,
+    onClick: () -> Unit
+) {
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = Modifier
+            .clip(RoundedCornerShape(16.dp))
+            .background(Color.DarkGray.copy(alpha = 0.3f))
+            .clickable(onClick = onClick)
+            .padding(horizontal = 12.dp, vertical = 6.dp)
+    ) {
+        Icon(
+            imageVector = Icons.Default.Comment,
+            contentDescription = "Ver respuestas",
+            tint = Color.Cyan,
+            modifier = Modifier.size(18.dp)
+        )
+
+        Spacer(modifier = Modifier.width(4.dp))
+
+        Text(
+            text = if (count > 0) count.toString() else "Responder",
+            fontSize = 14.sp,
+            color = Color.Cyan
         )
     }
 }
