@@ -169,14 +169,6 @@ fun Ajustes(navHostController: NavHostController, profileViewModel: ProfileViewM
             textColor = textColor,
             onItemClick = { navHostController.navigate(Routes.PoliticaCookies.route) }
         )
-
-        AjusteItemWithIcon(
-            icon = Icons.Default.Description,
-            title = "Términos de uso",
-            backgroundColor = darkGrayColor,
-            textColor = textColor,
-            onItemClick = { navHostController.navigate("terminos") }
-        )
     }
 }
 

@@ -113,6 +113,7 @@ fun SeccionComentarios(
         Text(
             text = "Comentarios",
             fontSize = 22.sp,
+            color = Color.White,
             fontWeight = FontWeight.Bold,
             modifier = Modifier.padding(bottom = 16.dp)
         )
@@ -128,6 +129,8 @@ fun SeccionComentarios(
                 colors = TextFieldDefaults.outlinedTextFieldColors(
                     containerColor = Color.Transparent,
                     cursorColor = Color.Green,
+                    focusedTextColor = Color.White,
+                    unfocusedTextColor = Color.White,
                     focusedBorderColor = Color.Green,
                     unfocusedBorderColor = Color.Gray
                 ),
@@ -405,6 +408,7 @@ fun ComentarioItem(
                         Text(
                             text = comentario.usuario?.name ?: "Usuario",
                             fontWeight = FontWeight.Bold,
+                            color = Color.White,
                             fontSize = 16.sp
                         )
                         if (comentario.usuario?.rol == "critico") {
@@ -451,6 +455,7 @@ fun ComentarioItem(
             Text(
                 text = comentario.comentario,
                 fontSize = 16.sp,
+                color = Color.White,
                 lineHeight = 24.sp
             )
 

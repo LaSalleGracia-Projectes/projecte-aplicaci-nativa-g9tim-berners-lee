@@ -50,7 +50,7 @@ fun ProfileView(navController: NavHostController, apiViewModel: APIViewModel, pr
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Mi Perfil") },
+                title = { Text("Mi Perfil", color = Color.White) },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = Color.Black,
                     actionIconContentColor = Color.White,
@@ -102,11 +102,13 @@ fun ProfileView(navController: NavHostController, apiViewModel: APIViewModel, pr
             ) {
                 Text(
                     text = currentUser?.name ?: "Cargando...",
-                    style = MaterialTheme.typography.titleLarge
+                    style = MaterialTheme.typography.titleLarge,
+                    color = Color.White,
                 )
                 Icon(
                     imageVector = Icons.Default.KeyboardArrowDown,
-                    contentDescription = "Seleccionar usuario"
+                    contentDescription = "Seleccionar usuario",
+                    tint = Color.White
                 )
             }
 
@@ -121,7 +123,7 @@ fun ProfileView(navController: NavHostController, apiViewModel: APIViewModel, pr
             Text(
                 text = "Descripción",
                 style = MaterialTheme.typography.titleMedium.copy(
-                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.8f)
+                    color = Color.White
                 ),
                 modifier = Modifier
                     .align(Alignment.Start)
@@ -133,12 +135,12 @@ fun ProfileView(navController: NavHostController, apiViewModel: APIViewModel, pr
                     .fillMaxWidth()
                     .height(120.dp)
                     .background(
-                        color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.4f),
+                        color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.6f),
                         shape = RoundedCornerShape(12.dp)
                     )
                     .border(
                         width = 1.dp,
-                        color = MaterialTheme.colorScheme.outline.copy(alpha = 0.2f),
+                        color = MaterialTheme.colorScheme.outline.copy(alpha = 0.3f),
                         shape = RoundedCornerShape(12.dp)
                     )
                     .padding(horizontal = 16.dp, vertical = 12.dp)
@@ -146,7 +148,7 @@ fun ProfileView(navController: NavHostController, apiViewModel: APIViewModel, pr
                 Text(
                     text = currentUser?.biografia ?: "No hay descripción disponible",
                     style = MaterialTheme.typography.bodyMedium.copy(
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                        color = MaterialTheme.colorScheme.onSurface
                     ),
                     modifier = Modifier.fillMaxWidth()
                 )
@@ -157,7 +159,7 @@ fun ProfileView(navController: NavHostController, apiViewModel: APIViewModel, pr
             Text(
                 text = "Categorías Favoritas",
                 style = MaterialTheme.typography.titleMedium.copy(
-                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.8f)
+                    color = Color.White
                 ),
                 modifier = Modifier
                     .align(Alignment.Start)
@@ -202,40 +204,67 @@ fun ProfileView(navController: NavHostController, apiViewModel: APIViewModel, pr
 
         if (showOptionsBottomSheet) {
             ModalBottomSheet(
-                onDismissRequest = { showOptionsBottomSheet = false }
+                onDismissRequest = { showOptionsBottomSheet = false },
+                containerColor = Color.Black,
+                scrimColor = Color.Black.copy(alpha = 0.5f),
+                tonalElevation = 0.dp,
+                contentColor = Color.White,
+                dragHandle = { Box(modifier = Modifier.height(4.dp).width(40.dp).background(Color.Gray, RoundedCornerShape(2.dp))) }
             ) {
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
+                        .background(color = Color.Black)
                         .padding(16.dp)
                 ) {
                     ListItem(
-                        headlineContent = { Text("Editar perfil") },
-                        leadingContent = { Icon(Icons.Default.Edit, contentDescription = null) },
-                        modifier = Modifier.clickable {
-                            navController.navigate(Routes.EditarPerfil.route)
-                            showOptionsBottomSheet = false
-                        }
+                        headlineContent = { Text("Editar perfil", color = Color.White) },
+                        leadingContent = { Icon(Icons.Default.Edit, contentDescription = null, tint = Color.White) },
+                        colors = ListItemDefaults.colors(
+                            containerColor = Color.Black,
+                            headlineColor = Color.White,
+                            leadingIconColor = Color.White
+                        ),
+                        modifier = Modifier
+                            .clickable {
+                                navController.navigate(Routes.EditarPerfil.route)
+                                showOptionsBottomSheet = false
+                            }
                     )
                     ListItem(
-                        headlineContent = { Text("Configuración de la aplicación") },
-                        leadingContent = { Icon(Icons.Default.Settings, contentDescription = null) },
+                        headlineContent = { Text("Configuración de la aplicación", color = Color.White) },
+                        leadingContent = { Icon(Icons.Default.Settings, contentDescription = null, tint = Color.White) },
+                        colors = ListItemDefaults.colors(
+                            containerColor = Color.Black,
+                            headlineColor = Color.White,
+                            leadingIconColor = Color.White
+                        ),
                         modifier = Modifier.clickable {
                             navController.navigate(Routes.Ajustes.route)
                             showOptionsBottomSheet = false
                         }
                     )
                     ListItem(
-                        headlineContent = { Text("Ayuda") },
-                        leadingContent = { Icon(Icons.Default.Help, contentDescription = null) },
+                        headlineContent = { Text("Ayuda", color = Color.White) },
+                        leadingContent = { Icon(Icons.Default.Help, contentDescription = null, tint = Color.White) },
+                        colors = ListItemDefaults.colors(
+                            containerColor = Color.Black,
+                            headlineColor = Color.White,
+                            leadingIconColor = Color.White
+                        ),
                         modifier = Modifier.clickable {
                             navController.navigate(Routes.Ayuda.route)
                             showOptionsBottomSheet = false
                         }
                     )
                     ListItem(
-                        headlineContent = { Text("Cerrar sesión") },
-                        leadingContent = { Icon(Icons.Default.ExitToApp, contentDescription = null) },
+                        headlineContent = { Text("Cerrar sesión", color = Color.White) },
+                        leadingContent = { Icon(Icons.Default.ExitToApp, contentDescription = null, tint = Color.White) },
+                        colors = ListItemDefaults.colors(
+                            containerColor = Color.Black,
+                            headlineColor = Color.White,
+                            leadingIconColor = Color.White
+                        ),
                         modifier = Modifier.clickable {
                             showOptionsBottomSheet = false
                             sessionManager.logout(navController, deviceType)

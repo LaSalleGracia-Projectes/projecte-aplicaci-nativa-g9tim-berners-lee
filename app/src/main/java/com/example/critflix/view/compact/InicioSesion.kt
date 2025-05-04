@@ -1,6 +1,7 @@
 package com.example.critflix.view.compact
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -81,6 +82,7 @@ fun InicioSesion(navController: NavHostController) {
     Column(
         modifier = Modifier
             .fillMaxSize()
+            .background(color = Color.Black)
             .padding(horizontal = 24.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
@@ -108,9 +110,12 @@ fun InicioSesion(navController: NavHostController) {
                 .fillMaxWidth()
                 .padding(vertical = 8.dp),
             colors = TextFieldDefaults.outlinedTextFieldColors(
+                focusedTextColor = Color.White,
+                unfocusedTextColor = Color.White,
                 containerColor = Color.LightGray.copy(alpha = 0.2f),
                 focusedBorderColor = Color(0xFF666666),
-                unfocusedBorderColor = Color.LightGray
+                unfocusedBorderColor = Color.White,
+                cursorColor = Color.White
             )
         )
 
@@ -123,9 +128,12 @@ fun InicioSesion(navController: NavHostController) {
                 .fillMaxWidth()
                 .padding(vertical = 8.dp),
             colors = TextFieldDefaults.outlinedTextFieldColors(
+                focusedTextColor = Color.White,
+                unfocusedTextColor = Color.White,
                 containerColor = Color.LightGray.copy(alpha = 0.2f),
                 focusedBorderColor = Color(0xFF666666),
-                unfocusedBorderColor = Color.LightGray
+                unfocusedBorderColor = Color.White,
+                cursorColor = Color.White
             )
         )
 

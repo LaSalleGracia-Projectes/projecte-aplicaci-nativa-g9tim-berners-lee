@@ -12,6 +12,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
@@ -68,80 +69,108 @@ fun CrearLista(
         }
     }
 
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = { Text(if (isEditMode) "Renombrar Lista" else "Crear Lista") },
-                navigationIcon = {
-                    IconButton(onClick = { navController.popBackStack() }) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Volver")
-                    }
-                },
-            )
-        }
-    ) { paddingValues ->
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues)
-                .background(color = Color.Black),
-            contentAlignment = Alignment.Center
-        ) {
-            Column(
-                horizontalAlignment = Alignment.CenterHorizontally,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp)
-            ) {
-                OutlinedTextField(
-                    value = nombreLista,
-                    onValueChange = {
-                        if (it.length <= 100) {
-                            nombreLista = it
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Color.Black)
+    ) {
+        Scaffold(
+            modifier = Modifier.fillMaxSize(),
+            containerColor = Color.Black,
+            contentColor = Color.White,
+            topBar = {
+                TopAppBar(
+                    title = { Text(if (isEditMode) "Renombrar Lista" else "Crear Lista", color = Color.White) },
+                    navigationIcon = {
+                        IconButton(onClick = { navController.popBackStack() }) {
+                            Icon(Icons.Default.ArrowBack, contentDescription = "Volver", tint = Color.White)
                         }
                     },
-                    label = { Text("Nombre de la lista") },
-                    modifier = Modifier.fillMaxWidth(),
-                    isError = nombreLista.isNotBlank() && nombreLista.length > 100,
-                    supportingText = {
-                        Text(
-                            text = "${nombreLista.length}/100",
-                            modifier = Modifier.fillMaxWidth(),
-                            textAlign = TextAlign.End,
-                        )
-                    },
-                    singleLine = true
+                    colors = TopAppBarDefaults.topAppBarColors(
+                        containerColor = Color.Black,
+                        navigationIconContentColor = Color.White,
+                        titleContentColor = Color.White,
+                        actionIconContentColor = Color.White
+                    )
                 )
-
-                Spacer(modifier = Modifier.height(16.dp))
-
-                Button(
-                    onClick = {
-                        if (isFormValid && userId > 0) {
-                            if (isEditMode) {
-                                listViewModel.renameList(listId!!, nombreLista, token)
-                            } else {
-                                listViewModel.createNewList(nombreLista, userId, token)
-                            }
-                        } else if (userId <= 0) {
-                            Toast.makeText(
-                                context,
-                                "Debes iniciar sesión para ${if (isEditMode) "renombrar" else "crear"} una lista",
-                                Toast.LENGTH_SHORT
-                            ).show()
-                        }
-                    },
-                    modifier = Modifier.fillMaxWidth(),
-                    enabled = isFormValid && createListState !is CreateListState.Loading
+            }
+        ) { paddingValues ->
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(paddingValues),
+                contentAlignment = Alignment.Center
+            ) {
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp)
                 ) {
-                    if (createListState is CreateListState.Loading) {
-                        CircularProgressIndicator(
-                            modifier = Modifier.size(24.dp),
-                            color = MaterialTheme.colorScheme.onPrimary,
-                            strokeWidth = 2.dp
+                    OutlinedTextField(
+                        value = nombreLista,
+                        onValueChange = {
+                            if (it.length <= 100) {
+                                nombreLista = it
+                            }
+                        },
+                        label = { Text("Nombre de la lista", color = Color.White) },
+                        textStyle = TextStyle(color = Color.White),
+                        modifier = Modifier.fillMaxWidth(),
+                        isError = nombreLista.isNotBlank() && nombreLista.length > 100,
+                        supportingText = {
+                            Text(
+                                text = "${nombreLista.length}/100",
+                                modifier = Modifier.fillMaxWidth(),
+                                textAlign = TextAlign.End,
+                                color = Color.White
+                            )
+                        },
+                        singleLine = true,
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedBorderColor = Color.White,
+                            unfocusedBorderColor = Color.Gray,
+                            errorBorderColor = Color.Red,
+                            cursorColor = Color.White,
+                            focusedLabelColor = Color.White,
+                            unfocusedLabelColor = Color.Gray
                         )
-                    } else {
-                        Text(if (isEditMode) "Renombrar Lista" else "Crear Lista")
+                    )
+
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    Button(
+                        onClick = {
+                            if (isFormValid && userId > 0) {
+                                if (isEditMode) {
+                                    listViewModel.renameList(listId!!, nombreLista, token)
+                                } else {
+                                    listViewModel.createNewList(nombreLista, userId, token)
+                                }
+                            } else if (userId <= 0) {
+                                Toast.makeText(
+                                    context,
+                                    "Debes iniciar sesión para ${if (isEditMode) "renombrar" else "crear"} una lista",
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                            }
+                        },
+                        modifier = Modifier.fillMaxWidth(),
+                        enabled = isFormValid && createListState !is CreateListState.Loading,
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = Color(0xFF1AD71F),
+                            contentColor = Color.White
+                        )
+                    ) {
+                        if (createListState is CreateListState.Loading) {
+                            CircularProgressIndicator(
+                                modifier = Modifier.size(24.dp),
+                                color = Color.Black,
+                                strokeWidth = 2.dp
+                            )
+                        } else {
+                            Text(if (isEditMode) "Renombrar Lista" else "Crear Lista")
+                        }
                     }
                 }
             }

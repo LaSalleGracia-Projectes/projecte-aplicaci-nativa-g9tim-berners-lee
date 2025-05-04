@@ -145,15 +145,6 @@ fun TopBar(navController: NavHostController) {
             horizontalArrangement = Arrangement.spacedBy(16.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            /*Icon(
-                imageVector = Icons.Default.Notifications,
-                contentDescription = "Anuncios",
-                modifier = Modifier
-                    .size(24.dp)
-                    .clickable { navController.navigate(Routes.Anuncios.route) },
-                tint = Color.White
-            )*/
-
             Icon(
                 imageVector = Icons.Default.Search,
                 contentDescription = "Búsqueda",
@@ -499,7 +490,10 @@ fun BottomNavigationBar(
     val notificaciones by notificacionesViewModel.notificaciones.observeAsState(initial = emptyList())
     val hasUnreadNotifications = notificaciones.any { !it.leido }
 
-    NavigationBar {
+    NavigationBar (
+        modifier = Modifier.background(Color.Black),
+        containerColor = Color.Black
+    ) {
         NavigationBarItem(
             icon = {
                 Icon(
@@ -514,8 +508,12 @@ fun BottomNavigationBar(
             },
             label = { Text("Inicio", color = Color.White) },
             selected = currentDestination?.hierarchy?.any { it.route == Routes.Home.route } == true,
-            onClick = { navController.navigate(Routes.Home.route) }
+            onClick = { navController.navigate(Routes.Home.route) },
+            colors = NavigationBarItemDefaults.colors(
+                indicatorColor = Color.Transparent
+            )
         )
+
 
         NavigationBarItem(
             icon = {
@@ -531,7 +529,10 @@ fun BottomNavigationBar(
             },
             label = { Text("Listas", color = Color.White) },
             selected = currentDestination?.hierarchy?.any { it.route == Routes.Listas.route } == true,
-            onClick = { navController.navigate(Routes.Listas.route) }
+            onClick = { navController.navigate(Routes.Listas.route) },
+            colors = NavigationBarItemDefaults.colors(
+                indicatorColor = Color.Transparent
+            )
         )
 
         NavigationBarItem(
@@ -560,7 +561,10 @@ fun BottomNavigationBar(
             },
             label = { Text("Notificaciones", color = Color.White) },
             selected = currentDestination?.hierarchy?.any { it.route == Routes.Notificaciones.route } == true,
-            onClick = { navController.navigate(Routes.Notificaciones.route) }
+            onClick = { navController.navigate(Routes.Notificaciones.route) },
+            colors = NavigationBarItemDefaults.colors(
+                indicatorColor = Color.Transparent
+            )
         )
 
         NavigationBarItem(
@@ -577,7 +581,10 @@ fun BottomNavigationBar(
             },
             label = { Text("Perfil", color = Color.White) },
             selected = currentDestination?.hierarchy?.any { it.route == Routes.Perfil.route } == true,
-            onClick = { navController.navigate(Routes.Perfil.route) }
+            onClick = { navController.navigate(Routes.Perfil.route) },
+            colors = NavigationBarItemDefaults.colors(
+                indicatorColor = Color.Transparent
+            )
         )
     }
 }

@@ -122,11 +122,8 @@ fun TopBarPeliculas(tabSeleccionado: Int, onTabSelected: (Int) -> Unit) {
         ) {
             Text(
                 text = "Mis listas",
-                style = MaterialTheme.typography.titleLarge
-            )
-            Icon(
-                imageVector = Icons.Default.Edit,
-                contentDescription = "Editar"
+                style = MaterialTheme.typography.titleLarge,
+                color = Color.White
             )
         }
 
@@ -261,14 +258,7 @@ fun ContadorYBotonAnadir(cantidadTotal: Int) {
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Text("$cantidadTotal/100 Títulos")
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            Icon(
-                imageVector = Icons.Default.Add,
-                contentDescription = "Añadir"
-            )
-            Text("Añadir")
-        }
+        Text("$cantidadTotal/100 Títulos", color = Color.White)
     }
 }
 
@@ -290,7 +280,7 @@ fun TarjetaSerie(
         shape = RoundedCornerShape(12.dp),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
         colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surface
+            containerColor = Color(0xFF121212)
         )
     ) {
         Row(
@@ -302,7 +292,10 @@ fun TarjetaSerie(
             // Poster
             Card(
                 shape = RoundedCornerShape(8.dp),
-                modifier = Modifier.size(100.dp, 150.dp)
+                modifier = Modifier.size(100.dp, 150.dp),
+                colors = CardDefaults.cardColors(
+                    containerColor = Color.Black
+                )
             ) {
                 if (serie.poster_path != null) {
                     GlideImage(
@@ -315,7 +308,7 @@ fun TarjetaSerie(
                     Box(
                         modifier = Modifier
                             .fillMaxSize()
-                            .background(Color.DarkGray),
+                            .background(Color.Black),
                         contentAlignment = Alignment.Center
                     ) {
                         Icon(
@@ -337,7 +330,7 @@ fun TarjetaSerie(
                 Text(
                     text = serie.name,
                     style = MaterialTheme.typography.titleMedium,
-                    color = MaterialTheme.colorScheme.onSurface,
+                    color = Color.White,
                     maxLines = 2,
                     overflow = TextOverflow.Ellipsis
                 )
@@ -350,7 +343,7 @@ fun TarjetaSerie(
                     Text(
                         text = year,
                         style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                        color = Color.LightGray
                     )
                 }
 
@@ -362,19 +355,18 @@ fun TarjetaSerie(
                         imageVector = Icons.Default.TrendingUp,
                         contentDescription = null,
                         modifier = Modifier.size(16.dp),
-                        tint = MaterialTheme.colorScheme.onSurfaceVariant
+                        tint = Color.LightGray
                     )
                     Spacer(modifier = Modifier.width(4.dp))
                     Text(
                         text = "Popularidad: ${String.format("%.1f", serie.popularity)}",
                         style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                        color = Color.LightGray
                     )
                 }
 
                 Spacer(modifier = Modifier.height(8.dp))
 
-                // Rating
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     val ratingColor = when {
                         serie.vote_average >= 7 -> Color(0xFF4CAF50)
@@ -402,19 +394,21 @@ fun TarjetaSerie(
                         label = {
                             Text(
                                 text = "Serie",
-                                style = MaterialTheme.typography.bodySmall
+                                style = MaterialTheme.typography.bodySmall,
+                                color = Color.White
                             )
                         },
                         colors = SuggestionChipDefaults.suggestionChipColors(
-                            containerColor = MaterialTheme.colorScheme.secondary.copy(alpha = 0.1f),
-                            labelColor = MaterialTheme.colorScheme.secondary
+                            containerColor = Color(0xFF1E88E5).copy(alpha = 0.3f),
+                            labelColor = Color.White
                         ),
                         modifier = Modifier.height(24.dp),
                         icon = {
                             Icon(
                                 imageVector = Icons.Default.Tv,
                                 contentDescription = null,
-                                modifier = Modifier.size(16.dp)
+                                modifier = Modifier.size(16.dp),
+                                tint = Color.White
                             )
                         }
                     )
@@ -428,7 +422,7 @@ fun TarjetaSerie(
                             Icon(
                                 imageVector = if (isFavorite) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
                                 contentDescription = "Favorito",
-                                tint = if (isFavorite) Color.Red else MaterialTheme.colorScheme.primary
+                                tint = if (isFavorite) Color.Red else Color.White
                             )
                         }
                     }
@@ -456,7 +450,7 @@ fun TarjetaPelicula(
         shape = RoundedCornerShape(12.dp),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
         colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surface
+            containerColor = Color(0xFF121212)
         )
     ) {
         Row(
@@ -468,7 +462,10 @@ fun TarjetaPelicula(
             // Poster
             Card(
                 shape = RoundedCornerShape(8.dp),
-                modifier = Modifier.size(100.dp, 150.dp)
+                modifier = Modifier.size(100.dp, 150.dp),
+                colors = CardDefaults.cardColors(
+                    containerColor = Color.Black
+                )
             ) {
                 if (pelicula.poster_path != null) {
                     GlideImage(
@@ -481,7 +478,7 @@ fun TarjetaPelicula(
                     Box(
                         modifier = Modifier
                             .fillMaxSize()
-                            .background(Color.DarkGray),
+                            .background(Color.Black),
                         contentAlignment = Alignment.Center
                     ) {
                         Icon(
@@ -503,7 +500,7 @@ fun TarjetaPelicula(
                 Text(
                     text = pelicula.title,
                     style = MaterialTheme.typography.titleMedium,
-                    color = MaterialTheme.colorScheme.onSurface,
+                    color = Color.White,
                     maxLines = 2,
                     overflow = TextOverflow.Ellipsis
                 )
@@ -516,7 +513,7 @@ fun TarjetaPelicula(
                     Text(
                         text = year,
                         style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                        color = Color.LightGray
                     )
                 }
 
@@ -528,19 +525,18 @@ fun TarjetaPelicula(
                         imageVector = Icons.Default.TrendingUp,
                         contentDescription = null,
                         modifier = Modifier.size(16.dp),
-                        tint = MaterialTheme.colorScheme.onSurfaceVariant
+                        tint = Color.LightGray
                     )
                     Spacer(modifier = Modifier.width(4.dp))
                     Text(
                         text = "Popularidad: ${String.format("%.1f", pelicula.popularity)}",
                         style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                        color = Color.LightGray
                     )
                 }
 
                 Spacer(modifier = Modifier.height(8.dp))
 
-                // Rating
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     val ratingColor = when {
                         pelicula.vote_average >= 7 -> Color(0xFF4CAF50)
@@ -568,19 +564,21 @@ fun TarjetaPelicula(
                         label = {
                             Text(
                                 text = "Película",
-                                style = MaterialTheme.typography.bodySmall
+                                style = MaterialTheme.typography.bodySmall,
+                                color = Color.White
                             )
                         },
                         colors = SuggestionChipDefaults.suggestionChipColors(
-                            containerColor = MaterialTheme.colorScheme.secondary.copy(alpha = 0.1f),
-                            labelColor = MaterialTheme.colorScheme.secondary
+                            containerColor = Color(0xFFE91E63).copy(alpha = 0.3f),
+                            labelColor = Color.White
                         ),
                         modifier = Modifier.height(24.dp),
                         icon = {
                             Icon(
                                 imageVector = Icons.Default.Movie,
                                 contentDescription = null,
-                                modifier = Modifier.size(16.dp)
+                                modifier = Modifier.size(16.dp),
+                                tint = Color.White
                             )
                         }
                     )
@@ -594,7 +592,7 @@ fun TarjetaPelicula(
                             Icon(
                                 imageVector = if (isFavorite) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
                                 contentDescription = "Favorito",
-                                tint = if (isFavorite) Color.Red else MaterialTheme.colorScheme.primary
+                                tint = if (isFavorite) Color.Red else Color.White
                             )
                         }
                     }
@@ -636,7 +634,7 @@ fun Listas(
             Text(
                 text = "${customListsCount}/${viewModel.maxListas} Listas",
                 style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
+                color = Color.White
             )
 
             Text(
@@ -665,24 +663,42 @@ fun Listas(
         if (showDeleteConfirmation != null) {
             AlertDialog(
                 onDismissRequest = { showDeleteConfirmation = null },
-                title = { Text("Confirmar eliminación") },
-                text = { Text("¿Estás seguro que deseas eliminar esta lista?") },
+                containerColor = Color.Black,
+                titleContentColor = Color.White,
+                textContentColor = Color.LightGray,
+                title = { Text("Confirmar eliminación", style = MaterialTheme.typography.titleLarge) },
+                text = {
+                    Text(
+                        "¿Estás seguro que deseas eliminar esta lista?",
+                        style = MaterialTheme.typography.bodyMedium
+                    )
+                },
                 confirmButton = {
                     Button(
                         onClick = {
                             viewModel.deleteList(showDeleteConfirmation!!, token)
                             Toast.makeText(context, "Lista eliminada", Toast.LENGTH_SHORT).show()
                             showDeleteConfirmation = null
-                        }
+                        },
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = Color(0xFFF44336)
+                        )
                     ) {
-                        Text("Eliminar")
+                        Text("Eliminar", color = Color.White)
                     }
                 },
                 dismissButton = {
-                    Button(onClick = { showDeleteConfirmation = null }) {
+                    OutlinedButton(
+                        onClick = { showDeleteConfirmation = null },
+                        colors = ButtonDefaults.outlinedButtonColors(
+                            contentColor = Color.White
+                        ),
+                        border = BorderStroke(1.dp, Color.Gray)
+                    ) {
                         Text("Cancelar")
                     }
-                }
+                },
+                shape = RoundedCornerShape(16.dp)
             )
         }
 
@@ -750,25 +766,28 @@ private fun ListContainer(
                 Text(
                     text = lista.name,
                     style = MaterialTheme.typography.titleMedium,
-                    color = MaterialTheme.colorScheme.onSurface
+                    color = Color.White
                 )
                 Box {
                     IconButton(onClick = onMenuClick) {
                         Icon(
                             imageVector = Icons.Default.MoreVert,
                             contentDescription = "Más opciones",
-                            tint = MaterialTheme.colorScheme.onSurfaceVariant
+                            tint = Color.White
                         )
                     }
 
                     DropdownMenu(
                         expanded = isMenuExpanded,
-                        onDismissRequest = onMenuClick
+                        onDismissRequest = onMenuClick,
+                        modifier = Modifier
+                            .background(Color.Black)
+                            .padding(8.dp)
                     ) {
                         // Solo mostrar opciones para listas no predeterminadas
                         if (!lista.isDefault) {
                             DropdownMenuItem(
-                                text = { Text("Renombrar Critilista") },
+                                text = { Text("Renombrar Critilista", color = Color.White) },
                                 onClick = {
                                     navController.navigate(Routes.CrearLista.createRoute(lista.id))
                                     onMenuClick()
@@ -803,7 +822,7 @@ private fun ListContainer(
             Text(
                 text = /*"${lista.itemCount} ${if (lista.itemCount == 1) "Item" else "Elementos"}"*/  "Actualizado el ${lista.lastUpdated}",
                 style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                color = Color.White,
                 modifier = Modifier.padding(top = 4.dp)
             )
         }

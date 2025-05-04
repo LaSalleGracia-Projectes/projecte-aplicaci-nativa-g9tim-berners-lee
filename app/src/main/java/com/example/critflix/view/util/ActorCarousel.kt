@@ -33,6 +33,7 @@ fun ActorCarousel(actores: List<Cast>) {
         Text(
             text = "Reparto",
             fontSize = 18.sp,
+            color = Color.White,
             fontWeight = FontWeight.Bold,
             modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
         )
@@ -106,6 +107,7 @@ fun ActorCard(actor: Cast) {
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
                 textAlign = TextAlign.Center,
+                color = Color.White,
             )
         }
     }

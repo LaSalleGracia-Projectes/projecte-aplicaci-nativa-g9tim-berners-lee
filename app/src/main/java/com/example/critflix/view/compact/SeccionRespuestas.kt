@@ -103,6 +103,7 @@ fun SeccionRespuestas(
                     Text(
                         text = "Respuestas",
                         fontSize = 20.sp,
+                        color = Color.White,
                         fontWeight = FontWeight.Bold,
                         modifier = Modifier.weight(1f)
                     )
@@ -157,6 +158,8 @@ fun SeccionRespuestas(
                                 colors = TextFieldDefaults.outlinedTextFieldColors(
                                     containerColor = Color.Transparent,
                                     cursorColor = Color.Green,
+                                    focusedTextColor = Color.White,
+                                    unfocusedTextColor = Color.White,
                                     focusedBorderColor = Color.Green,
                                     unfocusedBorderColor = Color.Gray
                                 ),
@@ -400,6 +403,7 @@ fun ComentarioOriginal(comentario: Comentario) {
                         Text(
                             text = comentario.usuario?.name ?: "Usuario",
                             fontWeight = FontWeight.Bold,
+                            color = Color.White,
                             fontSize = 16.sp
                         )
                         if (comentario.usuario?.rol == "critico") {
@@ -433,6 +437,7 @@ fun ComentarioOriginal(comentario: Comentario) {
             Text(
                 text = comentario.comentario,
                 fontSize = 16.sp,
+                color = Color.White,
                 lineHeight = 24.sp
             )
         }
@@ -506,6 +511,7 @@ fun RespuestaItem(
                         Text(
                             text = respuesta.usuario?.name ?: "Usuario",
                             fontWeight = FontWeight.Bold,
+                            color = Color.White,
                             fontSize = 14.sp
                         )
                         if (respuesta.usuario?.rol == "critico") {
@@ -552,6 +558,7 @@ fun RespuestaItem(
             Text(
                 text = respuesta.respuesta,
                 fontSize = 14.sp,
+                color = Color.White,
                 lineHeight = 20.sp
             )
         }
