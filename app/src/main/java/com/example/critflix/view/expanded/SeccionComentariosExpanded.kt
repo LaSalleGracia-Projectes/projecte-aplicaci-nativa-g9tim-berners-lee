@@ -1,4 +1,4 @@
-package com.example.critflix.view.medium
+package com.example.critflix.view.expanded
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -45,7 +45,7 @@ import java.util.*
 
 @OptIn(ExperimentalGlideComposeApi::class, ExperimentalMaterial3Api::class)
 @Composable
-fun SeccionComentariosMedium(
+fun SeccionComentariosExpanded(
     tmdbId: Int,
     tipo: String,
     comentariosViewModel: ComentariosViewModel,
@@ -324,7 +324,7 @@ fun SeccionComentariosMedium(
 
     // Diálogo para mostrar respuestas
     if (showRespuestasDialog && selectedComentario != null) {
-        SeccionRespuestasMedium(
+        SeccionRespuestasExpanded(
             comentario = selectedComentario!!,
             currentUserId = userId,
             respuestasViewModel = respuestasViewModel,

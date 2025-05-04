@@ -1,4 +1,4 @@
-package com.example.critflix.view.medium
+package com.example.critflix.view.expanded
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.expandVertically
@@ -41,7 +41,7 @@ import java.util.*
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SeccionRespuestasMedium(
+fun SeccionRespuestasExpanded(
     comentario: Comentario,
     currentUserId: Int,
     respuestasViewModel: RespuestasViewModel,

@@ -15,6 +15,7 @@ import androidx.navigation.navArgument
 import com.example.critflix.model.UserSessionManager
 import com.example.critflix.view.compact.*
 import com.example.critflix.view.medium.*
+import com.example.critflix.view.expanded.*
 import com.example.critflix.viewmodel.APIViewModel
 import com.example.critflix.viewmodel.BusquedaViewModel
 import com.example.critflix.viewmodel.ComentariosViewModel
@@ -497,7 +498,182 @@ fun AppNavigationExpanded(
     respuestasViewModel: RespuestasViewModel,
     deviceType: String
 ){
+    NavHost(
+        navController = navigationController,
+        startDestination = if (sessionManager.isLoggedIn()) Routes.HomeExpanded.route else Routes.InicioSesionExpanded.route
+    ) {
+        // Registro
+        composable(Routes.RegistroExpanded.route) {
+            RegistroExpanded(navigationController)
+        }
+        // Inicio de Sesion
+        composable(Routes.InicioSesionExpanded.route) {
+            InicioSesionExpanded(navigationController)
+        }
+        // Preferencias Etiquetas
+        composable(Routes.PreferenciasInicioExpanded.route){
+            PreferenciasInicioExpanded(navigationController, genresViewModel)
+        }
+        // Home
+        composable(Routes.HomeExpanded.route) {
+            HomeScreenExpanded(navigationController, apiViewModel, seriesViewModel, genresViewModel, listViewModel, notificacionesViewModel, valoracionesViewModel)
+        }
+        // Listas
+        composable(Routes.ListasExpanded.route) {
+            ListViewExpanded(navigationController, apiViewModel, seriesViewModel, listViewModel, notificacionesViewModel, valoracionesViewModel)
+        }
 
+        // Contenido Listas
+        composable(
+            route = Routes.ContenidoListasExpanded.route,
+            arguments = listOf(
+                navArgument("id") {
+                    type = NavType.StringType
+                }
+            )
+        ) { backStackEntry ->
+            ContenidoListasExpanded(
+                navController = navigationController,
+                listViewModel = listViewModel,
+                apiViewModel = apiViewModel,
+                seriesViewModel = seriesViewModel,
+                id = backStackEntry.arguments?.getString("id") ?: "",
+                contenidoListaViewModel = contenidoListaViewModel,
+            )
+        }
 
+        // Crear Lista
+        composable(
+            route = Routes.CrearListaExpanded.route,
+            arguments = listOf(
+                navArgument("listId") {
+                    type = NavType.StringType
+                    nullable = true
+                    defaultValue = null
+                }
+            )
+        ) { backStackEntry ->
+            CrearListaExpanded(
+                navigationController,
+                listViewModel,
+                backStackEntry.arguments?.getString("listId")
+            )
+        }
+
+        // Notificaciones
+        composable(Routes.NotificacionesExpanded.route) {
+            NotificationViewExpanded(navigationController, notificacionesViewModel)
+        }
+        // Perfil
+        composable(Routes.PerfilExpanded.route) {
+            val user = sessionManager.getUserData()
+            val token = sessionManager.getToken()
+
+            LaunchedEffect(Unit) {
+                if (user != null) {
+                    profileViewModel.setCurrentUser(user)
+                }
+
+                if (user != null && token != null) {
+                    profileViewModel.getUserProfile(user.id, token)
+                }
+            }
+
+            ProfileViewExpanded(navigationController, apiViewModel, profileViewModel, userViewModel, notificacionesViewModel, deviceType)
+        }
+        // Editar Perfil
+        composable(Routes.EditarPerfilExpanded.route) {
+
+            LaunchedEffect(Unit) {
+                editarPerfilViewModel.resetUpdateState()
+            }
+
+            EditarPerfilExpanded(navigationController, profileViewModel, userViewModel, editarPerfilViewModel)
+        }
+        // InfoPelis
+        composable(
+            route = Routes.InfoPelisExpanded.route,
+            arguments = listOf(
+                navArgument("id") {
+                    type = NavType.IntType
+                }
+            )
+        ) { backStackEntry ->
+            InfoPelisExpanded(
+                navController = navigationController,
+                apiViewModel = apiViewModel,
+                id = backStackEntry.arguments?.getInt("id") ?: 0,
+                genresViewModel = genresViewModel,
+                repartoViewModel = repartoViewModel,
+                listViewModel = listViewModel,
+                contenidoListaViewModel = contenidoListaViewModel,
+                comentariosViewModel = comentariosViewModel,
+                valoracionesViewModel = valoracionesViewModel,
+                respuestasViewModel = respuestasViewModel,
+            )
+        }
+        // InfoSeries
+        composable(
+            route = Routes.InfoSeriesExpanded.route,
+            arguments = listOf(
+                navArgument("id") {
+                    type = NavType.IntType
+                }
+            )
+        ) { backStackEntry ->
+            InfoSeriesExpanded(
+                navController = navigationController,
+                seriesViewModel = seriesViewModel,
+                id = backStackEntry.arguments?.getInt("id") ?: 0,
+                repartoViewModel = repartoViewModel,
+                genresViewModel = genresViewModel,
+                listViewModel = listViewModel,
+                contenidoListaViewModel = contenidoListaViewModel,
+                comentariosViewModel = comentariosViewModel,
+                valoracionesViewModel = valoracionesViewModel,
+                respuestasViewModel = respuestasViewModel,
+            )
+        }
+        // Busqueda
+        composable(Routes.BusquedaExpanded.route) {
+            BusquedaExpanded(navigationController, apiViewModel, seriesViewModel, busquedaViewModel, genresViewModel, contenidoListaViewModel)
+        }
+        // Búsqueda con ID de lista
+        composable(
+            route = "busqueda_expanded/{listaId}",
+            arguments = listOf(navArgument("listaId") { type = NavType.StringType })
+        ) { backStackEntry ->
+            val listaId = backStackEntry.arguments?.getString("listaId")
+            BusquedaExpanded(
+                navController = navigationController,
+                apiViewModel = apiViewModel,
+                seriesViewModel = seriesViewModel,
+                busquedaViewModel = busquedaViewModel,
+                genresViewModel = genresViewModel,
+                contenidoListaViewModel = contenidoListaViewModel,
+                listaId = listaId
+            )
+        }
+        //Perfil -> Ajustes
+        composable(Routes.AjustesExpanded.route){
+            AjustesExpanded(navigationController, profileViewModel)
+        }
+        // Perfil -> Ayuda
+        composable(Routes.AyudaExpanded.route){
+            AyudaExpanded(navigationController)
+        }
+        composable(Routes.PoliticaPrivacidadExpanded.route){
+            PoliticaPrivacidadExpanded(navigationController)
+        }
+        composable(Routes.PoliticaSeguridadExpanded.route){
+            PoliticaSeguridadExpanded(navigationController)
+        }
+        composable(Routes.PoliticaCookiesExpanded.route){
+            PoliticaCookiesExpanded(navigationController)
+        }
+        composable(Routes.SolicitudCriticoExpanded.route){
+            SolicitudCriticoExpanded(navigationController, solicitudCriticoViewModel)
+        }
+    }
 }
 

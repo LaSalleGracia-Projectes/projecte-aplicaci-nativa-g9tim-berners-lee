@@ -274,7 +274,7 @@ fun ProfileView(navController: NavHostController, apiViewModel: APIViewModel, pr
             }
         }
 
-        if (showUserBottomSheet) {
+        /*if (showUserBottomSheet) {
             ModalBottomSheet(
                 onDismissRequest = { showUserBottomSheet = false }
             ) {
@@ -297,6 +297,6 @@ fun ProfileView(navController: NavHostController, apiViewModel: APIViewModel, pr
                     )
                 }
             }
-        }
+        }*/
     }
 }

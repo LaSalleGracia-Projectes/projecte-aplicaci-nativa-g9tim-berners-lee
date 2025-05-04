@@ -1,6 +1,5 @@
-package com.example.critflix.view.medium
+package com.example.critflix.view.expanded
 
-import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -26,8 +25,6 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
-import coil.compose.AsyncImage
-import coil.request.ImageRequest
 import com.example.critflix.R
 import com.example.critflix.model.UserSessionManager
 import com.example.critflix.nav.Routes
@@ -38,7 +35,7 @@ import com.example.critflix.viewmodel.UserViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ProfileViewMedium(navController: NavHostController, apiViewModel: APIViewModel, profileViewModel: ProfileViewModel, userViewModel: UserViewModel, notificacionesViewModel: NotificacionesViewModel, deviceType: String) {
+fun ProfileViewExpanded(navController: NavHostController, apiViewModel: APIViewModel, profileViewModel: ProfileViewModel, userViewModel: UserViewModel, notificacionesViewModel: NotificacionesViewModel, deviceType: String) {
     var showOptionsBottomSheet by remember { mutableStateOf(false) }
     var showUserBottomSheet by remember { mutableStateOf(false) }
     val profileState by profileViewModel.profileState.observeAsState()
@@ -56,7 +53,7 @@ fun ProfileViewMedium(navController: NavHostController, apiViewModel: APIViewMod
                     actionIconContentColor = Color.White,
                 ),
                 actions = {
-                    IconButton(onClick = { navController.navigate(Routes.BusquedaMedium.route) }) {
+                    IconButton(onClick = { navController.navigate(Routes.BusquedaExpanded.route) }) {
                         Icon(Icons.Default.Search, contentDescription = "Buscar")
                     }
                     IconButton(onClick = { showOptionsBottomSheet = true }) {
@@ -230,7 +227,7 @@ fun ProfileViewMedium(navController: NavHostController, apiViewModel: APIViewMod
                         ),
                         modifier = Modifier
                             .clickable {
-                                navController.navigate(Routes.EditarPerfilMedium.route)
+                                navController.navigate(Routes.EditarPerfilExpanded.route)
                                 showOptionsBottomSheet = false
                             }
                     )
@@ -243,7 +240,7 @@ fun ProfileViewMedium(navController: NavHostController, apiViewModel: APIViewMod
                             leadingIconColor = Color.White
                         ),
                         modifier = Modifier.clickable {
-                            navController.navigate(Routes.AjustesMedium.route)
+                            navController.navigate(Routes.AjustesExpanded.route)
                             showOptionsBottomSheet = false
                         }
                     )
@@ -256,7 +253,7 @@ fun ProfileViewMedium(navController: NavHostController, apiViewModel: APIViewMod
                             leadingIconColor = Color.White
                         ),
                         modifier = Modifier.clickable {
-                            navController.navigate(Routes.AyudaMedium.route)
+                            navController.navigate(Routes.AyudaExpanded.route)
                             showOptionsBottomSheet = false
                         }
                     )
