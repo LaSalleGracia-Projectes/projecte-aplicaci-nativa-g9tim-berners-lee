@@ -341,7 +341,8 @@ fun SearchResults(
                                     )
                                     Toast.makeText(context, "Película añadida a la lista", Toast.LENGTH_SHORT).show()
                                 }
-                            }
+                            },
+                            contenidoListaViewModel = contenidoListaViewModel
                         )
                     }
                 }
@@ -373,7 +374,8 @@ fun SearchResults(
                                     )
                                     Toast.makeText(context, "Serie añadida a la lista", Toast.LENGTH_SHORT).show()
                                 }
-                            }
+                            },
+                            contenidoListaViewModel = contenidoListaViewModel
                         )
                     }
                 }
@@ -425,7 +427,8 @@ fun DefaultContent(
                         )
                         Toast.makeText(context, "Película añadida a la lista", Toast.LENGTH_SHORT).show()
                     }
-                }
+                },
+                contenidoListaViewModel = contenidoListaViewModel
             )
         }
 
@@ -448,7 +451,8 @@ fun DefaultContent(
                         )
                         Toast.makeText(context, "Serie añadida a la lista", Toast.LENGTH_SHORT).show()
                     }
-                }
+                },
+                contenidoListaViewModel = contenidoListaViewModel
             )
         }
 
@@ -471,7 +475,8 @@ fun DefaultContent(
                         )
                         Toast.makeText(context, "Película añadida a la lista", Toast.LENGTH_SHORT).show()
                     }
-                }
+                },
+                contenidoListaViewModel = contenidoListaViewModel
             )
         }
         items(series.drop(3).take(2)) { serie ->
@@ -490,7 +495,8 @@ fun DefaultContent(
                         )
                         Toast.makeText(context, "Serie añadida a la lista", Toast.LENGTH_SHORT).show()
                     }
-                }
+                },
+                contenidoListaViewModel = contenidoListaViewModel
             )
         }
     }
@@ -957,11 +963,13 @@ fun MovieCard(
     navController: NavHostController,
     isAddToListMode: Boolean = false,
     onAddToList: () -> Unit = {},
-    existingContentIds: Set<Int> = emptySet()
+    existingContentIds: Set<Int> = emptySet(),
+    contenidoListaViewModel: ContenidoListaViewModel? = null
 ) {
     val baseImageUrl = "https://image.tmdb.org/t/p/w185"
     val posterUrl = baseImageUrl + pelicula.poster_path
-    val isInList = existingContentIds.contains(pelicula.id)
+    val temporaryAddedIds by contenidoListaViewModel?.temporaryAddedIds?.observeAsState(emptySet()) ?: remember { mutableStateOf(emptySet()) }
+    val isInList = existingContentIds.contains(pelicula.id) || temporaryAddedIds.contains(pelicula.id)
 
     Card(
         modifier = Modifier
@@ -1063,6 +1071,7 @@ fun MovieCard(
                             onAddToList()
                         }
                     },
+                    enabled = !isInList,
                     modifier = Modifier
                         .padding(start = 8.dp)
                         .size(40.dp)
@@ -1086,11 +1095,13 @@ fun SerieCard(
     navController: NavHostController,
     isAddToListMode: Boolean = false,
     onAddToList: () -> Unit = {},
-    existingContentIds: Set<Int> = emptySet()
+    existingContentIds: Set<Int> = emptySet(),
+    contenidoListaViewModel: ContenidoListaViewModel? = null
 ) {
     val baseImageUrl = "https://image.tmdb.org/t/p/w185"
     val posterUrl = baseImageUrl + serie.poster_path
-    val isInList = existingContentIds.contains(serie.id)
+    val temporaryAddedIds by contenidoListaViewModel?.temporaryAddedIds?.observeAsState(emptySet()) ?: remember { mutableStateOf(emptySet()) }
+    val isInList = existingContentIds.contains(serie.id) || temporaryAddedIds.contains(serie.id)
 
     Card(
         modifier = Modifier
@@ -1192,6 +1203,7 @@ fun SerieCard(
                             onAddToList()
                         }
                     },
+                    enabled = !isInList,
                     modifier = Modifier
                         .padding(start = 8.dp)
                         .size(40.dp)
