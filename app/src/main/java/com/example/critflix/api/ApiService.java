@@ -15,6 +15,8 @@ import com.example.critflix.model.LoginResponse;
 import com.example.critflix.model.Notification;
 import com.example.critflix.model.RegisterRequest;
 import com.example.critflix.model.RegisterResponse;
+import com.example.critflix.model.RespuestaComentario;
+import com.example.critflix.model.RespuestaComentarioRequest;
 import com.example.critflix.model.SolicitudCritico;
 import com.example.critflix.model.SolicitudCriticoRequest;
 import com.example.critflix.model.SolicitudCriticoResponse;
@@ -101,6 +103,25 @@ public interface ApiService {
 
     @GET("likes_comentarios/count/{comentarioId}")
     Call<LikesCountResponse> getLikesCount(@Path("comentarioId") int comentarioId);
+
+    // Endpoints para Respuestas a comentarios
+    @GET("respuestas_comentarios")
+    Call<List<RespuestaComentario>> getAllRespuestas();
+
+    @POST("respuestas_comentarios")
+    Call<RespuestaComentario> createRespuesta(@Body RespuestaComentarioRequest request);
+
+    @GET("respuestas_comentarios/{id}")
+    Call<RespuestaComentario> getRespuesta(@Path("id") int id);
+
+    @PUT("respuestas_comentarios/{id}")
+    Call<RespuestaComentario> updateRespuesta(@Path("id") int id, @Body RespuestaComentarioRequest request);
+
+    @DELETE("respuestas_comentarios/{id}")
+    Call<Void> deleteRespuesta(@Path("id") int id);
+
+    @GET("respuestas_comentarios/comentario/{comentarioId}")
+    Call<List<RespuestaComentario>> getRespuestasByComentarioId(@Path("comentarioId") int comentarioId);
 
     // Endpoints para Notificaciones
     @GET("notificaciones")
