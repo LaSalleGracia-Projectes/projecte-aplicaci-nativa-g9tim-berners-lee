@@ -11,6 +11,8 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
+import androidx.compose.material.icons.rounded.FavoriteBorder
+import androidx.compose.material.icons.rounded.HeartBroken
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
@@ -174,12 +176,24 @@ fun ContenidoPrincipal(
                     .padding(16.dp),
                 contentAlignment = Alignment.Center
             ) {
-                Text(
-                    text = "No tienes contenido favorito.\nMarca películas y series con el corazón para añadirlas a favoritos.",
-                    style = MaterialTheme.typography.bodyLarge,
-                    color = Color.White,
-                    textAlign = TextAlign.Center
-                )
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.spacedBy(16.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Rounded.HeartBroken,
+                        contentDescription = "Corazón roto",
+                        tint = Color.Gray.copy(alpha = 0.7f),
+                        modifier = Modifier.size(80.dp)
+                    )
+
+                    Text(
+                        text = "No tienes contenido favorito.\nMarca películas y series con el corazón para añadirlas a favoritos.",
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = Color.White,
+                        textAlign = TextAlign.Center
+                    )
+                }
             }
         } else {
             LazyColumn(
@@ -633,7 +647,6 @@ fun Listas(
         ) {
             Text(
                 text = "${customListsCount}/${viewModel.maxListas} Listas",
-                style = MaterialTheme.typography.bodyMedium,
                 color = Color.White
             )
 
@@ -702,33 +715,68 @@ fun Listas(
             )
         }
 
-        LazyColumn(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 16.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-            items(
-                items = listas,
-                key = { it.id }
-            ) { lista ->
-                ListContainer(
-                    navController = navController,
-                    lista = lista,
-                    isMenuExpanded = expandedMenuIndex == lista.id,
-                    onMenuClick = {
-                        expandedMenuIndex = if (expandedMenuIndex == lista.id) null else lista.id
-                    },
-                    onListClick = {
+        if (listas.isEmpty()) {
+            // Mensaje cuando no hay listas creadas
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(16.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.spacedBy(16.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.FormatListBulleted,
+                        contentDescription = "No hay listas",
+                        tint = Color.Gray,
+                        modifier = Modifier.size(64.dp)
+                    )
+                    Text(
+                        text = "No hay listas creadas",
+                        style = MaterialTheme.typography.headlineSmall,
+                        color = Color.White,
+                        textAlign = TextAlign.Center
+                    )
+                    Text(
+                        text = "Crea tu primera lista para organizar tus contenidos favoritos",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = Color.Gray,
+                        textAlign = TextAlign.Center
+                    )
+                }
+            }
+        } else {
+            // Mostramos la lista cuando hay elementos
+            LazyColumn(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                items(
+                    items = listas,
+                    key = { it.id }
+                ) { lista ->
+                    ListContainer(
+                        navController = navController,
+                        lista = lista,
+                        isMenuExpanded = expandedMenuIndex == lista.id,
+                        onMenuClick = {
+                            expandedMenuIndex = if (expandedMenuIndex == lista.id) null else lista.id
+                        },
+                        onListClick = {
 
-                    },
-                    onRename = {
-                        navController.navigate("${Routes.CrearLista.route}/${lista.id}")
-                    },
-                    onDelete = {
-                        showDeleteConfirmation = lista.id
-                    },
-                )
+                        },
+                        onRename = {
+                            navController.navigate("${Routes.CrearLista.route}/${lista.id}")
+                        },
+                        onDelete = {
+                            showDeleteConfirmation = lista.id
+                        },
+                    )
+                }
             }
         }
     }

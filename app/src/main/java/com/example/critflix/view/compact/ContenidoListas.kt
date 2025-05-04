@@ -169,10 +169,6 @@ fun ContenidoListas(
                                 text = "Añade películas o series utilizando el botón +",
                                 color = Color.Gray
                             )
-                            Spacer(modifier = Modifier.height(24.dp))
-                            Button(onClick = { /* Navegar a buscar contenido */ }) {
-                                Text("Añadir contenido")
-                            }
                         }
                     } else {
                         // Mostrar contenido de la lista

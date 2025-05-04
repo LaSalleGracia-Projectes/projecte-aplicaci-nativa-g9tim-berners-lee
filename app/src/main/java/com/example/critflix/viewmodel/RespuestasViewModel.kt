@@ -91,7 +91,7 @@ class RespuestasViewModel : ViewModel() {
                         respuestasList.add(nuevaRespuesta)
                         currentRespuestas[comentarioId] = respuestasList
 
-                        _respuestas.value = currentRespuestas
+                        _respuestas.value = HashMap(currentRespuestas)
                         _respuestaCreada.value = nuevaRespuesta
 
                         Log.d("RespuestasVM", "Respuesta creada para comentarioId=$comentarioId")

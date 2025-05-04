@@ -188,13 +188,17 @@ fun SeccionRespuestas(
                                         IconButton(
                                             onClick = {
                                                 if (respuestaText.isNotBlank() && currentUserId > 0) {
-                                                    respuestasViewModel.createRespuesta(
-                                                        comentarioId = comentario.id,
-                                                        userId = currentUserId,
-                                                        respuesta = respuestaText,
-                                                        esSpoiler = esSpoiler,
-                                                        token = token
-                                                    )
+                                                    scope.launch {
+                                                        respuestasViewModel.createRespuesta(
+                                                            comentarioId = comentario.id,
+                                                            userId = currentUserId,
+                                                            respuesta = respuestaText,
+                                                            esSpoiler = esSpoiler,
+                                                            token = token
+                                                        )
+                                                        respuestaText = ""
+                                                        esSpoiler = false
+                                                    }
                                                 }
                                             }
                                         ) {
