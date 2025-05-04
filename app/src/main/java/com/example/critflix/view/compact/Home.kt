@@ -145,14 +145,14 @@ fun TopBar(navController: NavHostController) {
             horizontalArrangement = Arrangement.spacedBy(16.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Icon(
+            /*Icon(
                 imageVector = Icons.Default.Notifications,
                 contentDescription = "Anuncios",
                 modifier = Modifier
                     .size(24.dp)
                     .clickable { navController.navigate(Routes.Anuncios.route) },
                 tint = Color.White
-            )
+            )*/
 
             Icon(
                 imageVector = Icons.Default.Search,

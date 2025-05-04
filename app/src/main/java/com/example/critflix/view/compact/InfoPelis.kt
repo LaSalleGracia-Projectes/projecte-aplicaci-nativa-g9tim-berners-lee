@@ -477,13 +477,6 @@ fun InfoPelis(navController: NavHostController, apiViewModel: APIViewModel, id: 
                                                 overflow = TextOverflow.Ellipsis
                                             )
                                         },
-                                        supportingContent = {
-                                            Text(
-                                                text = "${lista.itemCount} ${if (lista.itemCount == 1) "elemento" else "elementos"}",
-                                                color = Color.Gray,
-                                                fontSize = 12.sp
-                                            )
-                                        },
                                         modifier = Modifier
                                             .fillMaxWidth()
                                             .clickable {
