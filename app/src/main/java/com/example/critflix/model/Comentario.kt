@@ -15,7 +15,9 @@ data class Comentario(
     val usuario: User? = null,
     @SerializedName("likes_count") val likesCount: Int = 0,
     @SerializedName("dislikes_count") val dislikesCount: Int = 0,
-    var userLikeStatus: String = "none"
+    @SerializedName("respuestas_count") val respuestasCount: Int = 0,
+    var userLikeStatus: String = "none",
+    var mostrarRespuestas: Boolean = false
 ) {
     val esSpoiler: Boolean
         get() = when(_esSpoiler) {
