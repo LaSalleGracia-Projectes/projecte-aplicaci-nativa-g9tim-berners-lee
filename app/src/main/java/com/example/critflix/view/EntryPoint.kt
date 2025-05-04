@@ -102,10 +102,6 @@ fun AppNavigationCompact(
         composable(Routes.Registro.route) {
             Registro(navigationController)
         }
-        // Autentificacion de correo
-        composable(Routes.AutentificacionCorreo.route){
-            AutentificacionCorreo(navigationController)
-        }
         // Inicio de Sesion
         composable(Routes.InicioSesion.route) {
             InicioSesion(navigationController)
@@ -235,10 +231,6 @@ fun AppNavigationCompact(
                 respuestasViewModel = respuestasViewModel,
             )
         }
-        // Anuncios
-        composable(Routes.Anuncios.route) {
-            Anuncios(navigationController, apiViewModel)
-        }
         // Busqueda
         composable(Routes.Busqueda.route) {
             Busqueda(navigationController, apiViewModel, seriesViewModel, busquedaViewModel, genresViewModel, contenidoListaViewModel)
@@ -311,10 +303,6 @@ fun AppNavigationMedium(
         // Registro
         composable(Routes.RegistroMedium.route) {
             RegistroMedium(navigationController)
-        }
-        // Autentificacion de correo
-        composable(Routes.AutentificacionCorreoMedium.route){
-            AutentificacionCorreoMedium(navigationController)
         }
         // Inicio de Sesion
         composable(Routes.InicioSesionMedium.route) {
@@ -443,10 +431,6 @@ fun AppNavigationMedium(
                 valoracionesViewModel = valoracionesViewModel,
                 respuestasViewModel = respuestasViewModel,
             )
-        }
-        // Anuncios
-        composable(Routes.AnunciosMedium.route) {
-            AnunciosMedium(navigationController, apiViewModel)
         }
         // Busqueda
         composable(Routes.BusquedaMedium.route) {

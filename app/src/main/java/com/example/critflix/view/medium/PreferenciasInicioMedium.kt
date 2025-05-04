@@ -9,6 +9,7 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.ArrowForward
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -39,10 +40,8 @@ fun PreferenciasInicioMedium(
     val loading by genresViewModel.loading.observeAsState(true)
     val error by genresViewModel.error.observeAsState("")
 
-    // Estado para seguir las categorías seleccionadas
     val selectedGenres = remember { mutableStateListOf<Genre>() }
 
-    // Máximo número de géneros permitidos para seleccionar
     val maxGenresAllowed = 5
 
     Column(
@@ -148,8 +147,6 @@ fun PreferenciasInicioMedium(
         // Botón continuar
         Button(
             onClick = {
-                // Guardar las preferencias seleccionadas y navegar a la siguiente pantalla
-                // Aquí podrías implementar la lógica para guardar los IDs de géneros seleccionados
                 navHostController.navigate(Routes.HomeMedium.route)
             },
             enabled = selectedGenres.isNotEmpty(),

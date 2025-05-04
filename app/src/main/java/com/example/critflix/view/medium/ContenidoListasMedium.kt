@@ -3,6 +3,7 @@ package com.example.critflix.view.medium
 import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -18,6 +19,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
@@ -167,10 +169,6 @@ fun ContenidoListasMedium(
                                 text = "Añade películas o series utilizando el botón +",
                                 color = Color.Gray
                             )
-                            Spacer(modifier = Modifier.height(24.dp))
-                            Button(onClick = { /* Navegar a buscar contenido */ }) {
-                                Text("Añadir contenido")
-                            }
                         }
                     } else {
                         // Mostrar contenido de la lista
@@ -224,7 +222,7 @@ fun ContentListItem(
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 16.dp, vertical = 8.dp)
-            .clickable { 
+            .clickable {
                 when (content.tipo) {
                     "pelicula" -> navController.navigate(Routes.InfoPelisMedium.createRoute(content.tmdb_id))
                     "serie" -> navController.navigate(Routes.InfoSeriesMedium.createRoute(content.tmdb_id))
@@ -233,7 +231,7 @@ fun ContentListItem(
         shape = RoundedCornerShape(12.dp),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
         colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surface
+            containerColor = Color(0xFF121212)
         )
     ) {
         Row(
@@ -248,9 +246,13 @@ fun ContentListItem(
                 else -> null
             }
 
+            // Poster
             Card(
                 shape = RoundedCornerShape(8.dp),
-                modifier = Modifier.size(100.dp, 150.dp)
+                modifier = Modifier.size(100.dp, 150.dp),
+                colors = CardDefaults.cardColors(
+                    containerColor = Color.Black
+                )
             ) {
                 if (!posterPath.isNullOrEmpty()) {
                     GlideImage(
@@ -263,7 +265,7 @@ fun ContentListItem(
                     Box(
                         modifier = Modifier
                             .fillMaxSize()
-                            .background(Color.DarkGray),
+                            .background(Color.Black),
                         contentAlignment = Alignment.Center
                     ) {
                         Icon(
@@ -276,6 +278,7 @@ fun ContentListItem(
                 }
             }
 
+            // Detalles
             Column(
                 modifier = Modifier
                     .weight(1f)
@@ -290,7 +293,7 @@ fun ContentListItem(
                 Text(
                     text = title ?: "ID: ${content.tmdb_id}",
                     style = MaterialTheme.typography.titleMedium,
-                    color = MaterialTheme.colorScheme.onSurface,
+                    color = Color.White,
                     maxLines = 2,
                     overflow = TextOverflow.Ellipsis
                 )
@@ -306,12 +309,38 @@ fun ContentListItem(
                 if (!releaseDate.isNullOrEmpty()) {
                     Text(
                         text = releaseDate,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        style = MaterialTheme.typography.bodyMedium
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = Color.LightGray
                     )
                 }
 
                 Spacer(modifier = Modifier.height(4.dp))
+
+                // Popularidad
+                val popularity = when {
+                    content.tipo == "pelicula" -> (details as? PelisPopulares)?.popularity
+                    content.tipo == "serie" -> (details as? SeriesPopulares)?.popularity
+                    else -> null
+                }
+
+                if (popularity != null) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Icon(
+                            imageVector = Icons.Default.TrendingUp,
+                            contentDescription = null,
+                            modifier = Modifier.size(16.dp),
+                            tint = Color.LightGray
+                        )
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Text(
+                            text = "Popularidad: ${String.format("%.1f", popularity)}",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = Color.LightGray
+                        )
+                    }
+
+                    Spacer(modifier = Modifier.height(8.dp))
+                }
 
                 val rating = when {
                     content.tipo == "pelicula" -> (details as? PelisPopulares)?.vote_average
@@ -334,49 +363,55 @@ fun ContentListItem(
                         )
                     }
 
-                    Spacer(modifier = Modifier.height(4.dp))
+                    Spacer(modifier = Modifier.height(8.dp))
                 }
 
-                Spacer(modifier = Modifier.height(8.dp))
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    // Tipo de contenido
+                    SuggestionChip(
+                        onClick = { },
+                        label = {
+                            Text(
+                                text = if (content.tipo == "pelicula") "Película" else "Serie",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = Color.White
+                            )
+                        },
+                        colors = SuggestionChipDefaults.suggestionChipColors(
+                            containerColor = if (content.tipo == "pelicula")
+                                Color(0xFFE91E63).copy(alpha = 0.3f)
+                            else
+                                Color(0xFF2196F3).copy(alpha = 0.3f),
+                            labelColor = Color.White
+                        ),
+                        modifier = Modifier.height(24.dp),
+                        icon = {
+                            Icon(
+                                imageVector = if (content.tipo == "pelicula") Icons.Default.Movie else Icons.Default.Tv,
+                                contentDescription = null,
+                                modifier = Modifier.size(16.dp),
+                                tint = Color.White
+                            )
+                        }
+                    )
 
-                // Mostrar tipo de contenido
-                SuggestionChip(
-                    onClick = {  },
-                    label = {
-                        Text(
-                            text = if (content.tipo == "pelicula") "Película" else "Serie",
-                            style = MaterialTheme.typography.bodySmall
-                        )
-                    },
-                    colors = SuggestionChipDefaults.suggestionChipColors(
-                        containerColor = MaterialTheme.colorScheme.secondary.copy(alpha = 0.1f),
-                        labelColor = MaterialTheme.colorScheme.secondary
-                    ),
-                    modifier = Modifier.height(24.dp),
-                    icon = {
+                    // Botón de eliminar
+                    IconButton(
+                        onClick = onRemove,
+                        modifier = Modifier.size(36.dp)
+                    ) {
                         Icon(
-                            imageVector = if (content.tipo == "pelicula") Icons.Default.Movie else Icons.Default.Tv,
-                            contentDescription = null,
-                            modifier = Modifier.size(16.dp)
+                            imageVector = Icons.Default.Delete,
+                            contentDescription = "Eliminar",
+                            tint = Color.Red
                         )
                     }
-                )
-            }
-
-            // Botón de eliminar
-            IconButton(
-                onClick = onRemove,
-                modifier = Modifier
-                    .padding(start = 8.dp)
-                    .size(40.dp)
-            ) {
-                Icon(
-                    imageVector = Icons.Default.Delete,
-                    contentDescription = "Eliminar",
-                    tint = MaterialTheme.colorScheme.error
-                )
+                }
             }
         }
     }
 }
-

@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
@@ -21,6 +22,7 @@ import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.FilterList
 import androidx.compose.material.icons.filled.Movie
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.TrendingUp
 import androidx.compose.material.icons.filled.Tv
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -32,7 +34,9 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.layout.Placeable
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
@@ -532,6 +536,8 @@ fun SearchBar(
             colors = TextFieldDefaults.outlinedTextFieldColors(
                 containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.2f),
                 focusedBorderColor = MaterialTheme.colorScheme.primary,
+                focusedTextColor = Color.White,
+                unfocusedTextColor = Color.White,
                 unfocusedBorderColor = MaterialTheme.colorScheme.outline
             ),
             shape = RoundedCornerShape(8.dp),
@@ -542,7 +548,8 @@ fun SearchBar(
                     IconButton(onClick = onClearQuery) {
                         Icon(
                             imageVector = Icons.Default.Close,
-                            contentDescription = "Limpiar búsqueda"
+                            contentDescription = "Limpiar búsqueda",
+                            tint = Color.White
                         )
                     }
                 }
@@ -559,7 +566,7 @@ fun SearchBar(
             Icon(
                 imageVector = Icons.Default.FilterList,
                 contentDescription = "Filtrar",
-                tint = MaterialTheme.colorScheme.onPrimaryContainer
+                tint = Color(0xFF14EF1E),
             )
         }
     }
@@ -849,7 +856,6 @@ fun FilterDialog(
     }
 }
 
-// Componente auxiliar para los chips de género en filas
 @Composable
 fun FlowRow(
     modifier: Modifier = Modifier,
@@ -908,7 +914,6 @@ fun FlowRow(
     }
 }
 
-// Componente para radio buttons con texto
 @Composable
 fun RadioButtonWithText(
     text: String,
@@ -962,7 +967,9 @@ fun MovieCard(
     isAddToListMode: Boolean = false,
     onAddToList: () -> Unit = {},
     existingContentIds: Set<Int> = emptySet(),
-    contenidoListaViewModel: ContenidoListaViewModel? = null
+    contenidoListaViewModel: ContenidoListaViewModel? = null,
+    isFavorite: Boolean = false,
+    onFavoriteClick: () -> Unit = {}
 ) {
     val baseImageUrl = "https://image.tmdb.org/t/p/w185"
     val posterUrl = baseImageUrl + pelicula.poster_path
@@ -972,7 +979,7 @@ fun MovieCard(
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 4.dp)
+            .padding(horizontal = 16.dp, vertical = 8.dp)
             .clickable {
                 if (!isAddToListMode) {
                     navController.navigate(Routes.InfoPelisMedium.createRoute(pelicula.id))
@@ -981,7 +988,7 @@ fun MovieCard(
         shape = RoundedCornerShape(12.dp),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
         colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surface
+            containerColor = Color(0xFF121212)
         )
     ) {
         Row(
@@ -993,14 +1000,33 @@ fun MovieCard(
             // Poster pelis
             Card(
                 shape = RoundedCornerShape(8.dp),
-                modifier = Modifier.size(100.dp, 150.dp)
-            ) {
-                GlideImage(
-                    model = posterUrl,
-                    contentDescription = "Movie Poster",
-                    contentScale = ContentScale.Crop,
-                    modifier = Modifier.fillMaxSize()
+                modifier = Modifier.size(100.dp, 150.dp),
+                colors = CardDefaults.cardColors(
+                    containerColor = Color.Black
                 )
+            ) {
+                if (pelicula.poster_path != null) {
+                    GlideImage(
+                        model = posterUrl,
+                        contentDescription = "Movie Poster",
+                        contentScale = ContentScale.Crop,
+                        modifier = Modifier.fillMaxSize()
+                    )
+                } else {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .background(Color.Black),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Movie,
+                            contentDescription = "Sin poster",
+                            modifier = Modifier.size(40.dp),
+                            tint = Color.White
+                        )
+                    }
+                }
             }
 
             // Detalles pelis
@@ -1012,18 +1038,42 @@ fun MovieCard(
                 Text(
                     text = pelicula.title,
                     style = MaterialTheme.typography.titleMedium,
-                    color = MaterialTheme.colorScheme.onSurface
+                    color = Color.White,
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis
                 )
 
                 Spacer(modifier = Modifier.height(4.dp))
 
-                Text(
-                    text = "Año: ${pelicula.release_date?.take(4) ?: "N/A"}",
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
+                // Año de lanzamiento
+                if (!pelicula.release_date.isNullOrEmpty()) {
+                    val year = pelicula.release_date.take(4)
+                    Text(
+                        text = year,
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = Color.LightGray
+                    )
+                }
 
                 Spacer(modifier = Modifier.height(4.dp))
+
+                // Popularidad
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Icon(
+                        imageVector = Icons.Default.TrendingUp,
+                        contentDescription = null,
+                        modifier = Modifier.size(16.dp),
+                        tint = Color.LightGray
+                    )
+                    Spacer(modifier = Modifier.width(4.dp))
+                    Text(
+                        text = "Popularidad: ${String.format("%.1f", pelicula.popularity)}",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = Color.LightGray
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(8.dp))
 
                 // Rating pelis
                 Row(verticalAlignment = Alignment.CenterVertically) {
@@ -1040,52 +1090,66 @@ fun MovieCard(
                     )
                 }
 
-                Spacer(modifier = Modifier.height(4.dp))
+                Spacer(modifier = Modifier.height(8.dp))
 
-                // Mostrar que es peli
-                SuggestionChip(
-                    onClick = { /* Click action */ },
-                    label = { Text("Película") },
-                    colors = SuggestionChipDefaults.suggestionChipColors(
-                        containerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.1f),
-                        labelColor = MaterialTheme.colorScheme.primary
-                    ),
-                    modifier = Modifier.height(24.dp),
-                    icon = {
-                        Icon(
-                            imageVector = Icons.Default.Movie,
-                            contentDescription = null,
-                            modifier = Modifier.size(16.dp)
-                        )
-                    }
-                )
-            }
-
-            // Botón de añadir si estamos en modo de añadir a lista
-            if (isAddToListMode) {
-                IconButton(
-                    onClick = {
-                        if (!isInList) {
-                            onAddToList()
-                        }
-                    },
-                    enabled = !isInList,
-                    modifier = Modifier
-                        .padding(start = 8.dp)
-                        .size(40.dp)
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Icon(
-                        imageVector = if (isInList) Icons.Default.Check else Icons.Default.Add,
-                        contentDescription = if (isInList) "Ya en lista" else "Añadir a lista",
-                        tint = if (isInList) MaterialTheme.colorScheme.tertiary else MaterialTheme.colorScheme.primary
+                    // Tipo de contenido
+                    SuggestionChip(
+                        onClick = { },
+                        label = {
+                            Text(
+                                text = "Película",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = Color.White
+                            )
+                        },
+                        colors = SuggestionChipDefaults.suggestionChipColors(
+                            containerColor = Color(0xFFE91E63).copy(alpha = 0.3f),
+                            labelColor = Color.White
+                        ),
+                        modifier = Modifier.height(24.dp),
+                        icon = {
+                            Icon(
+                                imageVector = Icons.Default.Movie,
+                                contentDescription = null,
+                                modifier = Modifier.size(16.dp),
+                                tint = Color.White
+                            )
+                        }
                     )
+
+                    // Botones
+                    Row {
+                        // Botón de añadir si estamos en modo de añadir a lista
+                        if (isAddToListMode) {
+                            IconButton(
+                                onClick = {
+                                    if (!isInList) {
+                                        onAddToList()
+                                    }
+                                },
+                                enabled = !isInList,
+                                modifier = Modifier.size(36.dp)
+                            ) {
+                                Icon(
+                                    imageVector = if (isInList) Icons.Default.Check else Icons.Default.Add,
+                                    contentDescription = if (isInList) "Ya en lista" else "Añadir a lista",
+                                    tint = if (isInList) Color(0xFF4CAF50) else Color.White
+                                )
+                            }
+                        }
+                    }
                 }
             }
         }
     }
 }
 
-// Tarjeta de serie
+// Tarjeta de serie - actualizada con el mismo estilo de TarjetaPelicula
 @OptIn(ExperimentalGlideComposeApi::class)
 @Composable
 fun SerieCard(
@@ -1094,7 +1158,9 @@ fun SerieCard(
     isAddToListMode: Boolean = false,
     onAddToList: () -> Unit = {},
     existingContentIds: Set<Int> = emptySet(),
-    contenidoListaViewModel: ContenidoListaViewModel? = null
+    contenidoListaViewModel: ContenidoListaViewModel? = null,
+    isFavorite: Boolean = false,
+    onFavoriteClick: () -> Unit = {}
 ) {
     val baseImageUrl = "https://image.tmdb.org/t/p/w185"
     val posterUrl = baseImageUrl + serie.poster_path
@@ -1104,16 +1170,16 @@ fun SerieCard(
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 4.dp)
+            .padding(horizontal = 16.dp, vertical = 8.dp)
             .clickable {
                 if (!isAddToListMode) {
-                    navController.navigate(Routes.InfoSeries.createRoute(serie.id))
+                    navController.navigate(Routes.InfoSeriesMedium.createRoute(serie.id))
                 }
             },
         shape = RoundedCornerShape(12.dp),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
         colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surface
+            containerColor = Color(0xFF121212)
         )
     ) {
         Row(
@@ -1125,14 +1191,33 @@ fun SerieCard(
             // Poster serie
             Card(
                 shape = RoundedCornerShape(8.dp),
-                modifier = Modifier.size(100.dp, 150.dp)
-            ) {
-                GlideImage(
-                    model = posterUrl,
-                    contentDescription = "Series Poster",
-                    contentScale = ContentScale.Crop,
-                    modifier = Modifier.fillMaxSize()
+                modifier = Modifier.size(100.dp, 150.dp),
+                colors = CardDefaults.cardColors(
+                    containerColor = Color.Black
                 )
+            ) {
+                if (serie.poster_path != null) {
+                    GlideImage(
+                        model = posterUrl,
+                        contentDescription = "Serie Poster",
+                        contentScale = ContentScale.Crop,
+                        modifier = Modifier.fillMaxSize()
+                    )
+                } else {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .background(Color.Black),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Tv,
+                            contentDescription = "Sin poster",
+                            modifier = Modifier.size(40.dp),
+                            tint = Color.White
+                        )
+                    }
+                }
             }
 
             // Detalles series
@@ -1144,18 +1229,42 @@ fun SerieCard(
                 Text(
                     text = serie.name,
                     style = MaterialTheme.typography.titleMedium,
-                    color = MaterialTheme.colorScheme.onSurface
+                    color = Color.White,
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis
                 )
 
                 Spacer(modifier = Modifier.height(4.dp))
 
-                Text(
-                    text = "Año: ${serie.first_air_date?.take(4) ?: "N/A"}",
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
+                // Año de lanzamiento
+                if (!serie.first_air_date.isNullOrEmpty()) {
+                    val year = serie.first_air_date.take(4)
+                    Text(
+                        text = year,
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = Color.LightGray
+                    )
+                }
 
                 Spacer(modifier = Modifier.height(4.dp))
+
+                // Popularidad
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Icon(
+                        imageVector = Icons.Default.TrendingUp,
+                        contentDescription = null,
+                        modifier = Modifier.size(16.dp),
+                        tint = Color.LightGray
+                    )
+                    Spacer(modifier = Modifier.width(4.dp))
+                    Text(
+                        text = "Popularidad: ${String.format("%.1f", serie.popularity)}",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = Color.LightGray
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(8.dp))
 
                 // Rating Series
                 Row(verticalAlignment = Alignment.CenterVertically) {
@@ -1172,45 +1281,59 @@ fun SerieCard(
                     )
                 }
 
-                Spacer(modifier = Modifier.height(4.dp))
+                Spacer(modifier = Modifier.height(8.dp))
 
-                // Marcar como serie
-                SuggestionChip(
-                    onClick = { /*  */ },
-                    label = { Text("Serie") },
-                    colors = SuggestionChipDefaults.suggestionChipColors(
-                        containerColor = MaterialTheme.colorScheme.secondary.copy(alpha = 0.1f),
-                        labelColor = MaterialTheme.colorScheme.secondary
-                    ),
-                    modifier = Modifier.height(24.dp),
-                    icon = {
-                        Icon(
-                            imageVector = Icons.Default.Tv,
-                            contentDescription = null,
-                            modifier = Modifier.size(16.dp)
-                        )
-                    }
-                )
-            }
-
-            // Botón de añadir si estamos en modo de añadir a lista
-            if (isAddToListMode) {
-                IconButton(
-                    onClick = {
-                        if (!isInList) {
-                            onAddToList()
-                        }
-                    },
-                    enabled = !isInList,
-                    modifier = Modifier
-                        .padding(start = 8.dp)
-                        .size(40.dp)
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Icon(
-                        imageVector = if (isInList) Icons.Default.Check else Icons.Default.Add,
-                        contentDescription = if (isInList) "Ya en lista" else "Añadir a lista",
-                        tint = if (isInList) MaterialTheme.colorScheme.tertiary else MaterialTheme.colorScheme.primary
+                    // Tipo de contenido
+                    SuggestionChip(
+                        onClick = { },
+                        label = {
+                            Text(
+                                text = "Serie",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = Color.White
+                            )
+                        },
+                        colors = SuggestionChipDefaults.suggestionChipColors(
+                            containerColor = Color(0xFF3F51B5).copy(alpha = 0.3f),
+                            labelColor = Color.White
+                        ),
+                        modifier = Modifier.height(24.dp),
+                        icon = {
+                            Icon(
+                                imageVector = Icons.Default.Tv,
+                                contentDescription = null,
+                                modifier = Modifier.size(16.dp),
+                                tint = Color.White
+                            )
+                        }
                     )
+
+                    // Botones
+                    Row {
+                        // Botón de añadir si estamos en modo de añadir a lista
+                        if (isAddToListMode) {
+                            IconButton(
+                                onClick = {
+                                    if (!isInList) {
+                                        onAddToList()
+                                    }
+                                },
+                                enabled = !isInList,
+                                modifier = Modifier.size(36.dp)
+                            ) {
+                                Icon(
+                                    imageVector = if (isInList) Icons.Default.Check else Icons.Default.Add,
+                                    contentDescription = if (isInList) "Ya en lista" else "Añadir a lista",
+                                    tint = if (isInList) Color(0xFF4CAF50) else Color.White
+                                )
+                            }
+                        }
+                    }
                 }
             }
         }

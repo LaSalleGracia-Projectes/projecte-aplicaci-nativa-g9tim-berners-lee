@@ -16,11 +16,13 @@ import androidx.compose.material3.ListItem
 import androidx.compose.material3.Surface
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.ButtonDefaults
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
@@ -41,12 +43,12 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.navigation.NavHostController
+import androidx.core.content.ContextCompat.startActivity
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
 import com.example.critflix.model.PelisPopulares
 import com.example.critflix.model.UserSessionManager
 import com.example.critflix.nav.Routes
-import com.example.critflix.view.compact.SeccionComentarios
 import com.example.critflix.view.util.ActorCarousel
 import com.example.critflix.viewmodel.APIViewModel
 import com.example.critflix.viewmodel.ComentariosViewModel
@@ -56,6 +58,7 @@ import com.example.critflix.viewmodel.RepartoViewModel
 import com.example.critflix.viewmodel.ContenidoListaViewModel
 import com.example.critflix.viewmodel.RespuestasViewModel
 import com.example.critflix.viewmodel.ValoracionesViewModel
+import kotlinx.coroutines.launch
 
 enum class TabSeleccionada {
     COMENTARIOS, RECOMENDACIONES
@@ -139,7 +142,7 @@ fun InfoPelisMedium(navController: NavHostController, apiViewModel: APIViewModel
                         )
                     }
                     IconButton(
-                        onClick = { 
+                        onClick = {
                             if (userId > 0) {
                                 valoracionesViewModel.toggleFavorite(userId, id, token) { success ->
                                     if (success) {
@@ -239,6 +242,7 @@ fun InfoPelisMedium(navController: NavHostController, apiViewModel: APIViewModel
                         text = pelicula.title,
                         fontSize = 24.sp,
                         fontWeight = FontWeight.Bold,
+                        color = Color.White,
                         modifier = Modifier.padding(bottom = 8.dp)
                     )
 
@@ -264,6 +268,7 @@ fun InfoPelisMedium(navController: NavHostController, apiViewModel: APIViewModel
                         text = "Categorías",
                         fontSize = 18.sp,
                         fontWeight = FontWeight.Bold,
+                        color = Color.White,
                         modifier = Modifier.padding(bottom = 8.dp)
                     )
 
@@ -315,6 +320,7 @@ fun InfoPelisMedium(navController: NavHostController, apiViewModel: APIViewModel
                         text = "Sinopsis",
                         fontSize = 18.sp,
                         fontWeight = FontWeight.Bold,
+                        color = Color.White,
                         modifier = Modifier.padding(bottom = 8.dp)
                     )
 
@@ -322,6 +328,7 @@ fun InfoPelisMedium(navController: NavHostController, apiViewModel: APIViewModel
                         text = if (pelicula.overview.isNotEmpty()) pelicula.overview else "No hay sinopsis que mostrar",
                         fontSize = 16.sp,
                         lineHeight = 24.sp,
+                        color = Color.White,
                         modifier = Modifier.padding(bottom = 16.dp)
                     )
 
@@ -394,7 +401,7 @@ fun InfoPelisMedium(navController: NavHostController, apiViewModel: APIViewModel
                     // Contenido según la pestaña seleccionada
                     when (tabSeleccionada) {
                         TabSeleccionada.COMENTARIOS -> {
-                            SeccionComentarios(
+                            SeccionComentariosMedium(
                                 tmdbId = id,
                                 tipo = "pelicula",
                                 comentariosViewModel = comentariosViewModel,
@@ -430,12 +437,12 @@ fun InfoPelisMedium(navController: NavHostController, apiViewModel: APIViewModel
                         .fillMaxWidth(0.9f)
                         .wrapContentHeight(),
                     shape = RoundedCornerShape(16.dp),
-                    color = Color.Black,
-                    border = BorderStroke(1.dp, Color.Green)
+                    color = Color(0xFF121212), // Negro más suave
+                    border = BorderStroke(1.dp, Color(0xFF1AD71F))
                 ) {
                     Column(
                         modifier = Modifier
-                            .padding(16.dp)
+                            .padding(20.dp)
                     ) {
                         Text(
                             text = "Agregar a lista",
@@ -451,10 +458,10 @@ fun InfoPelisMedium(navController: NavHostController, apiViewModel: APIViewModel
                             Text(
                                 text = "No tienes listas disponibles",
                                 style = MaterialTheme.typography.bodyMedium,
-                                color = Color.Gray,
+                                color = Color(0xFFAAAAAA),
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .padding(vertical = 16.dp),
+                                    .padding(vertical = 24.dp),
                                 textAlign = TextAlign.Center
                             )
                         } else {
@@ -490,11 +497,20 @@ fun InfoPelisMedium(navController: NavHostController, apiViewModel: APIViewModel
                                                 ).show()
                                                 showListsPopup = false
                                             }
+                                            .padding(vertical = 4.dp)
+                                            .background(
+                                                color = Color(0xFF1E1E1E),
+                                                shape = RoundedCornerShape(8.dp)
+                                            )
+                                            .padding(horizontal = 8.dp),
+                                        colors = ListItemDefaults.colors(
+                                            containerColor = Color.Transparent
+                                        )
                                     )
 
                                     if (lista != listas.last()) {
                                         Divider(
-                                            color = Color.DarkGray,
+                                            color = Color(0xFF333333),
                                             modifier = Modifier.padding(vertical = 8.dp)
                                         )
                                     }
@@ -502,33 +518,35 @@ fun InfoPelisMedium(navController: NavHostController, apiViewModel: APIViewModel
                             }
                         }
 
-                        Spacer(modifier = Modifier.height(16.dp))
+                        Spacer(modifier = Modifier.height(20.dp))
 
                         Row(
                             modifier = Modifier.fillMaxWidth(),
                             horizontalArrangement = Arrangement.End
                         ) {
-                            TextButton(
+                            OutlinedButton(
                                 onClick = { showListsPopup = false },
-                                colors = ButtonDefaults.textButtonColors(
-                                    contentColor = Color.Green
-                                )
+                                colors = ButtonDefaults.outlinedButtonColors(
+                                    contentColor = Color(0xFF1AD71F)
+                                ),
+                                border = BorderStroke(1.dp, Color(0xFF1AD71F))
                             ) {
                                 Text("Cancelar")
                             }
 
-                            Spacer(modifier = Modifier.width(8.dp))
+                            Spacer(modifier = Modifier.width(12.dp))
 
-                            TextButton(
+                            Button(
                                 onClick = {
                                     navController.navigate(Routes.CrearListaMedium.createRoute())
                                     showListsPopup = false
                                 },
-                                colors = ButtonDefaults.textButtonColors(
-                                    contentColor = Color.Green
+                                colors = ButtonDefaults.buttonColors(
+                                    containerColor = Color(0xFF1AD71F),
+                                    contentColor = Color.Black
                                 )
                             ) {
-                                Text("Crear nueva lista")
+                                Text("Crear lista", fontWeight = FontWeight.Medium)
                             }
                         }
                     }
@@ -556,6 +574,7 @@ fun SeccionRecomendaciones(
         Text(
             text = "Películas similares",
             fontSize = 18.sp,
+            color = Color.White,
             fontWeight = FontWeight.Bold,
             modifier = Modifier.padding(bottom = 16.dp)
         )

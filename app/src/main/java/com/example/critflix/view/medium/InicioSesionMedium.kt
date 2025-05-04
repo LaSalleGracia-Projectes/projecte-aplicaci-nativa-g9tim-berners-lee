@@ -1,6 +1,7 @@
 package com.example.critflix.view.medium
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -24,6 +25,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
@@ -66,7 +68,7 @@ fun InicioSesionMedium(navController: NavHostController) {
                 val state = loginState as LoginState.Success
                 sessionManager.saveUserSession(state.token, state.user)
                 navController.navigate(Routes.HomeMedium.route) {
-                    popUpTo(Routes.InicioSesion.route) { inclusive = true }
+                    popUpTo(Routes.InicioSesionMedium.route) { inclusive = true }
                 }
             }
             is LoginState.Error -> {
@@ -80,6 +82,7 @@ fun InicioSesionMedium(navController: NavHostController) {
     Column(
         modifier = Modifier
             .fillMaxSize()
+            .background(color = Color.Black)
             .padding(horizontal = 24.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
@@ -107,9 +110,12 @@ fun InicioSesionMedium(navController: NavHostController) {
                 .fillMaxWidth()
                 .padding(vertical = 8.dp),
             colors = TextFieldDefaults.outlinedTextFieldColors(
+                focusedTextColor = Color.White,
+                unfocusedTextColor = Color.White,
                 containerColor = Color.LightGray.copy(alpha = 0.2f),
                 focusedBorderColor = Color(0xFF666666),
-                unfocusedBorderColor = Color.LightGray
+                unfocusedBorderColor = Color.White,
+                cursorColor = Color.White
             )
         )
 
@@ -122,9 +128,12 @@ fun InicioSesionMedium(navController: NavHostController) {
                 .fillMaxWidth()
                 .padding(vertical = 8.dp),
             colors = TextFieldDefaults.outlinedTextFieldColors(
+                focusedTextColor = Color.White,
+                unfocusedTextColor = Color.White,
                 containerColor = Color.LightGray.copy(alpha = 0.2f),
                 focusedBorderColor = Color(0xFF666666),
-                unfocusedBorderColor = Color.LightGray
+                unfocusedBorderColor = Color.White,
+                cursorColor = Color.White
             )
         )
 
@@ -174,7 +183,7 @@ fun InicioSesionMedium(navController: NavHostController) {
             )
             Spacer(modifier = Modifier.width(4.dp))
             Text(
-                "Registrarse MEDIUM",
+                "Registrarse",
                 fontSize = 14.sp,
                 color = Color(0xFF4A90E2),
                 modifier = Modifier.clickable { navController.navigate(Routes.RegistroMedium.route) }

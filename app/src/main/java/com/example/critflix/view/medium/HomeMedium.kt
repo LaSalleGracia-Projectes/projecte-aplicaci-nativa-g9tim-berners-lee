@@ -490,7 +490,10 @@ fun BottomNavigationBar(
     val notificaciones by notificacionesViewModel.notificaciones.observeAsState(initial = emptyList())
     val hasUnreadNotifications = notificaciones.any { !it.leido }
 
-    NavigationBar {
+    NavigationBar (
+        modifier = Modifier.background(Color.Black),
+        containerColor = Color.Black
+    ) {
         NavigationBarItem(
             icon = {
                 Icon(
@@ -505,8 +508,12 @@ fun BottomNavigationBar(
             },
             label = { Text("Inicio", color = Color.White) },
             selected = currentDestination?.hierarchy?.any { it.route == Routes.HomeMedium.route } == true,
-            onClick = { navController.navigate(Routes.HomeMedium.route) }
+            onClick = { navController.navigate(Routes.HomeMedium.route) },
+            colors = NavigationBarItemDefaults.colors(
+                indicatorColor = Color.Transparent
+            )
         )
+
 
         NavigationBarItem(
             icon = {
@@ -522,7 +529,10 @@ fun BottomNavigationBar(
             },
             label = { Text("Listas", color = Color.White) },
             selected = currentDestination?.hierarchy?.any { it.route == Routes.ListasMedium.route } == true,
-            onClick = { navController.navigate(Routes.ListasMedium.route) }
+            onClick = { navController.navigate(Routes.ListasMedium.route) },
+            colors = NavigationBarItemDefaults.colors(
+                indicatorColor = Color.Transparent
+            )
         )
 
         NavigationBarItem(
@@ -551,7 +561,10 @@ fun BottomNavigationBar(
             },
             label = { Text("Notificaciones", color = Color.White) },
             selected = currentDestination?.hierarchy?.any { it.route == Routes.NotificacionesMedium.route } == true,
-            onClick = { navController.navigate(Routes.NotificacionesMedium.route) }
+            onClick = { navController.navigate(Routes.NotificacionesMedium.route) },
+            colors = NavigationBarItemDefaults.colors(
+                indicatorColor = Color.Transparent
+            )
         )
 
         NavigationBarItem(
@@ -568,7 +581,10 @@ fun BottomNavigationBar(
             },
             label = { Text("Perfil", color = Color.White) },
             selected = currentDestination?.hierarchy?.any { it.route == Routes.PerfilMedium.route } == true,
-            onClick = { navController.navigate(Routes.PerfilMedium.route) }
+            onClick = { navController.navigate(Routes.PerfilMedium.route) },
+            colors = NavigationBarItemDefaults.colors(
+                indicatorColor = Color.Transparent
+            )
         )
     }
 }

@@ -16,6 +16,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material.icons.outlined.CheckCircle
+import androidx.compose.material.icons.outlined.DeleteSweep
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
@@ -300,28 +301,42 @@ fun NotificationViewMedium(
 
         if (showOptionsBottomSheet) {
             ModalBottomSheet(
-                onDismissRequest = { showOptionsBottomSheet = false }
+                onDismissRequest = { showOptionsBottomSheet = false },
+                containerColor = Color.Black,
+                scrimColor = Color.Black.copy(alpha = 0.5f),
+                tonalElevation = 0.dp,
+                contentColor = Color.White,
+                dragHandle = { Box(modifier = Modifier.height(4.dp).width(40.dp).background(Color.Gray, RoundedCornerShape(2.dp))) }
             ) {
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
+                        .background(color = Color.Black)
                         .padding(16.dp)
                 ) {
                     ListItem(
-                        headlineContent = { Text("Marcar todas como leídas") },
+                        headlineContent = { Text("Marcar todas como leídas", color = Color.White) },
                         supportingContent = {
                             if (notificaciones.any { !it.leido }) {
                                 Text(
-                                    "${notificaciones.count { !it.leido }} notificaciones sin leer"
+                                    "${notificaciones.count { !it.leido }} notificaciones sin leer",
+                                    color = Color.Gray
                                 )
                             }
                         },
                         leadingContent = {
                             Icon(
                                 Icons.Outlined.CheckCircle,
-                                contentDescription = null
+                                contentDescription = null,
+                                tint = Color.White
                             )
                         },
+                        colors = ListItemDefaults.colors(
+                            containerColor = Color.Black,
+                            headlineColor = Color.White,
+                            supportingColor = Color.Gray,
+                            leadingIconColor = Color.White
+                        ),
                         modifier = Modifier.clickable {
                             if (notificaciones.any { !it.leido }) {
                                 showConfirmMarkAllDialog = true
@@ -333,13 +348,19 @@ fun NotificationViewMedium(
                     )
 
                     ListItem(
-                        headlineContent = { Text("Actualizar notificaciones") },
+                        headlineContent = { Text("Actualizar notificaciones", color = Color.White) },
                         leadingContent = {
                             Icon(
                                 Icons.Default.Refresh,
-                                contentDescription = null
+                                contentDescription = null,
+                                tint = Color.White
                             )
                         },
+                        colors = ListItemDefaults.colors(
+                            containerColor = Color.Black,
+                            headlineColor = Color.White,
+                            leadingIconColor = Color.White
+                        ),
                         modifier = Modifier.clickable {
                             refreshNotificaciones()
                             showOptionsBottomSheet = false
@@ -347,13 +368,19 @@ fun NotificationViewMedium(
                     )
 
                     ListItem(
-                        headlineContent = { Text("Configuración de notificaciones") },
+                        headlineContent = { Text("Configuración de notificaciones", color = Color.White) },
                         leadingContent = {
                             Icon(
                                 Icons.Default.Settings,
-                                contentDescription = null
+                                contentDescription = null,
+                                tint = Color.White
                             )
                         },
+                        colors = ListItemDefaults.colors(
+                            containerColor = Color.Black,
+                            headlineColor = Color.White,
+                            leadingIconColor = Color.White
+                        ),
                         modifier = Modifier.clickable {
                             showOptionsBottomSheet = false
                             navController.navigate(Routes.AjustesMedium.route)

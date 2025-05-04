@@ -30,7 +30,7 @@ import androidx.compose.ui.unit.sp
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.example.critflix.model.Comentario
 import com.example.critflix.model.UserSessionManager
-import com.example.critflix.view.compact.SeccionRespuestas
+import com.example.critflix.view.medium.SeccionRespuestasMedium
 import com.example.critflix.viewmodel.ComentariosViewModel
 import com.example.critflix.viewmodel.RespuestasViewModel
 import kotlinx.coroutines.flow.filter
@@ -316,7 +316,7 @@ fun SeccionComentariosMedium(
 
     // Diálogo para mostrar respuestas
     if (showRespuestasDialog && selectedComentario != null) {
-        SeccionRespuestas(
+        SeccionRespuestasMedium(
             comentario = selectedComentario!!,
             currentUserId = userId,
             respuestasViewModel = respuestasViewModel,

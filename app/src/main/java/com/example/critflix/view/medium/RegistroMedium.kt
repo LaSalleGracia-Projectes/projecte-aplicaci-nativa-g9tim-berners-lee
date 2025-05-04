@@ -1,6 +1,7 @@
 package com.example.critflix.view.medium
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -59,6 +60,7 @@ fun RegistroMedium(navController: NavHostController) {
     Column(
         modifier = Modifier
             .fillMaxSize()
+            .background(color = Color.Black)
             .padding(horizontal = 24.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
@@ -85,9 +87,12 @@ fun RegistroMedium(navController: NavHostController) {
                 .fillMaxWidth()
                 .padding(vertical = 8.dp),
             colors = TextFieldDefaults.outlinedTextFieldColors(
+                focusedTextColor = Color.White,
+                unfocusedTextColor = Color.White,
                 containerColor = Color.LightGray.copy(alpha = 0.2f),
                 focusedBorderColor = Color(0xFF666666),
-                unfocusedBorderColor = Color.LightGray
+                unfocusedBorderColor = Color.White,
+                cursorColor = Color.White
             )
         )
 
@@ -99,9 +104,12 @@ fun RegistroMedium(navController: NavHostController) {
                 .fillMaxWidth()
                 .padding(vertical = 8.dp),
             colors = TextFieldDefaults.outlinedTextFieldColors(
+                focusedTextColor = Color.White,
+                unfocusedTextColor = Color.White,
                 containerColor = Color.LightGray.copy(alpha = 0.2f),
                 focusedBorderColor = Color(0xFF666666),
-                unfocusedBorderColor = Color.LightGray
+                unfocusedBorderColor = Color.White,
+                cursorColor = Color.White
             )
         )
 
@@ -114,9 +122,12 @@ fun RegistroMedium(navController: NavHostController) {
                 .fillMaxWidth()
                 .padding(vertical = 8.dp),
             colors = TextFieldDefaults.outlinedTextFieldColors(
+                focusedTextColor = Color.White,
+                unfocusedTextColor = Color.White,
                 containerColor = Color.LightGray.copy(alpha = 0.2f),
                 focusedBorderColor = Color(0xFF666666),
-                unfocusedBorderColor = Color.LightGray
+                unfocusedBorderColor = Color.White,
+                cursorColor = Color.White
             )
         )
 
@@ -129,9 +140,12 @@ fun RegistroMedium(navController: NavHostController) {
                 .fillMaxWidth()
                 .padding(vertical = 8.dp),
             colors = TextFieldDefaults.outlinedTextFieldColors(
+                focusedTextColor = Color.White,
+                unfocusedTextColor = Color.White,
                 containerColor = Color.LightGray.copy(alpha = 0.2f),
                 focusedBorderColor = Color(0xFF666666),
-                unfocusedBorderColor = Color.LightGray
+                unfocusedBorderColor = Color.White,
+                cursorColor = Color.White
             )
         )
 
