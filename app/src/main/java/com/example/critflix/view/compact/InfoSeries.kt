@@ -56,6 +56,7 @@ import com.example.critflix.viewmodel.GenresViewModel
 import com.example.critflix.viewmodel.ListViewModel
 import com.example.critflix.viewmodel.RepartoViewModel
 import com.example.critflix.viewmodel.ContenidoListaViewModel
+import com.example.critflix.viewmodel.RespuestasViewModel
 import com.example.critflix.viewmodel.ValoracionesViewModel
 import kotlinx.coroutines.launch
 
@@ -71,7 +72,8 @@ fun InfoSeries(
     listViewModel: ListViewModel,
     contenidoListaViewModel: ContenidoListaViewModel,
     comentariosViewModel: ComentariosViewModel,
-    valoracionesViewModel: ValoracionesViewModel
+    valoracionesViewModel: ValoracionesViewModel,
+    respuestasViewModel: RespuestasViewModel
 ) {
     val series: List<SeriesPopulares> by seriesViewModel.series.observeAsState(emptyList())
     val serie = series.find { it.id == id }
@@ -406,7 +408,8 @@ fun InfoSeries(
                             SeccionComentarios(
                                 tmdbId = id,
                                 tipo = "serie",
-                                comentariosViewModel = comentariosViewModel
+                                comentariosViewModel = comentariosViewModel,
+                                respuestasViewModel = respuestasViewModel
                             )
                         }
                         TabSeleccionada.RECOMENDACIONES -> {

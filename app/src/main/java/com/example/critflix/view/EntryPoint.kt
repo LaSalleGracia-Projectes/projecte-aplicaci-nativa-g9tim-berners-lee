@@ -24,6 +24,7 @@ import com.example.critflix.viewmodel.ListViewModel
 import com.example.critflix.viewmodel.NotificacionesViewModel
 import com.example.critflix.viewmodel.ProfileViewModel
 import com.example.critflix.viewmodel.RepartoViewModel
+import com.example.critflix.viewmodel.RespuestasViewModel
 import com.example.critflix.viewmodel.SeriesViewModel
 import com.example.critflix.viewmodel.SolicitudCriticoViewModel
 import com.example.critflix.viewmodel.UserViewModel
@@ -46,6 +47,7 @@ fun EntryPoint(
     notificacionesViewModel: NotificacionesViewModel,
     valoracionesViewModel: ValoracionesViewModel,
     solicitudCriticoViewModel: SolicitudCriticoViewModel,
+    respuestasViewModel: RespuestasViewModel,
     deviceType: String
 ) {
     val navController = rememberNavController()
@@ -56,7 +58,7 @@ fun EntryPoint(
 
     when (deviceType){
         "compact" ->{
-            AppNavigationCompact(navigationController, apiViewModel, seriesViewModel, listViewModel, genresViewModel,profileViewModel, repartoViewModel, userViewModel, sessionManager, busquedaViewModel, editarPerfilViewModel, contenidoListaViewModel, comentariosViewModel, notificacionesViewModel, valoracionesViewModel, solicitudCriticoViewModel)
+            AppNavigationCompact(navigationController, apiViewModel, seriesViewModel, listViewModel, genresViewModel,profileViewModel, repartoViewModel, userViewModel, sessionManager, busquedaViewModel, editarPerfilViewModel, contenidoListaViewModel, comentariosViewModel, notificacionesViewModel, valoracionesViewModel, solicitudCriticoViewModel, respuestasViewModel)
         }
         "medium" ->{
             AppNavigationMedium(navigationController, apiViewModel, seriesViewModel, listViewModel, genresViewModel)
@@ -65,7 +67,7 @@ fun EntryPoint(
             AppNavigationExpanded(navigationController, apiViewModel, seriesViewModel, listViewModel, genresViewModel)
         }
         else -> {
-            AppNavigationCompact(navigationController, apiViewModel, seriesViewModel, listViewModel, genresViewModel, profileViewModel, repartoViewModel, userViewModel, sessionManager, busquedaViewModel, editarPerfilViewModel, contenidoListaViewModel, comentariosViewModel, notificacionesViewModel, valoracionesViewModel, solicitudCriticoViewModel)
+            AppNavigationCompact(navigationController, apiViewModel, seriesViewModel, listViewModel, genresViewModel, profileViewModel, repartoViewModel, userViewModel, sessionManager, busquedaViewModel, editarPerfilViewModel, contenidoListaViewModel, comentariosViewModel, notificacionesViewModel, valoracionesViewModel, solicitudCriticoViewModel, respuestasViewModel)
         }
     }
 }
@@ -87,7 +89,8 @@ fun AppNavigationCompact(
     comentariosViewModel: ComentariosViewModel,
     notificacionesViewModel: NotificacionesViewModel,
     valoracionesViewModel: ValoracionesViewModel,
-    solicitudCriticoViewModel: SolicitudCriticoViewModel
+    solicitudCriticoViewModel: SolicitudCriticoViewModel,
+    respuestasViewModel: RespuestasViewModel
 ){
     NavHost(
         navController = navigationController,
@@ -204,7 +207,8 @@ fun AppNavigationCompact(
                 listViewModel = listViewModel,
                 contenidoListaViewModel = contenidoListaViewModel,
                 comentariosViewModel = comentariosViewModel,
-                valoracionesViewModel = valoracionesViewModel
+                valoracionesViewModel = valoracionesViewModel,
+                respuestasViewModel = respuestasViewModel,
             )
         }
         // InfoSeries
@@ -226,6 +230,7 @@ fun AppNavigationCompact(
                 contenidoListaViewModel = contenidoListaViewModel,
                 comentariosViewModel = comentariosViewModel,
                 valoracionesViewModel = valoracionesViewModel,
+                respuestasViewModel = respuestasViewModel,
             )
         }
         // Anuncios

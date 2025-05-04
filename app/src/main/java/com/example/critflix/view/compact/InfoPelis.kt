@@ -56,6 +56,7 @@ import com.example.critflix.viewmodel.GenresViewModel
 import com.example.critflix.viewmodel.ListViewModel
 import com.example.critflix.viewmodel.RepartoViewModel
 import com.example.critflix.viewmodel.ContenidoListaViewModel
+import com.example.critflix.viewmodel.RespuestasViewModel
 import com.example.critflix.viewmodel.ValoracionesViewModel
 import kotlinx.coroutines.launch
 
@@ -65,7 +66,7 @@ enum class TabSeleccionada {
 
 @OptIn(ExperimentalGlideComposeApi::class, ExperimentalMaterial3Api::class)
 @Composable
-fun InfoPelis(navController: NavHostController, apiViewModel: APIViewModel, id: Int, genresViewModel: GenresViewModel, repartoViewModel: RepartoViewModel, listViewModel: ListViewModel, contenidoListaViewModel: ContenidoListaViewModel, comentariosViewModel: ComentariosViewModel, valoracionesViewModel: ValoracionesViewModel) {
+fun InfoPelis(navController: NavHostController, apiViewModel: APIViewModel, id: Int, genresViewModel: GenresViewModel, repartoViewModel: RepartoViewModel, listViewModel: ListViewModel, contenidoListaViewModel: ContenidoListaViewModel, comentariosViewModel: ComentariosViewModel, valoracionesViewModel: ValoracionesViewModel, respuestasViewModel: RespuestasViewModel) {
     val peliculas: List<PelisPopulares> by apiViewModel.pelis.observeAsState(emptyList())
     val pelicula = peliculas.find { it.id == id }
     val favoritoStatusMap by valoracionesViewModel.favoritoStatusMap.observeAsState(mutableMapOf())
@@ -399,7 +400,8 @@ fun InfoPelis(navController: NavHostController, apiViewModel: APIViewModel, id: 
                             SeccionComentarios(
                                 tmdbId = id,
                                 tipo = "pelicula",
-                                comentariosViewModel = comentariosViewModel
+                                comentariosViewModel = comentariosViewModel,
+                                respuestasViewModel = respuestasViewModel,
                             )
                         }
                         TabSeleccionada.RECOMENDACIONES -> {
