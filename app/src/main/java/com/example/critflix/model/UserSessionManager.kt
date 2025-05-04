@@ -54,9 +54,15 @@ class UserSessionManager(context: Context) {
     }
 
     // Cerrar sesión
-    fun logout(navController: NavController) {
+    fun logout(navController: NavController, deviceType: String) {
         editor.clear()
         editor.apply()
-        navController.navigate(Routes.InicioSesion.route)
+
+        when (deviceType) {
+            "compact" -> navController.navigate(Routes.InicioSesion.route)
+            "medium" -> navController.navigate(Routes.InicioSesionMedium.route)
+            "expanded" -> navController.navigate(Routes.InicioSesionExpanded.route)
+            else -> navController.navigate(Routes.InicioSesion.route)
+        }
     }
 }

@@ -1,6 +1,5 @@
-package com.example.critflix.view.compact
+package com.example.critflix.view.medium
 
-import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -26,8 +25,6 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
-import coil.compose.AsyncImage
-import coil.request.ImageRequest
 import com.example.critflix.R
 import com.example.critflix.model.UserSessionManager
 import com.example.critflix.nav.Routes
@@ -38,7 +35,7 @@ import com.example.critflix.viewmodel.UserViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ProfileView(navController: NavHostController, apiViewModel: APIViewModel, profileViewModel: ProfileViewModel, userViewModel: UserViewModel, notificacionesViewModel: NotificacionesViewModel, deviceType: String) {
+fun ProfileViewMedium(navController: NavHostController, apiViewModel: APIViewModel, profileViewModel: ProfileViewModel, userViewModel: UserViewModel, notificacionesViewModel: NotificacionesViewModel, deviceType: String) {
     var showOptionsBottomSheet by remember { mutableStateOf(false) }
     var showUserBottomSheet by remember { mutableStateOf(false) }
     val profileState by profileViewModel.profileState.observeAsState()
@@ -56,7 +53,7 @@ fun ProfileView(navController: NavHostController, apiViewModel: APIViewModel, pr
                     actionIconContentColor = Color.White,
                 ),
                 actions = {
-                    IconButton(onClick = { navController.navigate(Routes.Busqueda.route) }) {
+                    IconButton(onClick = { navController.navigate(Routes.BusquedaMedium.route) }) {
                         Icon(Icons.Default.Search, contentDescription = "Buscar")
                     }
                     IconButton(onClick = { showOptionsBottomSheet = true }) {
@@ -213,7 +210,7 @@ fun ProfileView(navController: NavHostController, apiViewModel: APIViewModel, pr
                         headlineContent = { Text("Editar perfil") },
                         leadingContent = { Icon(Icons.Default.Edit, contentDescription = null) },
                         modifier = Modifier.clickable {
-                            navController.navigate(Routes.EditarPerfil.route)
+                            navController.navigate(Routes.EditarPerfilMedium.route)
                             showOptionsBottomSheet = false
                         }
                     )
@@ -221,7 +218,7 @@ fun ProfileView(navController: NavHostController, apiViewModel: APIViewModel, pr
                         headlineContent = { Text("Configuración de la aplicación") },
                         leadingContent = { Icon(Icons.Default.Settings, contentDescription = null) },
                         modifier = Modifier.clickable {
-                            navController.navigate(Routes.Ajustes.route)
+                            navController.navigate(Routes.AjustesMedium.route)
                             showOptionsBottomSheet = false
                         }
                     )
@@ -229,7 +226,7 @@ fun ProfileView(navController: NavHostController, apiViewModel: APIViewModel, pr
                         headlineContent = { Text("Ayuda") },
                         leadingContent = { Icon(Icons.Default.Help, contentDescription = null) },
                         modifier = Modifier.clickable {
-                            navController.navigate(Routes.Ayuda.route)
+                            navController.navigate(Routes.AyudaMedium.route)
                             showOptionsBottomSheet = false
                         }
                     )
