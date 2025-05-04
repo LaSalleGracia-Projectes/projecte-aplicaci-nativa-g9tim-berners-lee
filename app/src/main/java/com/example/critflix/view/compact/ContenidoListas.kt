@@ -183,7 +183,6 @@ fun ContenidoListas(
                             verticalArrangement = Arrangement.spacedBy(8.dp),
                             contentPadding = PaddingValues(vertical = 16.dp)
                         ) {
-
                             items(contentItems) { content ->
                                 ContentListItem(
                                     navController = navController,
@@ -191,7 +190,7 @@ fun ContenidoListas(
                                     movies = movies,
                                     series = series,
                                     onRemove = {
-                                        contenidoListaViewModel.removeContentFromList(content.id, token)
+                                        contenidoListaViewModel.removeContentFromList(content.id, content.tmdb_id, token)
                                         Toast.makeText(context, "Contenido eliminado de la lista", Toast.LENGTH_SHORT).show()
                                     }
                                 )

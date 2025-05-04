@@ -30,12 +30,16 @@ class ContenidoListaViewModel : ViewModel() {
     private val _series = MutableLiveData<Map<Int, SeriesPopulares>>()
     val series: LiveData<Map<Int, SeriesPopulares>> = _series
 
+    private val _temporaryAddedIds = MutableLiveData<Set<Int>>(emptySet())
+    val temporaryAddedIds: LiveData<Set<Int>> = _temporaryAddedIds
+
     private val apiTMDb = APIInterface.create()
 
     init {
         _contentItems.value = emptyList()
         _movies.value = emptyMap()
         _series.value = emptyMap()
+        _temporaryAddedIds.value = emptySet()
     }
 
     fun loadListContent(listaId: String, token: String) {
@@ -80,6 +84,7 @@ class ContenidoListaViewModel : ViewModel() {
 
     fun addContentToList(listaId: String, tmdbId: Int, tipo: String, token: String) {
         _contentState.value = ContentState.Loading
+        _temporaryAddedIds.value = _temporaryAddedIds.value?.plus(tmdbId)
 
         val request = ContenidoListaRequest(
             id_lista = listaId,
@@ -91,25 +96,27 @@ class ContenidoListaViewModel : ViewModel() {
 
         apiService.addContentToList(request).enqueue(object : Callback<ContenidoLista> {
             override fun onResponse(call: Call<ContenidoLista>, response: Response<ContenidoLista>) {
-                if (response.isSuccessful && response.body() != null) {
-                    val newContent = response.body()!!
-                    val currentContent = _contentItems.value ?: emptyList()
-                    _contentItems.value = currentContent + newContent
-                    _contentState.value = ContentState.Success
-
-                    loadContentDetails(listOf(newContent))
-                } else {
+                if (!response.isSuccessful || response.body() == null) {
+                    _temporaryAddedIds.value = _temporaryAddedIds.value?.minus(tmdbId)
                     _contentState.value = ContentState.Error("Error: ${response.code()}")
+                    return
                 }
+                val newContent = response.body()!!
+                val currentContent = _contentItems.value ?: emptyList()
+                _contentItems.value = currentContent + newContent
+                _contentState.value = ContentState.Success
+
+                loadContentDetails(listOf(newContent))
             }
 
             override fun onFailure(call: Call<ContenidoLista>, t: Throwable) {
+                _temporaryAddedIds.value = _temporaryAddedIds.value?.minus(tmdbId)
                 _contentState.value = ContentState.Error("Error de conexión: ${t.message}")
             }
         })
     }
 
-    fun removeContentFromList(contentId: String, token: String) {
+    fun removeContentFromList(contentId: String, tmdbId: Int, token: String) {
         _contentState.value = ContentState.Loading
 
         val apiService = RetrofitClient.getApiService(token)
@@ -119,6 +126,7 @@ class ContenidoListaViewModel : ViewModel() {
                 if (response.isSuccessful) {
                     val currentContent = _contentItems.value ?: emptyList()
                     _contentItems.value = currentContent.filter { it.id != contentId }
+                    _temporaryAddedIds.value = _temporaryAddedIds.value?.minus(tmdbId)
                     _contentState.value = ContentState.Success
                 } else {
                     _contentState.value = ContentState.Error("Error: ${response.code()}")

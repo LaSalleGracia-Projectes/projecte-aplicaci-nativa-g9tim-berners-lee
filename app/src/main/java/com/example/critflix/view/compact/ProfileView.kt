@@ -5,8 +5,10 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
@@ -43,6 +45,7 @@ fun ProfileView(navController: NavHostController, apiViewModel: APIViewModel, pr
     val currentUser by profileViewModel.currentUser.observeAsState()
     val context = LocalContext.current
     val sessionManager = remember { UserSessionManager(context) }
+    val scrollState = rememberScrollState()
 
     Scaffold(
         topBar = {
@@ -71,6 +74,7 @@ fun ProfileView(navController: NavHostController, apiViewModel: APIViewModel, pr
                 .fillMaxSize()
                 .padding(innerPadding)
                 .background(color = Color.Black)
+                .verticalScroll(scrollState)
                 .padding(horizontal = 16.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
@@ -80,6 +84,7 @@ fun ProfileView(navController: NavHostController, apiViewModel: APIViewModel, pr
                     .size(120.dp)
                     .clip(CircleShape)
                     .background(Color.LightGray)
+                    .padding(top = 16.dp)
             ) {
                 Image(
                     painter = painterResource(id = R.drawable.user),
@@ -112,7 +117,7 @@ fun ProfileView(navController: NavHostController, apiViewModel: APIViewModel, pr
                 modifier = Modifier.padding(bottom = 16.dp)
             )
 
-            // Descripción con mejor jerarquía visual
+            // Descripción
             Text(
                 text = "Descripción",
                 style = MaterialTheme.typography.titleMedium.copy(
@@ -191,6 +196,8 @@ fun ProfileView(navController: NavHostController, apiViewModel: APIViewModel, pr
                     }
                 }
             }
+
+            Spacer(modifier = Modifier.height(24.dp))
         }
 
         if (showOptionsBottomSheet) {
@@ -208,7 +215,6 @@ fun ProfileView(navController: NavHostController, apiViewModel: APIViewModel, pr
                         modifier = Modifier.clickable {
                             navController.navigate(Routes.EditarPerfil.route)
                             showOptionsBottomSheet = false
-                            /* TODO: Edit profile action */
                         }
                     )
                     ListItem(
@@ -217,7 +223,6 @@ fun ProfileView(navController: NavHostController, apiViewModel: APIViewModel, pr
                         modifier = Modifier.clickable {
                             navController.navigate(Routes.Ajustes.route)
                             showOptionsBottomSheet = false
-                            /* TODO: Settings action */
                         }
                     )
                     ListItem(
@@ -226,7 +231,6 @@ fun ProfileView(navController: NavHostController, apiViewModel: APIViewModel, pr
                         modifier = Modifier.clickable {
                             navController.navigate(Routes.Ayuda.route)
                             showOptionsBottomSheet = false
-                            /* TODO: Help action */
                         }
                     )
                     ListItem(
@@ -254,14 +258,12 @@ fun ProfileView(navController: NavHostController, apiViewModel: APIViewModel, pr
                         headlineContent = { Text("Usuario 1") },
                         modifier = Modifier.clickable {
                             showUserBottomSheet = false
-                            /* TODO: Switch to user 1 */
                         }
                     )
                     ListItem(
                         headlineContent = { Text("Usuario 2") },
                         modifier = Modifier.clickable {
                             showUserBottomSheet = false
-                            /* TODO: Switch to user 2 */
                         }
                     )
                 }
