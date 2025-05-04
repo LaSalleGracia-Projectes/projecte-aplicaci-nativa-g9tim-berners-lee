@@ -226,7 +226,12 @@ fun ContentListItem(
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 16.dp, vertical = 8.dp)
-            .clickable { /*navController.navigate(Routes.InfoContent.createRoute(content.tmdb_id, content.tipo))*/ },
+            .clickable { 
+                when (content.tipo) {
+                    "pelicula" -> navController.navigate(Routes.InfoPelis.createRoute(content.tmdb_id))
+                    "serie" -> navController.navigate(Routes.InfoSeries.createRoute(content.tmdb_id))
+                }
+            },
         shape = RoundedCornerShape(12.dp),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
         colors = CardDefaults.cardColors(
@@ -392,3 +397,4 @@ fun ContentListItem(
         }
     }
 }
+
