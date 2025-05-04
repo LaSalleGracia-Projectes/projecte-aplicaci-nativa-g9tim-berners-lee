@@ -301,40 +301,26 @@ fun NotificationView(
 
         if (showOptionsBottomSheet) {
             ModalBottomSheet(
-                onDismissRequest = { showOptionsBottomSheet = false },
-                containerColor = Color(0xFF121212),
-                modifier = Modifier.fillMaxWidth()
+                onDismissRequest = { showOptionsBottomSheet = false }
             ) {
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(bottom = 32.dp)
+                        .padding(16.dp)
                 ) {
-                    Text(
-                        text = "Opciones de notificaciones",
-                        color = Color.White,
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 18.sp,
-                        modifier = Modifier.padding(horizontal = 24.dp, vertical = 16.dp)
-                    )
-
-                    Divider(color = Color(0xFF333333))
-
                     ListItem(
-                        headlineContent = { Text("Marcar todas como leídas", color = Color.White) },
+                        headlineContent = { Text("Marcar todas como leídas") },
                         supportingContent = {
                             if (notificaciones.any { !it.leido }) {
                                 Text(
-                                    "Tienes ${notificaciones.count { !it.leido }} notificaciones sin leer",
-                                    color = Color.Gray
+                                    "${notificaciones.count { !it.leido }} notificaciones sin leer"
                                 )
                             }
                         },
                         leadingContent = {
                             Icon(
                                 Icons.Outlined.CheckCircle,
-                                contentDescription = null,
-                                tint = Color(0xFF1DB954)
+                                contentDescription = null
                             )
                         },
                         modifier = Modifier.clickable {
@@ -348,12 +334,11 @@ fun NotificationView(
                     )
 
                     ListItem(
-                        headlineContent = { Text("Actualizar notificaciones", color = Color.White) },
+                        headlineContent = { Text("Actualizar notificaciones") },
                         leadingContent = {
                             Icon(
                                 Icons.Default.Refresh,
-                                contentDescription = null,
-                                tint = Color(0xFF1DB954)
+                                contentDescription = null
                             )
                         },
                         modifier = Modifier.clickable {
@@ -363,12 +348,11 @@ fun NotificationView(
                     )
 
                     ListItem(
-                        headlineContent = { Text("Configuración de notificaciones", color = Color.White) },
+                        headlineContent = { Text("Configuración de notificaciones") },
                         leadingContent = {
                             Icon(
                                 Icons.Default.Settings,
-                                contentDescription = null,
-                                tint = Color(0xFF1DB954)
+                                contentDescription = null
                             )
                         },
                         modifier = Modifier.clickable {
