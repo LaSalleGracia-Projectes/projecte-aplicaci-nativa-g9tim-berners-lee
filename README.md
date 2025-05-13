@@ -32,13 +32,13 @@ Una aplicación móvil desarrollada en **Android Studio con Kotlin**, respaldada
 - Títulos relacionados basados en género.
 
 ### 🔔 Notificaciones
-- Recibir notificaciones cuando un comentario recibe un like o dislike
+- Recibir notificaciones cuando un comentario recibe un like o dislike.
 
 ### 🛠️ Panel de Administración
 - Moderación de comentarios.
 - Gestión de contenido audiovisual.
 - Estadísticas de uso y actividad.
-- Control de roles de usuarios
+- Control de roles de usuarios.
 
 ### 🌐 API Externa
 - Integración con [TMDb API](https://www.themoviedb.org/documentation/api) para datos actualizados.
@@ -53,15 +53,101 @@ Una aplicación móvil desarrollada en **Android Studio con Kotlin**, respaldada
 
 | Rol               | Descripción |
 |------------------|-------------|
-| Usuario Básico   | Puede registrarse, calificar, comentar, personalizar perfil, crear listas y demás... |
+| Usuario Básico   | Puede registrarse, calificar, comentar, personalizar perfil, crear listas y más. |
 | Crítico Verificado | Puede escribir críticas destacadas visibles en los primeros lugares de cada sección de comentarios. |
 
 ---
 
-## 🧰 Tecnologías Utilizadas
+## 🛠 Tecnologías
 
-- **Frontend:** Kotlin + Android Studio
-- **Backend:** Laravel
-- **Base de Datos:** MySQL (via Laravel)
-- **Hosting:** DigitalOcean
-- **API de Películas:** [TMDb](https://www.themoviedb.org/)
+### 🔙 Backend
+
+- Laravel (v11.x)  
+- PHP (v8.2)  
+- MySQL  
+- Laravel Sanctum  
+
+### 📱 Frontend (App Android)
+
+- Kotlin (Android Studio)
+- Retrofit para consumo de API REST
+
+### 🌐 Web (Admin o vistas públicas)
+
+- HTML, CSS, JavaScript  
+- Tailwind CSS
+
+### 📦 Modelos Principales
+
+- `User`  
+- `Valoracion`  
+- `Comentario`  
+- `Respuesta`  
+- `Lista`  
+- `ContenidoLista`  
+- `Notificacion`  
+- `SolicitudCritico`
+
+## 🔌 API y Endpoints
+
+### 🔐 Autenticación
+
+- `POST /api/register` – Registro de usuarios  
+- `POST /api/login` – Inicio de sesión  
+- `POST /api/logout` – Cierre de sesión  
+
+### 🎥 Películas y Series
+
+- `GET /api/peliculas`  
+- `GET /api/peliculas/{id}`  
+- `GET /api/series`  
+- `GET /api/series/{id}`  
+- `GET /api/tendencias`  
+- `POST /api/random`  
+
+### ⭐ Valoraciones y Comentarios
+
+- `GET /api/valoraciones/usuario/{userId}`  
+- `POST /api/valoraciones`  
+- `GET /api/comentarios/tmdb/{tmdbId}/{tipo}`  
+- `POST /api/comentarios`  
+- `POST /api/respuestas-comentarios`  
+
+### 👤 Usuarios y Perfiles
+
+- `GET /api/usuarios/{id}`  
+- `PUT /api/profile`  
+- `GET /api/criticos`  
+- `POST /api/solicitudes_critico`  
+
+### 📚 Listas Personalizadas
+
+- `GET /api/listas/user/{userId}`  
+- `POST /api/listas`  
+- `POST /api/contenido_listas`
+
+
+### ⚙️ DevOps y Herramientas
+
+- Git  
+- Composer  
+- npm  
+- Vite  
+
+---
+
+## 📁 Estructura del Proyecto (Backend)
+
+```plaintext
+critflix/
+├── app/                    (Lógica de la aplicación)
+│   ├── Http/Controllers/   (Controladores)
+│   ├── Models/             (Modelos)
+├── config/                 (Configuración)
+├── database/               (Migraciones y seeders)
+├── public/                 (CSS, JS, imágenes)
+├── resources/              (Vistas y assets sin compilar)
+├── routes/
+│   ├── api.php             (Rutas API)
+│   └── web.php             (Rutas web)
+
