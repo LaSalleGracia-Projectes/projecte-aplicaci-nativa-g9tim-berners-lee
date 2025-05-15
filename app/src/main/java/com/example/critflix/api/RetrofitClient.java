@@ -14,7 +14,7 @@ import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
 public class RetrofitClient {
-    private static final String BASE_URL = "http://10.0.2.2:8001/api/";
+    private static final String BASE_URL = "http://10.0.2.2:8001/api/"; // Define a dónde conectar (backend Laravel)
 
     private static final Gson gson = new GsonBuilder()
             .registerTypeAdapter(Boolean.class, new JsonDeserializer<Boolean>() {
@@ -41,7 +41,7 @@ public class RetrofitClient {
                 .readTimeout(30, TimeUnit.SECONDS)
                 .writeTimeout(30, TimeUnit.SECONDS)
 
-                .addInterceptor(chain -> {
+                .addInterceptor(chain -> { // Añade el token y cabeceras a la conexión
                     Request original = chain.request();
                     Request.Builder requestBuilder = original.newBuilder()
                             .header("Authorization", "Bearer " + (token != null ? token : ""))
@@ -56,14 +56,14 @@ public class RetrofitClient {
                 .addInterceptor(new HttpLoggingInterceptor()
                         .setLevel(HttpLoggingInterceptor.Level.BODY));
 
-        return new Retrofit.Builder()
+        return new Retrofit.Builder() // Crea la instancia de Retrofit (la conexión)
                 .baseUrl(BASE_URL)
                 .addConverterFactory(GsonConverterFactory.create(gson))
                 .client(httpClient.build())
                 .build();
     }
 
-    public static ApiService getApiService(String token) {
+    public static ApiService getApiService(String token) { // Retorna la interfaz para usar los endpoints
         return getClient(token).create(ApiService.class);
     }
 }
